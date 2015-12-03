@@ -1,0 +1,38 @@
+'use strict';
+
+const EventEmitter = require('events').EventEmitter;
+const requestHandler = require('./lib/request-handler');
+const filterHeaders = require('./lib/filter-headers');
+const fetchTemplate = require('./lib/fetch-template');
+const parseTemplate = require('./lib/parse-template');
+const path = require('path');
+
+module.exports = class Tailor extends EventEmitter {
+
+    constructor (options) {
+        super();
+        const requestOptions = Object.assign({
+            filterHeaders: filterHeaders,
+            fetchContext: () => Promise.resolve({}),
+            fetchTemplate: fetchTemplate(
+                options.templatesPath ||
+                path.join(process.cwd(), 'templates')
+            ),
+            fragmentTag: 'fragment',
+            handledTags: [],
+            handleTag: () => '',
+            forceSmartPipe: () => false,
+            cdnUrl: (url) => url
+        }, options);
+        requestOptions.parseTemplate = parseTemplate(
+            [requestOptions.fragmentTag].concat(requestOptions.handledTags)
+        );
+        this.requestHandler = requestHandler.bind(this, requestOptions);
+    }
+
+};
+
+Object.assign(module.exports, {
+    filterHeaders: filterHeaders,
+    fetchTemplate: fetchTemplate
+});

@@ -1,0 +1,35 @@
+{
+  "name": "tailor",
+  "version": "0.0.1",
+  "description": "Tailor assembles a web page from multiple fragments",
+  "private": true,
+  "scripts": {
+    "test": "mocha --harmony tests",
+    "lint": "eslint lib/ tests/"
+  },
+  "pre-commit": [
+    "lint",
+    "test"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.bus.zalan.do:spearheads/opensource-tailor.git"
+  },
+  "author": "Andrey Kuzmin",
+  "dependencies": {
+    "httpz": "0.0.5",
+    "parse-link-header": "^0.2.0",
+    "sax": "^1.1.4",
+    "streamifier": "^0.1.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^4.1.6",
+    "eslint": "^1.2.1",
+    "lazypipe": "^1.0.1",
+    "mocha": "^2.2.5",
+    "nock": "^2.6.0",
+    "pre-commit": "^1.1.2",
+    "proxyquire": "^1.6.0",
+    "sinon": "^1.15.3"
+  }
+}
