@@ -33,6 +33,5 @@ module.exports = class Tailor extends EventEmitter {
 };
 
 Object.assign(module.exports, {
-    filterHeaders: filterHeaders,
     fetchTemplate: fetchTemplate
 });
