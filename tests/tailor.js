@@ -4,7 +4,6 @@ const http = require('http');
 const nock = require('nock');
 const sinon = require('sinon');
 const Tailor = require('../index');
-const TIMEOUT_ERR = 'Error: Request aborted';
 
 describe('Tailor', () => {
 
@@ -161,13 +160,13 @@ describe('Tailor', () => {
                 data += chunk;
             });
             response.on('end', () => {
-                assert.equal(data, '<html>' + TIMEOUT_ERR + TIMEOUT_ERR + '</html>');
+                assert.equal(data, '<html></html>');
                 done();
             });
         });
     });
 
-    it('should return 503 in case of primary timeout', (done) => {
+    it('should return 500 in case of primary timeout', (done) => {
         nock('https://fragment')
             .get('/1').socketDelay(101).reply(200, 'hello');
 
@@ -179,13 +178,13 @@ describe('Tailor', () => {
             );
 
         http.get('http://localhost:8080/test', (response) => {
-            assert.equal(response.statusCode, 503);
+            assert.equal(response.statusCode, 500);
             response.resume();
             done();
         });
     });
 
-    it('should return 503 in case of primary error', (done) => {
+    it('should return 500 in case of primary error', (done) => {
         nock('https://fragment')
             .get('/1').replyWithError('panic!');
 
@@ -197,7 +196,7 @@ describe('Tailor', () => {
             );
 
         http.get('http://localhost:8080/test', (response) => {
-            assert.equal(response.statusCode, 503);
+            assert.equal(response.statusCode, 500);
             response.resume();
             done();
         });
