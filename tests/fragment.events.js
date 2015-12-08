@@ -16,18 +16,18 @@ describe('Fragment events', () => {
         fragment.fetch(HEADERS);
     });
 
-    it('triggers `response` when received headers', (done) => {
+    it('triggers `response(statusCode, headers)` when received headers', (done) => {
         nock('https://fragment').get('/').reply(200, 'OK', RESPONSE_HEADERS);
         const fragment = new Fragment(TAG, {}, false, cdnUrl);
-        fragment.on('response', (status, headers) => {
-            assert.equal(status, 200);
+        fragment.on('response', (statusCode, headers) => {
+            assert.equal(statusCode, 200);
             assert.deepEqual(headers, RESPONSE_HEADERS);
             done();
         });
         fragment.fetch(HEADERS);
     });
 
-    it('triggers `end` when the content is completely retreived', (done) => {
+    it('triggers `end(contentSize)` when the content is succesfully retreived', (done) => {
         nock('https://fragment').get('/').reply(200, '12345');
         const fragment = new Fragment(TAG, {}, false, cdnUrl);
         fragment.on('end', (contentSize) => {
@@ -38,7 +38,7 @@ describe('Fragment events', () => {
         fragment.stream.resume();
     });
 
-    xit('triggers `error` when fragment responds with 50x', (done) => {
+    it('triggers `error(error)` when fragment responds with 50x', (done) => {
         nock('https://fragment').get('/').reply(500);
         const fragment = new Fragment(TAG, {}, false, cdnUrl);
         fragment.on('error', (error) => {
@@ -48,7 +48,7 @@ describe('Fragment events', () => {
         fragment.fetch(HEADERS);
     });
 
-    it('triggers `error` when there is socket error', (done) => {
+    it('triggers `error(error)` when there is socket error', (done) => {
         const ERROR = {
             message: 'something awful happened',
             code: 'AWFUL_ERROR'
@@ -64,11 +64,14 @@ describe('Fragment events', () => {
         fragment.fetch(HEADERS);
     });
 
-    it('triggers `timeout` when fragment times out', (done) => {
+    it('triggers `error(error)` when fragment times out', (done) => {
         nock('https://fragment').get('/').socketDelay(101).reply(200);
         const tag = {attributes: {src: 'https://fragment', timeout: '100'}};
         const fragment = new Fragment(tag, {}, false, cdnUrl);
-        fragment.on('timeout', done);
+        fragment.on('error', (err) => {
+            assert.equal(err.message, 'Request aborted');
+            done();
+        });
         fragment.fetch(HEADERS);
     });
 
