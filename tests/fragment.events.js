@@ -6,6 +6,7 @@ const TAG = {attributes: {src: 'https://fragment'}};
 const HEADERS = {};
 const RESPONSE_HEADERS = {connection: 'close'};
 const cdnUrl = (url) => url;
+const sinon = require('sinon');
 
 describe('Fragment events', () => {
 
@@ -46,6 +47,25 @@ describe('Fragment events', () => {
             done();
         });
         fragment.fetch(HEADERS);
+    });
+
+    it('should not trigger `response` and `end` if there was an `error`', (done) => {
+        const onResponse = sinon.spy();
+        const onEnd = sinon.spy();
+        const onError = sinon.spy();
+        nock('https://fragment').get('/').reply(500);
+        const fragment = new Fragment(TAG, {}, false, cdnUrl);
+        fragment.on('response', onResponse);
+        fragment.on('end', onEnd);
+        fragment.on('error', onError);
+        fragment.fetch(HEADERS);
+        fragment.stream.on('end', () => {
+            assert.equal(onResponse.callCount, 0);
+            assert.equal(onEnd.callCount, 0);
+            assert.equal(onError.callCount, 1);
+            done();
+        });
+        fragment.stream.resume();
     });
 
     it('triggers `error(error)` when there is socket error', (done) => {
