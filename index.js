@@ -21,8 +21,7 @@ module.exports = class Tailor extends EventEmitter {
             fragmentTag: 'fragment',
             handledTags: [],
             handleTag: () => '',
-            forceSmartPipe: () => false,
-            cdnUrl: (url) => url
+            forceSmartPipe: () => false
         }, options);
         requestOptions.parseTemplate = parseTemplate(
             [requestOptions.fragmentTag].concat(requestOptions.handledTags)
