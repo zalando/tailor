@@ -3,25 +3,42 @@
 ```javascript
 const http = require('http');
 const Tailor = require('tailor');
-const tailor = new Tailor();
+const tailor = new Tailor({/* Options */});
 const server = http.createServer(tailor.requestHandler);
 server.listen(process.env.PORT || 8080);
 ```
 
 # Options
 
-`filterHeaders(headers)` a function that receives request headers and should return headers for the fragment
+* `filterHeaders(headers)` a function that receives request headers and should return headers for the fragment
+* `fetchContext(request)` a function that returns a promise of the context, that is an object that maps fragment id to fragment url
+* `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result.
+* `fragmentTag` a name of the fragment tag
+* `handledTags` an array of custom tags
+* `handleTag` receives a tag or closing tag and serializes it to a string
+* `forceSmartPipe(request)` returns a boolean that forces all async fragments in sync mode.
+* `cdnUrl(url)` a function that is called for each static asset with an original url, and should return a modified url
 
-`fetchContext(request)` a function that returns a promise of the context, that is an object that maps fragment id to fragment url
+# Events
 
-`fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result.
+`Tailor` extends `EventEmitter`, so you can subscribe to them with `tailor.on('eventName', callback)`. Events should be used for logging and monitoring.
 
-`fragmentTag` a name of the fragment tag
+## Fragment events:
 
-`handledTags` an array of custom tags
+* Request start: `fragment:start(request, fragment)`
+* Response Start when headers received: `fragment:response(request, fragment, status, headers)`
+* Response End (with response size): `fragment:end(request, fragment, contentSize)`
+* Error: `fragment:error(request, fragment, error)` in case of socket error, timeout, 50x
 
-`handleTag` receives a tag or closing tag and serializes it to a string
+## Layout service events:
 
-`forceSmartPipe(request)` returns a boolean that forces all async fragments in sync mode.
+* Client request received: `start(request)`
+* Response started (headers flushed and stream connected to output): `response(request, status, headers)`
+* Response ended (with the total size of response): `end(request, contentSize)`
+* Template Error: `template:error(request, error)` in case an error fetching or parsing the template
+* Context Error: `context:error(request, error)` in case of an error fetching the context
+* Primary error: `primary:error(request, fragment, error)` in case of socket error, timeout, 50x of the primary fragment
 
-`cdnUrl(url)` function that is called for each static asset with original url, and should return modified url
+
+
+
