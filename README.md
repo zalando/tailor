@@ -21,7 +21,8 @@ server.listen(process.env.PORT || 8080);
 
 # Events
 
-`Tailor` extends `EventEmitter`, so you can subscribe to them with `tailor.on('eventName', callback)`. Events should be used for logging and monitoring.
+`Tailor` extends `EventEmitter`, so you can subscribe to events with `tailor.on('eventName', callback)`.  
+Events should be used for logging and monitoring.
 
 ## Top level events
 
