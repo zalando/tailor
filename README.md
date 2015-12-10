@@ -23,14 +23,7 @@ server.listen(process.env.PORT || 8080);
 
 `Tailor` extends `EventEmitter`, so you can subscribe to them with `tailor.on('eventName', callback)`. Events should be used for logging and monitoring.
 
-## Fragment events:
-
-* Request start: `fragment:start(request, fragment)`
-* Response Start when headers received: `fragment:response(request, fragment, status, headers)`
-* Response End (with response size): `fragment:end(request, fragment, contentSize)`
-* Error: `fragment:error(request, fragment, error)` in case of socket error, timeout, 50x
-
-## Layout service events:
+## Top level events
 
 * Client request received: `start(request)`
 * Response started (headers flushed and stream connected to output): `response(request, status, headers)`
@@ -38,6 +31,15 @@ server.listen(process.env.PORT || 8080);
 * Template Error: `template:error(request, error)` in case an error fetching or parsing the template
 * Context Error: `context:error(request, error)` in case of an error fetching the context
 * Primary error: `primary:error(request, fragment, error)` in case of socket error, timeout, 50x of the primary fragment
+
+## Fragment events:
+
+* Request start: `fragment:start(request, fragment)`
+* Response Start when headers received: `fragment:response(request, fragment, status, headers)`
+* Response End (with response size): `fragment:end(request, fragment, contentSize)`
+* Error: `fragment:error(request, fragment, error)` in case of socket error, timeout, 50x
+
+
 
 
 
