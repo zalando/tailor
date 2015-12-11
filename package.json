@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "test": "mocha --harmony tests",
+    "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests",
     "lint": "eslint lib/ tests/"
   },
   "pre-commit": [
@@ -19,12 +20,12 @@
   "dependencies": {
     "httpz": "0.0.5",
     "parse-link-header": "^0.2.0",
-    "sax": "^1.1.4",
-    "streamifier": "^0.1.1"
+    "sax": "^1.1.4"
   },
   "devDependencies": {
     "babel-eslint": "^4.1.6",
     "eslint": "^1.2.1",
+    "istanbul": "^0.4.1",
     "lazypipe": "^1.0.1",
     "mocha": "^2.2.5",
     "nock": "^2.6.0",
