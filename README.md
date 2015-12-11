@@ -1,5 +1,7 @@
 # Tailor
 
+Tailor is a layout service that uses streams to compose a web page from fragment services.
+
 ```javascript
 const http = require('http');
 const Tailor = require('tailor');
