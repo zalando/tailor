@@ -4,6 +4,7 @@ const http = require('http');
 const nock = require('nock');
 const sinon = require('sinon');
 const Tailor = require('../index');
+const PassThrough = require('stream').PassThrough;
 
 describe('Tailor', () => {
 
@@ -17,7 +18,12 @@ describe('Tailor', () => {
             fetchTemplate: (request, parseTemplate) => {
                 const template = mockTemplate(request);
                 if (template) {
-                    return parseTemplate(template);
+                    if (typeof template === 'string') {
+                        return parseTemplate(template);
+                    } else {
+                        // assuming its a function that returns stream or string
+                        return parseTemplate(template());
+                    }
                 } else {
                     return Promise.reject('Error fetching template');
                 }
@@ -41,6 +47,20 @@ describe('Tailor', () => {
             response.resume();
             response.on('end', done);
         });
+    });
+
+    it('should return 500 if the template stream errored', (done) => {
+        mockTemplate.returns(() => {
+            const st = new PassThrough();
+            setImmediate(() => st.emit('error', 'Something bad happened'));
+            return st;
+        });
+        http.get('http://localhost:8080/missing-template', (response) => {
+            assert.equal(response.statusCode, 500);
+            response.resume();
+            response.on('end', done);
+        });
+
     });
 
     it('should stream content from http and https fragments', (done) => {
