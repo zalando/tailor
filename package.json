@@ -19,8 +19,7 @@
   "dependencies": {
     "httpz": "0.0.5",
     "parse-link-header": "^0.2.0",
-    "sax": "^1.1.4",
-    "streamifier": "^0.1.1"
+    "sax": "^1.1.4"
   },
   "devDependencies": {
     "babel-eslint": "^4.1.6",
