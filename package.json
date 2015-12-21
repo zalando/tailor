@@ -18,7 +18,6 @@
   },
   "author": "Andrey Kuzmin",
   "dependencies": {
-    "httpz": "0.0.5",
     "parse-link-header": "^0.2.0",
     "sax": "^1.1.4"
   },

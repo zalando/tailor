@@ -20,6 +20,7 @@ server.listen(process.env.PORT || 8080);
 * `handleTag` receives a tag or closing tag and serializes it to a string
 * `forceSmartPipe(request)` returns a boolean that forces all async fragments in sync mode.
 * `cdnUrl(url)` a function that is called for each static asset with an original url, and should return a modified url
+* `requestFragment(options)` a function that returns a promise of request to a fragment server
 
 # Events
 
@@ -41,9 +42,3 @@ Events should be used for logging and monitoring.
 * Response Start when headers received: `fragment:response(request, fragment, status, headers)`
 * Response End (with response size): `fragment:end(request, fragment, contentSize)`
 * Error: `fragment:error(request, fragment, error)` in case of socket error, timeout, 50x
-
-
-
-
-
-

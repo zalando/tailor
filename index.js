@@ -5,6 +5,7 @@ const requestHandler = require('./lib/request-handler');
 const filterHeaders = require('./lib/filter-headers');
 const fetchTemplate = require('./lib/fetch-template');
 const parseTemplate = require('./lib/parse-template');
+const requestFragment = require('./lib/request-fragment');
 const path = require('path');
 
 module.exports = class Tailor extends EventEmitter {
@@ -21,7 +22,8 @@ module.exports = class Tailor extends EventEmitter {
             fragmentTag: 'fragment',
             handledTags: [],
             handleTag: () => '',
-            forceSmartPipe: () => false
+            forceSmartPipe: () => false,
+            requestFragment: requestFragment
         }, options);
         requestOptions.parseTemplate = parseTemplate(
             [requestOptions.fragmentTag].concat(requestOptions.handledTags)
