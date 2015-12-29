@@ -19,7 +19,6 @@ server.listen(process.env.PORT || 8080);
 * `handledTags` an array of custom tags
 * `handleTag` receives a tag or closing tag and serializes it to a string
 * `forceSmartPipe(request)` returns a boolean that forces all async fragments in sync mode.
-* `cdnUrl(url)` a function that is called for each static asset with an original url, and should return a modified url
 * `requestFragment(options)` a function that returns a promise of request to a fragment server
 
 # Events
