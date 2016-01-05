@@ -12,6 +12,9 @@
     "lint",
     "test"
   ],
+  "engines": {
+    "node": ">5.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "ssh://git@github.bus.zalan.do:spearheads/opensource-tailor.git"
