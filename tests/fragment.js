@@ -15,6 +15,6 @@ describe('Fragment', () => {
         };
         const f = new Fragment(tag, {}, true);
 
-        assert.equal(f.async, false);
+        assert.equal(f.attributes.async, false);
     });
 });

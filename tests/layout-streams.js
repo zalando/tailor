@@ -23,7 +23,7 @@ function streamy (specialTagsOrFn, maybeFn) {
 };
 
 describe('Layout Streams', () => {
-    
+
     it('should stream the content from a fragment tag', (done) => {
         let data = '';
         let st = new PassThrough();
@@ -181,6 +181,19 @@ describe('Layout Streams', () => {
             done();
         });
         stream.end('<test>-inside-</test>');
+    });
+
+    it('should correctly serialize doctype', (done) => {
+        let data = '';
+        let stream = streamy();
+        stream.on('data', (chunk) => {
+            data += chunk;
+        });
+        stream.on('end', () => {
+            assert.equal(data, '<!DOCTYPE html>');
+            done();
+        });
+        stream.end('<!DOCTYPE html>');
     });
 
 });
