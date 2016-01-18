@@ -20,6 +20,7 @@
     "url": "ssh://git@github.bus.zalan.do:spearheads/opensource-tailor.git"
   },
   "author": "Andrey Kuzmin",
+  "license": "MIT",
   "dependencies": {
     "parse-link-header": "^0.2.0",
     "sax": "^1.1.4"
