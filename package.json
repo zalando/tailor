@@ -2,7 +2,10 @@
   "name": "tailor",
   "version": "0.0.2",
   "description": "Tailor assembles a web page from multiple fragments",
-  "private": true,
+  "keywords": [
+    "tailor",
+    "layout service"
+  ],
   "scripts": {
     "test": "mocha --harmony tests",
     "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests",
@@ -26,7 +29,6 @@
     "sax": "^1.1.4"
   },
   "devDependencies": {
-    "babel-eslint": "^4.1.6",
     "eslint": "^1.2.1",
     "istanbul": "^0.4.1",
     "lazypipe": "^1.0.1",
