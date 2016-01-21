@@ -1,4 +1,4 @@
-# Tailor
+<h1><img width="400" title="Tailor" src="https://rawgithub.com/zalando/tailor/master/tailor.svg"></h1>
 
 Tailor is a layout service that uses streams to compose a web page from fragment services.
 
