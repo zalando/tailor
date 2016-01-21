@@ -42,6 +42,6 @@ Events should be used for logging and monitoring.
 * Response End (with response size): `fragment:end(request, fragment.attributes, contentSize)`
 * Error: `fragment:error(request, fragment.attributes, error)` in case of socket error, timeout, 50x
 
-## Example:
+# Example:
 
 To start an example run `npm run example` and open [http://localhost:8080/index](http://localhost:8080/index).
