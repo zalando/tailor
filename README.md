@@ -44,4 +44,4 @@ Events should be used for logging and monitoring.
 
 ## Example:
 
-To start an example run `npm run example` and open (http://localhost:8080/index)[http://localhost:8080/index].
+To start an example run `npm run example` and open [http://localhost:8080/index](http://localhost:8080/index).
