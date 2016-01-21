@@ -35,13 +35,13 @@ Events should be used for logging and monitoring.
 * Context Error: `context:error(request, error)` in case of an error fetching the context
 * Primary error: `primary:error(request, fragment.attributes, error)` in case of socket error, timeout, 50x of the primary fragment
 
-## Fragment events:
+## Fragment events
 
 * Request start: `fragment:start(request, fragment.attributes)`
 * Response Start when headers received: `fragment:response(request, fragment.attributes, status, headers)`
 * Response End (with response size): `fragment:end(request, fragment.attributes, contentSize)`
 * Error: `fragment:error(request, fragment.attributes, error)` in case of socket error, timeout, 50x
 
-# Example:
+# Example
 
-To start an example run `npm run example` and open [http://localhost:8080/index](http://localhost:8080/index).
+To start an example execute `npm run example` and open [http://localhost:8080/index](http://localhost:8080/index).
