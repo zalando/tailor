@@ -5,9 +5,13 @@
 
 Tailor is a layout service that uses streams to compose a web page from fragment services.
 
+# Installation
+
+`npm i node-tailor --save`
+
 ```javascript
 const http = require('http');
-const Tailor = require('tailor');
+const Tailor = require('node-tailor');
 const tailor = new Tailor({/* Options */});
 const server = http.createServer(tailor.requestHandler);
 server.listen(process.env.PORT || 8080);

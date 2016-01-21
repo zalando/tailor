@@ -1,10 +1,11 @@
 {
-  "name": "tailor",
+  "name": "node-tailor",
   "version": "0.0.1",
   "description": "Tailor assembles a web page from multiple fragments",
   "keywords": [
     "tailor",
-    "layout service"
+    "layout service",
+    "node-tailor"
   ],
   "scripts": {
     "test": "mocha --harmony tests",
