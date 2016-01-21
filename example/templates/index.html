@@ -1,11 +1,35 @@
 <!doctype html>
 <html>
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>Test Page</title>
-    <fragment id="base-assets" inline public src="https://base-assets.mop-taskforce.zalan.do"/>
+    <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js"></script>
+    <script>
+        define('word', function () {
+            // Example dependency for the fragments
+            return 'initialised';
+        });
+        function pipe (id, url, async) {
+            var placeholder = document.getElementById(id);
+            if (async) {
+                /* transfer content from async-{id} to the placeholder */
+                var content = document.getElementById('async-' + id);
+                while (content.childNodes.length) {
+                    placeholder.appendChild(content.firstChild);
+                }
+                content.parentNode.removeChild(content);
+            }
+            require([url], function (init) {
+                init(placeholder.firstElementChild);
+            });
+        }
+    </script>
 </head>
 <body>
-    <fragment async src="https://s3-eu-west-1.amazonaws.com/zalando-mop-taskforce-static/fragments/seo/seo1-title.html"/>
+    <h2>Fragment 1:</h2>
+    <fragment src="http://localhost:8081"/>
+    <h2>Fragment 2:</h2>
+    <fragment async src="http://localhost:8082"/>
 </body>
 </html>
