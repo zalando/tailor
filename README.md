@@ -1,5 +1,8 @@
 <h1><img width="400" alt="Tailor" src="https://rawgithub.com/zalando/tailor/master/tailor.svg"></h1>
 
+[![Build Status](https://travis-ci.org/zalando/tailor.svg?branch=master)](https://travis-ci.org/zalando/tailor)
+[![Test Coverage](https://codeclimate.com/github/zalando/tailor/badges/coverage.svg)](https://codeclimate.com/github/zalando/tailor/coverage)
+
 Tailor is a layout service that uses streams to compose a web page from fragment services.
 
 ```javascript

@@ -1,8 +1,19 @@
+sudo: false
 language: node_js
 node_js:
-- '5.1.x'
+- '5.0'
 cache:
   directories:
   - node_modules
+before_install:
+- npm install -g codeclimate-test-reporter
 before_script:
 - npm run lint
+script:
+- npm run coverage
+after_script:
+- codeclimate-test-reporter < coverage/lcov.info
+addons:
+  code_climate:
+    repo_token:
+      secure: "RazrTSMK0xQU6PnSCP2gRZ/nxLvY2u6TW4Pqw6adihjSMmQ8+j79WX+K2ZGt3O2RICxqSrc0/c45F0tJBOlvebOBDR5b3aVhtAP14yj6EDVcvpfphepc4SHAaZTqWK3dw6YxkPh/uL5iGOMOp2CDm2KQ4KawT5zTjNSWRslsu9+aJf8Qe4CBTrOQCH4HJ8sb4mQnUGm2wbqNA1qEEdCUB0AOeRw2/1AazvPgBvM9D07pAkJn1Tr3JHJeKl8SwjUpZPt0xdZBF6MNAFfyUTh2OJH+4LYuNl5Nm0lt0tgUWngk5qTWOgOjSuZWh9q3y7L46joCz9g74XD6KXf46n7vr+PmiYt52IYgCAtpvigLREOG3/u1BJ55cyd8nLNiTjvNTzS59AYUou4QFBvIZHR+wW6d6Wqq6Yj18ZXBoAUo0yK9geTe3UsuUrIaJg2XEgMNmBKB8+rxqM+xgfNJ8qoI7UMP/UNeOb0b0vQZV7Ng+L5/eafTeEJs/7fdhasrrD7QqvHYgLJgKaHMNnjE/7vC09mUwY+4D/EXcX8TNUFwKs/ClaBL8dNnzPe0qNXh7Wy1wMXZyNuiWqt4mCQxHAUfbggoFkJoipLgrotTjb/jWx26dcreCef75UV6yd/ZCt/tQ7vPMncG3r2rK4XAXEv+LsrMYzrccoch5s2RfWLQJhE="
