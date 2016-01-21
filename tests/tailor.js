@@ -305,7 +305,7 @@ describe('Tailor', () => {
         });
     });
 
-    it('should support bigpipe fragments', (done) => {
+    it('should support async fragments', (done) => {
         nock('https://fragment')
             .get('/1').reply(200, 'hello');
 
