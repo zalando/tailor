@@ -1,0 +1,8 @@
+language: node_js
+node_js:
+- '5.1.x'
+cache:
+  directories:
+  - node_modules
+before_script:
+- npm run lint
