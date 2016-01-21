@@ -1,6 +1,6 @@
 {
   "name": "tailor",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "Tailor assembles a web page from multiple fragments",
   "keywords": [
     "tailor",
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@github.bus.zalan.do:spearheads/opensource-tailor.git"
+    "url": "ssh://git@github.com:zalando/tailor.git"
   },
   "author": "Andrey Kuzmin",
   "license": "MIT",
@@ -37,5 +37,12 @@
     "nock": "^2.6.0",
     "pre-commit": "^1.1.2",
     "sinon": "^1.15.3"
-  }
+  },
+  "files": [
+    "lib",
+    "LICENSE",
+    "MAINTAINERS",
+    "index.js",
+    "README.md"
+  ]
 }
