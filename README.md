@@ -26,7 +26,7 @@ server.listen(process.env.PORT || 8080);
 * `handledTags` an array of custom tags
 * `handleTag` receives a tag or closing tag and serializes it to a string or returns a stream
 * `forceSmartPipe(request)` returns a boolean that forces all async fragments in sync mode
-* `requestFragment(options)` a function that returns a promise of request to a fragment server, check the default implementation in `lib/request-fragment`
+* `requestFragment(fragmentAttributes, headers)` a function that returns a promise of request to a fragment server, check the default implementation in `lib/request-fragment`
 
 # Template
 
