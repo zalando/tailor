@@ -1,8 +1,8 @@
 'use strict';
 const PassThrough = require('stream').PassThrough;
 const assert = require('assert');
-const ParserStream = require('../lib/streams/parser-stream');
-const StringifierStream = require('../lib/streams/stringifier-stream');
+const ParserStream = require('../../lib/streams/parser-stream');
+const StringifierStream = require('../../lib/streams/stringifier-stream');
 const lazypipe = require('lazypipe');
 
 
