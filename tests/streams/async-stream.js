@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const stream = require('stream');
-const AsyncStream = require('../lib/streams/async-stream');
+const AsyncStream = require('../../lib/streams/async-stream');
 
 describe('Async Stream', () => {
 

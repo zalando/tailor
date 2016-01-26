@@ -8,8 +8,8 @@
     "node-tailor"
   ],
   "scripts": {
-    "test": "mocha --harmony tests",
-    "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests",
+    "test": "mocha --harmony tests/**",
+    "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests/**",
     "lint": "eslint lib/ tests/",
     "example": "node --harmony example/tailor"
   },
