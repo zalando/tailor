@@ -30,7 +30,7 @@ server.listen(process.env.PORT || 8080);
 
 # Events
 
-`Tailor` extends `EventEmitter`, so you can subscribe to events with `tailor.on('eventName', callback)`.  
+`Tailor` extends `EventEmitter`, so you can subscribe to events with `tailor.on('eventName', callback)`.
 Events should be used for logging and monitoring.
 
 ## Top level events
@@ -52,3 +52,7 @@ Events should be used for logging and monitoring.
 # Example
 
 To start an example execute `npm run example` and open [http://localhost:8080/index](http://localhost:8080/index).
+
+# Benchmark
+
+To start running benchmark execute `npm run benchmark` and wait for couple of seconds to see the results.

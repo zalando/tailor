@@ -11,7 +11,8 @@
     "test": "mocha --harmony tests",
     "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests",
     "lint": "eslint lib/ tests/",
-    "example": "node --harmony example/tailor"
+    "example": "node --harmony example/tailor",
+    "benchmark": "node perf/benchmark"
   },
   "pre-commit": [
     "lint",
