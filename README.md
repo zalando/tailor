@@ -23,8 +23,8 @@ server.listen(process.env.PORT || 8080);
 * `fetchContext(request)` a function that returns a promise of the context, that is an object that maps fragment id to fragment url, to be able to override urls of the fragments on the page, defaults to `Promise.resolve({})`
 * `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3. Default implementation `lib/fetch-template.js` streams the template from  the file system
 * `fragmentTag` a name of the fragment tag, defaults to `fragment`
-* `handledTags` an array of custom tags
-* `handleTag` receives a tag or closing tag and serializes it to a string or returns a stream
+* `handledTags` an array of custom tags, check `tests/handle-tag` for more info
+* `handleTag(request, tag)` receives a tag or closing tag and serializes it to a string or returns a stream
 * `forceSmartPipe(request)` returns a boolean that forces all async fragments in sync mode
 * `requestFragment(fragmentAttributes, headers)` a function that returns a promise of request to a fragment server, check the default implementation in `lib/request-fragment`
 
