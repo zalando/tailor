@@ -19,14 +19,13 @@ server.listen(process.env.PORT || 8080);
 
 # Options
 
-* `filterHeaders(fragment.attributes, headers)` a function that receives fragment attributes and request headers and should return headers for the fragment. Useful to do some whitelisting of the custom headers. A default draft implementation is in `lib/filter-headers.js`
 * `fetchContext(request)` a function that returns a promise of the context, that is an object that maps fragment id to fragment url, to be able to override urls of the fragments on the page, defaults to `Promise.resolve({})`
 * `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3. Default implementation `lib/fetch-template.js` streams the template from  the file system
 * `fragmentTag` a name of the fragment tag, defaults to `fragment`
 * `handledTags` an array of custom tags, check `tests/handle-tag` for more info
 * `handleTag(request, tag)` receives a tag or closing tag and serializes it to a string or returns a stream
 * `forceSmartPipe(request)` returns a boolean that forces all async fragments in sync mode
-* `requestFragment(fragmentAttributes, headers)` a function that returns a promise of request to a fragment server, check the default implementation in `lib/request-fragment`
+* `requestFragment(url, fragmentAttributes, request)` a function that returns a promise of request to a fragment server, check the default implementation in `lib/request-fragment`
 
 # Template
 
@@ -55,6 +54,7 @@ In order to initialize the fragments on the frontend, Tailor expects an [AMD](ht
 * *async* — postpones the fragment until the end of body tag
 * *inline* — excludes the div wrapper
 * *public* — doesn't send the headers to fragment server
+* *fallback-src* - URL of the fallback fragment in case of timeout/error on the current fragment
 
 ## Fragment server
 
@@ -73,9 +73,8 @@ Events may be used for logging and monitoring. Check `perf/benchmark.js` for an 
 * Client request received: `start(request)`
 * Response started (headers flushed and stream connected to output): `response(request, status, headers)`
 * Response ended (with the total size of response): `end(request, contentSize)`
-* Template Error: `template:error(request, error)` in case an error fetching or parsing the template
+* Error: `error(request, error)` in case an error from template (parsing,fetching) and primary error(socket/timeout/50x)
 * Context Error: `context:error(request, error)` in case of an error fetching the context
-* Primary error: `primary:error(request, fragment.attributes, error)` in case of socket error, timeout, 50x of the primary fragment
 
 ## Fragment events
 
@@ -83,6 +82,10 @@ Events may be used for logging and monitoring. Check `perf/benchmark.js` for an 
 * Response Start when headers received: `fragment:response(request, fragment.attributes, status, headers)`
 * Response End (with response size): `fragment:end(request, fragment.attributes, contentSize)`
 * Error: `fragment:error(request, fragment.attributes, error)` in case of socket error, timeout, 50x
+* Fallback: `fragment:fallback(request, fragment.attributes, error)` in case of timeout/error from the fragment if the *fallback-src* is specified
+
+
+**Note:**  `fragment:response`, `fragment:fallback` and `fragment:error` are mutually exclusive. `fragment:end` happens only in case of successful response.
 
 # Example
 

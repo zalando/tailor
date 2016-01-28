@@ -2,7 +2,6 @@
 
 const EventEmitter = require('events').EventEmitter;
 const requestHandler = require('./lib/request-handler');
-const filterHeaders = require('./lib/filter-headers');
 const fetchTemplate = require('./lib/fetch-template');
 const parseTemplate = require('./lib/parse-template');
 const requestFragment = require('./lib/request-fragment');
@@ -13,7 +12,6 @@ module.exports = class Tailor extends EventEmitter {
     constructor (options) {
         super();
         const requestOptions = Object.assign({
-            filterHeaders: filterHeaders,
             fetchContext: () => Promise.resolve({}),
             fetchTemplate: fetchTemplate(
                 options.templatesPath ||
@@ -29,6 +27,8 @@ module.exports = class Tailor extends EventEmitter {
             [requestOptions.fragmentTag].concat(requestOptions.handledTags)
         );
         this.requestHandler = requestHandler.bind(this, requestOptions);
+        // To Prevent from exiting the process - https://nodejs.org/api/events.html#events_error_events
+        this.on('error', () => {});
     }
 
 };

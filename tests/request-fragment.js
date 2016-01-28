@@ -6,15 +6,16 @@ const nock = require('nock');
 
 describe('requestFragment', () => {
 
-    const fragmentAttrb = {
-        primary: true,
-        timeout: 1000,
-        url: 'http://fragment/'
-    };
+    let fragmentAttrb;
+    beforeEach( () => {
+        fragmentAttrb = {
+            timeout: 1000
+        };
+    });
 
     it('Should request fragment using http protocol', (done) => {
         nock('http://fragment').get('/').reply(200, 'HTTP');
-        requestFragment(fragmentAttrb, {}).then((response) => {
+        requestFragment('http://fragment/', fragmentAttrb, {headers: {}}).then((response) => {
             let data = '';
             response.on('data', (chunk) => {
                 data += chunk.toString();
@@ -26,10 +27,9 @@ describe('requestFragment', () => {
         });
     });
 
-    it('Should request fragment using https protocol', () => {
+    it('Should request fragment using https protocol', (done) => {
         nock('https://fragment').get('/').reply(200, 'HTTPS');
-        fragmentAttrb.url = 'https://fragment/';
-        requestFragment(fragmentAttrb, {}).then((response) => {
+        requestFragment('https://fragment/', fragmentAttrb, {headers: {}}).then((response) => {
             let data = '';
             response.on('data', (chunk) => {
                 data += chunk.toString();
@@ -41,9 +41,17 @@ describe('requestFragment', () => {
         });
     });
 
+    it('Should reject promise and respond with error for status code >500', (done) => {
+        nock('http://fragment').get('/').reply(500, 'Internal Server Error');
+        requestFragment('http://fragment/', fragmentAttrb, {headers: {}}).catch((err) => {
+            assert.equal(err.message, 'Internal Server Error');
+            done();
+        });
+    });
+
     it('Should timeout when the fragment is not reachable', (done) => {
-        nock('https://fragment').get('/').socketDelay(5000).reply(200, 'hello');
-        requestFragment(fragmentAttrb, {}).catch((err) => {
+        nock('http://fragment').get('/').socketDelay(1001).reply(200, 'hello');
+        requestFragment('http://fragment/', fragmentAttrb, {headers: {}}).catch((err) => {
             assert.equal(err.message, 'Request aborted');
             done();
         });
