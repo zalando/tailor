@@ -103,27 +103,25 @@ describe('Tailor events', () => {
         });
     });
 
-    it('emits `primary:error(request, primary, error)` event', (done) => {
+    it('emits `error(request, error)` event on primary error/timeout', (done) => {
         const onPrimaryError = sinon.spy();
         nock('https://fragment').get('/').reply(500);
         mockTemplate.returns('<fragment primary src="https://fragment">');
-        tailor.on('primary:error', onPrimaryError);
+        tailor.on('error', onPrimaryError);
         http.get('http://localhost:8080/template', (response) => {
             const request = onPrimaryError.args[0][0];
-            const fragment = onPrimaryError.args[0][1];
-            const error = onPrimaryError.args[0][2];
+            const error = onPrimaryError.args[0][1];
             assert.equal(request.url, '/template');
-            assert.equal(fragment.url, 'https://fragment');
             assert.equal(error.message, 'Internal Server Error');
             response.resume();
             response.on('end', done);
         });
     });
 
-    it('emits `template:error(request, error)` event', (done) => {
+    it('emits `error(request, error)` event on template error', (done) => {
         const onTemplateError = sinon.spy();
         mockTemplate.returns(false);
-        tailor.on('template:error', onTemplateError);
+        tailor.on('error', onTemplateError);
         http.get('http://localhost:8080/template', (response) => {
             const request = onTemplateError.args[0][0];
             const error = onTemplateError.args[0][1];

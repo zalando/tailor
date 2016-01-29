@@ -204,7 +204,7 @@ describe('Tailor', () => {
         });
     });
 
-    it('should return 500 in case of primary error', (done) => {
+    it('should return 500 in case of primary error if fallback is not specified', (done) => {
         nock('https://fragment')
             .get('/1').replyWithError('panic!');
 
@@ -221,6 +221,47 @@ describe('Tailor', () => {
             done();
         });
     });
+
+    it('should fetch the fallback fragment when specified', (done) => {
+        nock('https://fragment').
+            get('/1').reply(500, 'Internal Server Error');
+        nock('https://fragment').
+            get('/fallback').reply(200, 'Fallback fragment');
+
+        mockTemplate
+            .returns(
+                '<html>' +
+                '<fragment src="https://fragment/1" fallback-src="https://fragment/fallback"> ' +
+                '</html>'
+            );
+
+        http.get('http://localhost:8080/test', (response) => {
+            assert.equal(response.statusCode, 200);
+            response.resume();
+            done();
+        });
+    });
+
+    it('should return 500 if both primary and fallback fragment is not reachable', (done) => {
+        nock('https://fragment').
+            get('/1').replyWithError('panic!');
+        nock('https://fragment').
+            get('/fallback').reply(500, 'Internal Server Error');
+
+        mockTemplate
+            .returns(
+                '<html>' +
+                '<fragment src="https://fragment/1" primary fallback-src="https://fragment/fallback"> ' +
+                '</html>'
+            );
+
+        http.get('http://localhost:8080/test', (response) => {
+            assert.equal(response.statusCode, 500);
+            response.resume();
+            done();
+        });
+    });
+
 
     it('should insert link to css and require js from fragment link header', (done) => {
         nock('https://fragment')
