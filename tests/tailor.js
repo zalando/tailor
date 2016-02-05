@@ -15,6 +15,7 @@ describe('Tailor', () => {
     beforeEach((done) => {
         const tailor = new Tailor({
             fetchContext: mockContext,
+            pipeDefinition: () => new Buffer(''),
             fetchTemplate: (request, parseTemplate) => {
                 const template = mockTemplate(request);
                 if (template) {
@@ -89,8 +90,8 @@ describe('Tailor', () => {
                 assert.equal(
                     result,
                     '<html>' +
-                    '<div id="f-1">hello</div>' +
-                    '<div id="f-2">world</div>' +
+                    '<script>p.start(0)</script>hello<script>p.end(0)</script>' +
+                    '<script>p.start(1)</script>world<script>p.end(1)</script>' +
                     '</html>'
                 );
                 done();
@@ -277,7 +278,7 @@ describe('Tailor', () => {
     });
 
 
-    it('should insert link to css and require js from fragment link header', (done) => {
+    it('should insert link to css from fragment link header', (done) => {
         nock('https://fragment')
             .get('/1').reply(200, 'hello', {
                 'Link': '<http://link>; rel="stylesheet",<http://link2>; rel="fragment-script"'
@@ -295,9 +296,9 @@ describe('Tailor', () => {
                 assert.equal(data,
                     '<html>' +
                     '<link rel="stylesheet" href="http://link">' +
-                    '<script>require(["http://link2"])</script>' +
-                    '<div id="f">hello</div>' +
-                    '<script>pipe("f", "http://link2")</script>' +
+                    '<script>p.start(0, "http://link2")</script>' +
+                    'hello' +
+                    '<script>p.end(0, "http://link2")</script>' +
                     '</html>'
                 );
                 done();
@@ -323,36 +324,9 @@ describe('Tailor', () => {
                 assert.equal(data,
                     '<html>' +
                     '<link rel="stylesheet" href="http://link">' +
-                    '<script>require(["http://link2"])</script>' +
-                    '<div id="f">hello</div>' +
-                    '<script>pipe("f", "http://link2")</script>' +
-                    '</html>'
-                );
-                done();
-            });
-        });
-    });
-
-    it('should not wrap content from inline fragments', (done) => {
-        nock('https://fragment')
-            .get('/1').reply(200, 'hello', {
-                'X-AMZ-META-LINK': '<http://link>; rel="stylesheet",<http://link2>; rel="fragment-script"'
-            });
-
-        mockTemplate
-            .returns('<html><fragment id="f" inline src="https://fragment/1"></html>');
-
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html>' +
-                    '<link rel="stylesheet" href="http://link">' +
-                    '<script>require(["http://link2"])</script>' +
+                    '<script>p.start(0, "http://link2")</script>' +
                     'hello' +
+                    '<script>p.end(0, "http://link2")</script>' +
                     '</html>'
                 );
                 done();
@@ -382,9 +356,10 @@ describe('Tailor', () => {
                 assert.equal(data,
                     '<html>' +
                     '<body>' +
-                    '<div id="f"></div>' +
-                    '<div style="display:none;" id="async-f">hello</div>' +
-                    '<script>pipe("f", false, true)</script>' +
+                    '<script>p.placeholder(0)</script>' +
+                    '<script>p.start(0)</script>' +
+                    'hello' +
+                    '<script>p.end(0)</script>' +
                     '</body>' +
                     '</html>'
                 );
@@ -416,7 +391,9 @@ describe('Tailor', () => {
                 assert.equal(
                     result,
                     '<html>' +
-                    '<div id="f-1">yes</div>' +
+                    '<script>p.start(0)</script>' +
+                    'yes' +
+                    '<script>p.end(0)</script>' +
                     '</html>'
                 );
                 done();

@@ -6,7 +6,7 @@ const sinon = require('sinon');
 const Tailor = require('../index');
 const PassThrough = require('stream').PassThrough;
 
-describe('Tailor events', () => {
+describe('Handle tag', () => {
 
     let server;
     let tailor;
@@ -23,6 +23,7 @@ describe('Tailor events', () => {
                     return Promise.reject('Error fetching template');
                 }
             },
+            pipeDefinition: () => new Buffer(''),
             handledTags: ['x-tag'],
             handleTag: mockHandleTag
         });

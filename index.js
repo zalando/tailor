@@ -6,6 +6,9 @@ const fetchTemplate = require('./lib/fetch-template');
 const parseTemplate = require('./lib/parse-template');
 const requestFragment = require('./lib/request-fragment');
 const path = require('path');
+const fs = require('fs');
+const pipeDefinition = fs.readFileSync(path.resolve(__dirname, 'src/pipe.min.js'));
+
 
 module.exports = class Tailor extends EventEmitter {
 
@@ -20,9 +23,17 @@ module.exports = class Tailor extends EventEmitter {
             fragmentTag: 'fragment',
             handledTags: [],
             handleTag: () => '',
-            forceSmartPipe: () => false,
-            requestFragment: requestFragment
+            requestFragment,
+            amdLoaderUrl: 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js',
+            pipeDefinition: (amdLoaderUrl, pipeDefinition) => new Buffer(
+                `<script src="${amdLoaderUrl}"></script>\n` +
+                `<script>${pipeDefinition}\nvar p = new Pipe(require);</script>\n`
+            )
         }, options);
+        requestOptions.pipeDefinition = requestOptions.pipeDefinition(
+            requestOptions.amdLoaderUrl,
+            pipeDefinition
+        );
         requestOptions.parseTemplate = parseTemplate(
             [requestOptions.fragmentTag].concat(requestOptions.handledTags)
         );
@@ -33,6 +44,4 @@ module.exports = class Tailor extends EventEmitter {
 
 };
 
-Object.assign(module.exports, {
-    fetchTemplate: fetchTemplate
-});
+Object.assign(module.exports, {fetchTemplate});

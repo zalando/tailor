@@ -16,6 +16,7 @@ describe('Tailor events', () => {
     beforeEach((done) => {
         tailor = new Tailor({
             fetchContext: mockContext,
+            pipeDefinition: () => new Buffer(''),
             fetchTemplate: (request, parseTemplate) => {
                 const template = mockTemplate(request);
                 if (template) {
