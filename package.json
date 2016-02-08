@@ -11,9 +11,9 @@
     "test": "mocha --harmony tests/**",
     "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests/**",
     "lint": "eslint lib/ tests/ src/pipe.js",
-    "example": "node --harmony example/tailor",
+    "example": "npm run prepublish && node --harmony example/tailor",
     "benchmark": "node perf/benchmark",
-    "prepublish": "uglifyjs src/pipe.js --mangle --compress -o src/pipe.min.js"
+    "prepublish": "uglifyjs src/pipe.js --mangle --compress --comments -o src/pipe.min.js"
   },
   "pre-commit": [
     "lint",
@@ -50,6 +50,6 @@
     "MAINTAINERS",
     "index.js",
     "README.md",
-    "src/tailor.min.js"
+    "src/pipe.min.js"
   ]
 }

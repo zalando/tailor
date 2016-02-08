@@ -285,7 +285,7 @@ describe('Tailor', () => {
             });
 
         mockTemplate
-            .returns('<html><fragment id="f" src="https://fragment/1"></html>');
+            .returns('<html><fragment src="https://fragment/1"></html>');
 
         http.get('http://localhost:8080/test', (response) => {
             let data = '';
@@ -306,6 +306,34 @@ describe('Tailor', () => {
         });
     });
 
+    it('should use loadCSS from async fragments', (done) => {
+        nock('https://fragment')
+            .get('/1').reply(200, 'hello', {
+                'Link': '<http://link>; rel="stylesheet",<http://link2>; rel="fragment-script"'
+            });
+
+        mockTemplate
+            .returns('<fragment async src="https://fragment/1">');
+
+        http.get('http://localhost:8080/test', (response) => {
+            let data = '';
+            response.on('data', (chunk) =>  {
+                data += chunk;
+            });
+            response.on('end', () => {
+                assert.equal(data,
+                    '<script>p.placeholder(0)</script>' +
+                    '<script>p.loadCSS("http://link")</script>' +
+                    '<script>p.start(0, "http://link2")</script>' +
+                    'hello' +
+                    '<script>p.end(0, "http://link2")</script>'
+                );
+                done();
+            });
+        });
+    });
+
+
     it('should insert link to css and require js  from fragment x-amz-meta-link header', (done) => {
         nock('https://fragment')
             .get('/1').reply(200, 'hello', {
@@ -313,7 +341,7 @@ describe('Tailor', () => {
             });
 
         mockTemplate
-            .returns('<html><fragment id="f" src="https://fragment/1"></html>');
+            .returns('<html><fragment src="https://fragment/1"></html>');
 
         http.get('http://localhost:8080/test', (response) => {
             let data = '';
@@ -342,7 +370,7 @@ describe('Tailor', () => {
             .returns(
                 '<html>' +
                 '<body>' +
-                '<fragment src="https://fragment/1" async id="f">' +
+                '<fragment src="https://fragment/1" async>' +
                 '</body>' +
                 '</html>'
             );
