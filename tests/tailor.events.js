@@ -79,7 +79,11 @@ describe('Tailor events', () => {
                 const headers = onResponse.args[0][2];
                 assert.equal(request.url, '/template');
                 assert.equal(statusCode, 200);
-                assert.deepEqual(headers, {'Content-Type': 'text/html'});
+                assert.deepEqual(headers, {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Content-Type': 'text/html',
+                    'Pragma': 'no-cache'
+                });
                 assert.equal(onResponse.callCount, 1);
                 done();
             });
