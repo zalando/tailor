@@ -161,6 +161,20 @@ describe('Tailor', () => {
 
     });
 
+    it('should disable browser cache', (done) => {
+        nock('https://fragment').get('/1').reply(200, 'hello');
+
+        mockTemplate
+            .returns('<fragment src="https://fragment/1">');
+
+        http.get('http://localhost:8080/test', (response) => {
+            const headers = response.headers;
+            assert.equal('no-cache, no-store, must-revalidate', headers['cache-control']);
+            assert.equal('no-cache', headers['pragma']);
+            done();
+        });
+    });
+
     it('should set timeout for a fragment request', (done) => {
         nock('https://fragment')
             .get('/1').socketDelay(101).reply(200, 'hello')
