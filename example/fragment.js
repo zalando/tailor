@@ -10,9 +10,7 @@ module.exports = (fragmentName, fragmentUrl) => (request, response) => {
             response.end(`
                 define (['word'], function (word) {
                     return function initFragment (element) {
-                        element.classList.add(
-                            'fragment-${fragmentName}-initialised'
-                        );
+                        element.className += ' fragment-${fragmentName}-initialised';
                         element.innerHTML += word;
                     };
                 });
