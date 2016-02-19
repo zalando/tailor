@@ -28,7 +28,8 @@ describe('Tailor', () => {
                 } else {
                     return Promise.reject('Error fetching template');
                 }
-            }
+            },
+            pipeInstanceName: () => 'p'
         });
         mockContext.returns(Promise.resolve({}));
         server = http.createServer(tailor.requestHandler);
