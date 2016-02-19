@@ -25,7 +25,6 @@ module.exports = class Tailor extends EventEmitter {
             handledTags: [],
             handleTag: () => '',
             requestFragment,
-            amdLoaderUrl: 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js',
             pipeDefinition: (pipeInstanceName) => new Buffer(
                 `<script src="${amdLoaderUrl}"></script>\n` +
                 `<script>${PIPE_DEFINITION}\n` +

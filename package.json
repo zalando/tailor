@@ -18,6 +18,7 @@
   },
   "pre-commit": [
     "lint",
+    "prepublish",
     "test"
   ],
   "engines": {
