@@ -4,26 +4,11 @@
     <meta charset="utf-8">
     <title>Test Page</title>
     <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js"></script>
     <script>
         define('word', function () {
             // Example dependency for the fragments
             return 'initialised';
         });
-        function pipe (id, url, async) {
-            var placeholder = document.getElementById(id);
-            if (async) {
-                /* transfer content from async-{id} to the placeholder */
-                var content = document.getElementById('async-' + id);
-                while (content.childNodes.length) {
-                    placeholder.appendChild(content.firstChild);
-                }
-                content.parentNode.removeChild(content);
-            }
-            require([url], function (init) {
-                init(placeholder.firstElementChild);
-            });
-        }
     </script>
 </head>
 <body>
@@ -31,5 +16,6 @@
     <fragment src="http://localhost:8088" primary fallback-src="http://localhost:8081"/>
     <h2>Fragment 2:</h2>
     <fragment async src="http://localhost:8082"/>
+    <div>All done!</div>
 </body>
 </html>

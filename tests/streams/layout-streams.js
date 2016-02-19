@@ -29,10 +29,11 @@ describe('Layout Streams', () => {
         let st = new PassThrough();
 
         let stream = streamy((tag) => {
-            if (tag) {
+            if (tag && tag.name) {
                 assert.deepEqual(tag.attributes, {title: 'mock'});
+                return st;
             }
-            return st;
+            return '';
         });
 
         stream.on('data', (chunk) => {
@@ -95,7 +96,7 @@ describe('Layout Streams', () => {
 
     it('should re-emit errors from fragment streams', (done) => {
         let st = new PassThrough();
-        let stream = streamy( (tag) => {
+        let stream = streamy((tag) => {
             if (tag) {
                 return st;
             }
@@ -109,6 +110,53 @@ describe('Layout Streams', () => {
         st.end('data');
     });
 
+
+    it('should ask for pipe placeholder before the first script', (done) => {
+        let data = '';
+        let stream = streamy( (tag) => {
+            if (tag.name) {
+                return 'tag';
+            } if (tag.closingTag) {
+                return 'close';
+            } else if (tag.placeholder === 'pipe') {
+                return 'pipe';
+            } else {
+                return '';
+            }
+        });
+        stream.on('end', () => {
+            assert.equal(data, '<html><body>pipe<script></script>tagclose</body></html>');
+            done();
+        });
+        stream.on('data', (chunk) => {
+            data += chunk;
+        });
+        stream.end('<html><body><script></script><fragment></body></html>');
+    });
+
+    it('should ask for pipe placeholder before the first fragment', (done) => {
+        let data = '';
+        let stream = streamy( (tag) => {
+            if (tag.name) {
+                return 'tag';
+            } if (tag.closingTag) {
+                return 'close';
+            } else if (tag.placeholder === 'pipe') {
+                return 'pipe';
+            } else {
+                return '';
+            }
+        });
+        stream.on('end', () => {
+            assert.equal(data, '<html><body>pipetagclose</body></html>');
+            done();
+        });
+        stream.on('data', (chunk) => {
+            data += chunk;
+        });
+        stream.end('<html><body><fragment></body></html>');
+    });
+
     it('should ask for more content before closing body', (done) => {
         let data = '';
         let stream = streamy( (tag) => {
@@ -116,8 +164,10 @@ describe('Layout Streams', () => {
                 return 'tag';
             } if (tag.closingTag) {
                 return 'close';
-            } else {
+            } else if (tag.placeholder === 'async') {
                 return 'body';
+            } else {
+                return '';
             }
         });
         stream.on('end', () => {
@@ -147,7 +197,11 @@ describe('Layout Streams', () => {
         let data = '';
 
         let stream = streamy(['foo', 'bar'], (tag) => {
-            return tag.attributes.title;
+            if (tag.placeholder) {
+                return '';
+            } else {
+                return tag.attributes.title;
+            }
         });
 
         stream.on('data', (chunk) => {

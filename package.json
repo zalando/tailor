@@ -9,13 +9,16 @@
   ],
   "scripts": {
     "test": "mocha --harmony tests/**",
+    "test-frontend": "mocha --harmony example/test.js",
     "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests/**",
-    "lint": "eslint lib/ tests/",
-    "example": "node --harmony example/tailor",
-    "benchmark": "node perf/benchmark"
+    "lint": "eslint lib/ tests/ src/pipe.js",
+    "example": "npm run prepublish && node --harmony example/tailor",
+    "benchmark": "node perf/benchmark",
+    "prepublish": "uglifyjs src/pipe.js --mangle --compress --comments -o src/pipe.min.js"
   },
   "pre-commit": [
     "lint",
+    "prepublish",
     "test"
   ],
   "engines": {
@@ -40,13 +43,16 @@
     "mocha": "^2.2.5",
     "nock": "^2.6.0",
     "pre-commit": "^1.1.2",
-    "sinon": "^1.15.3"
+    "sinon": "^1.15.3",
+    "uglify-js": "^2.6.1",
+    "wd": "^0.4.0"
   },
   "files": [
     "lib",
     "LICENSE",
     "MAINTAINERS",
     "index.js",
-    "README.md"
+    "README.md",
+    "src/pipe.min.js"
   ]
 }

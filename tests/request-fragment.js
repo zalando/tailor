@@ -7,7 +7,7 @@ const nock = require('nock');
 describe('requestFragment', () => {
 
     let fragmentAttrb;
-    beforeEach( () => {
+    beforeEach(() => {
         fragmentAttrb = {
             timeout: 1000
         };
