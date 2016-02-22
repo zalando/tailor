@@ -6,18 +6,25 @@ const StringifierStream = require('../../lib/streams/stringifier-stream');
 const lazypipe = require('lazypipe');
 
 
-function streamy (specialTagsOrFn, maybeFn) {
+function streamy (specialTagsOrFn, pipeBeforeTagsOrFn, maybeFn) {
     let specialTags;
+    let pipeBeforeTags;
     let fn;
     if (typeof specialTagsOrFn === 'function') {
         specialTags = ['fragment'];
+        pipeBeforeTags = [];
         fn = specialTagsOrFn;
+    } else if (typeof pipeBeforeTagsOrFn === 'function')  {
+        specialTags = specialTagsOrFn || ['fragment'];
+        pipeBeforeTags = [];
+        fn = pipeBeforeTagsOrFn;
     } else {
         specialTags = specialTagsOrFn || ['fragment'];
+        pipeBeforeTags = pipeBeforeTagsOrFn || [];
         fn = maybeFn;
     }
     return (lazypipe()
-            .pipe((tags) => new ParserStream(tags), specialTags)
+            .pipe((tags, pipeTags) => new ParserStream(tags, pipeTags), specialTags, pipeBeforeTags)
             .pipe((f) => new StringifierStream(f), fn)
     )();
 };
@@ -111,9 +118,9 @@ describe('Layout Streams', () => {
     });
 
 
-    it('should ask for pipe placeholder before the first script', (done) => {
+    it('should ask for pipe placeholder before the first tag from pipeBeforeTags', (done) => {
         let data = '';
-        let stream = streamy( (tag) => {
+        let stream = streamy(['fragment'], ['script'], (tag) => {
             if (tag.name) {
                 return 'tag';
             } if (tag.closingTag) {
@@ -125,37 +132,15 @@ describe('Layout Streams', () => {
             }
         });
         stream.on('end', () => {
-            assert.equal(data, '<html><body>pipe<script></script>tagclose</body></html>');
+            assert.equal(data, '<html><body>pipe<script></script><script></script>tagclose</body></html>');
             done();
         });
         stream.on('data', (chunk) => {
             data += chunk;
         });
-        stream.end('<html><body><script></script><fragment></body></html>');
+        stream.end('<html><body><script></script><script></script><fragment></body></html>');
     });
 
-    it('should ask for pipe placeholder before the first fragment', (done) => {
-        let data = '';
-        let stream = streamy( (tag) => {
-            if (tag.name) {
-                return 'tag';
-            } if (tag.closingTag) {
-                return 'close';
-            } else if (tag.placeholder === 'pipe') {
-                return 'pipe';
-            } else {
-                return '';
-            }
-        });
-        stream.on('end', () => {
-            assert.equal(data, '<html><body>pipetagclose</body></html>');
-            done();
-        });
-        stream.on('data', (chunk) => {
-            data += chunk;
-        });
-        stream.end('<html><body><fragment></body></html>');
-    });
 
     it('should ask for more content before closing body', (done) => {
         let data = '';
