@@ -34,7 +34,7 @@ Tailor uses [sax](https://github.com/isaacs/sax-js) to parse the template, where
 ```html
 <html>
 <head>
-    <fragment src="http://assets.domain.com" inline>
+    <fragment src="http://assets.domain.com">
 </head>
 <body>
     <fragment src="http://header.domain.com">
