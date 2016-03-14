@@ -91,8 +91,8 @@ describe('Tailor', () => {
                 assert.equal(
                     result,
                     '<html>' +
-                    '<script>p.start(0)</script>hello<script>p.end(0)</script>' +
-                    '<script>p.start(1)</script>world<script>p.end(1)</script>' +
+                    '<script data-pipe>p.start(0)</script>hello<script data-pipe>p.end(0)</script>' +
+                    '<script data-pipe>p.start(1)</script>world<script data-pipe>p.end(1)</script>' +
                     '</html>'
                 );
                 done();
@@ -297,9 +297,9 @@ describe('Tailor', () => {
                 assert.equal(data,
                     '<html>' +
                     '<link rel="stylesheet" href="http://link">' +
-                    '<script>p.start(0, "http://link2")</script>' +
+                    '<script data-pipe>p.start(0, "http://link2")</script>' +
                     'hello' +
-                    '<script>p.end(0, "http://link2")</script>' +
+                    '<script data-pipe>p.end(0, "http://link2")</script>' +
                     '</html>'
                 );
                 done();
@@ -323,11 +323,11 @@ describe('Tailor', () => {
             });
             response.on('end', () => {
                 assert.equal(data,
-                    '<script>p.placeholder(0)</script>' +
+                    '<script data-pipe>p.placeholder(0)</script>' +
                     '<script>p.loadCSS("http://link")</script>' +
-                    '<script>p.start(0, "http://link2")</script>' +
+                    '<script data-pipe>p.start(0, "http://link2")</script>' +
                     'hello' +
-                    '<script>p.end(0, "http://link2")</script>'
+                    '<script data-pipe>p.end(0, "http://link2")</script>'
                 );
                 done();
             });
@@ -353,9 +353,9 @@ describe('Tailor', () => {
                 assert.equal(data,
                     '<html>' +
                     '<link rel="stylesheet" href="http://link">' +
-                    '<script>p.start(0, "http://link2")</script>' +
+                    '<script data-pipe>p.start(0, "http://link2")</script>' +
                     'hello' +
-                    '<script>p.end(0, "http://link2")</script>' +
+                    '<script data-pipe>p.end(0, "http://link2")</script>' +
                     '</html>'
                 );
                 done();
@@ -385,10 +385,10 @@ describe('Tailor', () => {
                 assert.equal(data,
                     '<html>' +
                     '<body>' +
-                    '<script>p.placeholder(0)</script>' +
-                    '<script>p.start(0)</script>' +
+                    '<script data-pipe>p.placeholder(0)</script>' +
+                    '<script data-pipe>p.start(0)</script>' +
                     'hello' +
-                    '<script>p.end(0)</script>' +
+                    '<script data-pipe>p.end(0)</script>' +
                     '</body>' +
                     '</html>'
                 );
@@ -420,9 +420,9 @@ describe('Tailor', () => {
                 assert.equal(
                     result,
                     '<html>' +
-                    '<script>p.start(0)</script>' +
+                    '<script data-pipe>p.start(0)</script>' +
                     'yes' +
-                    '<script>p.end(0)</script>' +
+                    '<script data-pipe>p.end(0)</script>' +
                     '</html>'
                 );
                 done();

@@ -4,7 +4,14 @@ var Pipe = (function (doc) { //eslint-disable-line no-unused-vars, strict
         var starts = {};
         var scripts = doc.getElementsByTagName('script');
         function currentScript () {
-            return scripts[scripts.length - 1];
+            var script;
+            for (var s = scripts.length - 1; s >= 0; s--) {
+                script = scripts[s];
+                if (script.hasAttribute('data-pipe')) {
+                    script.removeAttribute('data-pipe');
+                    return script;
+                }
+            }
         };
         function placeholder (index) {
             placeholders[index] = currentScript();
