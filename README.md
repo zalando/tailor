@@ -5,6 +5,12 @@
 
 Tailor is a layout service that uses streams to compose a web page from fragment services.
 
+# Why Layout Service?
+
+Microservices get a lot of traction these days. They allow multiple teams to work independently from each other, choose their own technology stacks and establish their own release cycles. Unfortunately, frontend development hasn’t fully capitalized yet on the benefits that microservices offer. The common practice for building websites remains “the monolith”:  a single frontend codebase that consumes multiple APIs.
+
+What if we could have microservices on the frontend? This would allow frontend developers to work together with their backend counterparts on the same feature and deploy parts of the website— “fragments” such as Header, Product, and Footer- independently. Bringing microservices to the frontend requires a layout service that composes a website out of fragments. Tailor was developed to solve this needs.
+
 # Installation
 
 `npm i node-tailor --save`
