@@ -65,6 +65,33 @@ describe('Tailor', () => {
 
     });
 
+    it('should allow to overide statusCode from template', (done) => {
+
+        const tailor = new Tailor({
+            fetchTemplate: (request, parseTemplate) => {
+                parseTemplate = () => {
+                    const st = new PassThrough();
+                    st.statusCode = '503';
+                    st.end('');
+                    return st;
+                };
+                return Promise.resolve(parseTemplate());
+            }
+        });
+        const server = http.createServer(tailor.requestHandler);
+        server.listen(8888, 'localhost');
+
+        return http.get('http://localhost:8888/test', (response) => {
+            assert.equal(response.statusCode, 503);
+            response.resume();
+            response.on('end', () => {
+                server.close();
+                done();
+            });
+        });
+
+    });
+
     it('should stream content from http and https fragments', (done) => {
 
         nock('https://fragment')
