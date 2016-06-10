@@ -58,7 +58,7 @@ Tailor uses [sax](https://github.com/isaacs/sax-js) to parse the template, where
 * *timeout* - optional timeout of fragment in milliseconds (default is 3000)
 * *async* — postpones the fragment until the end of body tag
 * *public* — doesn't send the headers to fragment server
-* *fallback-src* - URL of the fallback fragment in case of timeout/error on the current fragment
+* *fallback_src* - URL of the fallback fragment in case of timeout/error on the current fragment
 
 ## Fragment server
 

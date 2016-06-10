@@ -424,18 +424,27 @@ describe('Tailor', () => {
         });
     });
 
-    it('should replace fragment url with the one from context', (done) => {
+    it('should replace fragment attributes with the one from context', (done) => {
         nock('https://fragment')
             .get('/yes').reply(200, 'yes');
 
         mockTemplate
             .returns(
                 '<html>' +
-                '<fragment id="f-1" src="https://default/no">' +
+                '<body>' +
+                '<fragment async=false primary id="f-1" src="https://default/no">' +
+                '</body>' +
                 '</html>'
             );
 
-        mockContext.returns(Promise.resolve({'f-1': 'https://fragment/yes'}));
+        const contextObj = {
+            'f-1' : {
+                src : 'https://fragment/yes',
+                primary: false,
+                async: true
+            }
+        };
+        mockContext.returns(Promise.resolve(contextObj));
 
         http.get('http://localhost:8080/test', (response) => {
             let result = '';
@@ -447,9 +456,12 @@ describe('Tailor', () => {
                 assert.equal(
                     result,
                     '<html>' +
+                    '<body>' +
+                    '<script data-pipe>p.placeholder(0)</script>' +
                     '<script data-pipe>p.start(0)</script>' +
                     'yes' +
                     '<script data-pipe>p.end(0)</script>' +
+                    '</body>' +
                     '</html>'
                 );
                 done();
