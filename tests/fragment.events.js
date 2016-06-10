@@ -3,7 +3,7 @@ const Fragment = require('../lib/fragment');
 const assert = require('assert');
 const nock = require('nock');
 const TAG = {attributes: {src: 'https://fragment'}};
-const TAG_FALLBACK = {attributes: {src: 'https://fragment', 'fallback_src': 'https://fallback-fragment'}};
+const TAG_FALLBACK = {attributes: {src: 'https://fragment', 'fallback-src': 'https://fallback-fragment'}};
 const REQUEST = {
     headers: {}
 };
