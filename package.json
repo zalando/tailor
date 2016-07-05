@@ -32,7 +32,7 @@
   "license": "MIT",
   "dependencies": {
     "parse-link-header": "^0.2.0",
-    "sax": "^1.1.4"
+    "parse5": "^2.1.5"
   },
   "devDependencies": {
     "eslint": "^2.0.0",

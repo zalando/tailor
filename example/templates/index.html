@@ -12,6 +12,8 @@
     </script>
 </head>
 <body>
+    <script slot="head" name="hello"></script>
+    <script slot="head" name="awesome"></script>
     <div>
         <script>
             // this tests that the pipe functionality may
@@ -19,9 +21,9 @@
             document.body.appendChild(document.createElement('script'));
         </script>
         <h2>Fragment 1:</h2>
-        <fragment src="http://localhost:8088" primary fallback-src="http://localhost:8081"/>
+        <script type="mosaic-slot" src="http://localhost:8088" primary fallback-src="http://localhost:8081"></script>
         <h2>Fragment 2:</h2>
-        <fragment async src="http://localhost:8082"/>
+        <script type="mosaic-slot" async src="http://localhost:8082"/></script>
         <div>All done!</div>
     </div>
 </body>

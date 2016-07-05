@@ -33,8 +33,7 @@ module.exports = class Tailor extends EventEmitter {
             pipeInstanceName : () => '_p' + Math.round(Math.random() * 999)
         }, options);
         requestOptions.parseTemplate = parseTemplate(
-            [requestOptions.fragmentTag].concat(requestOptions.handledTags),
-            ['script', requestOptions.fragmentTag]
+            ['script', requestOptions.fragmentTag], requestOptions.optionalTransformations
         );
         this.requestHandler = requestHandler.bind(this, requestOptions);
         // To Prevent from exiting the process - https://nodejs.org/api/events.html#events_error_events
