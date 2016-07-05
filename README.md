@@ -5,6 +5,8 @@
 
 Tailor is a layout service that uses streams to compose a web page from fragment services.
 
+To know more about how tailor works, You can check this [blog post](https://www.oreilly.com/ideas/better-streaming-layouts-for-frontend-microservices-with-tailor)
+
 # Why Layout Service?
 
 Microservices get a lot of traction these days. They allow multiple teams to work independently from each other, choose their own technology stacks and establish their own release cycles. Unfortunately, frontend development hasn’t fully capitalized yet on the benefits that microservices offer. The common practice for building websites remains “the monolith”: a single frontend codebase that consumes multiple APIs.
