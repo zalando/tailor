@@ -11,6 +11,7 @@ describe('Tailor', () => {
     let server;
     const mockTemplate = sinon.stub();
     const mockContext = sinon.stub();
+    const cacheTemplate = sinon.spy();
 
     beforeEach((done) => {
         const tailor = new Tailor({
@@ -20,10 +21,23 @@ describe('Tailor', () => {
                 const template = mockTemplate(request);
                 if (template) {
                     if (typeof template === 'string') {
-                        return parseTemplate(template);
-                    } else {
+                        return parseTemplate(template).then((parsedTemplate) => {
+                            const cache = [];
+                            parsedTemplate.on('data', (data) => cache.push(data));
+                            parsedTemplate.on('end', function () {
+                                cacheTemplate(cache);
+                            });
+                            return parsedTemplate;
+                        });
+                    } else if (typeof template === 'function') {
                         // assuming its a function that returns stream or string
                         return parseTemplate(template());
+                    } else {
+                        // resume cached template
+                        const tempalteStream = new PassThrough({objectMode: true});
+                        template.forEach((item) => tempalteStream.write(item));
+                        tempalteStream.end();
+                        return Promise.resolve(tempalteStream);
                     }
                 } else {
                     return Promise.reject('Error fetching template');
@@ -39,6 +53,7 @@ describe('Tailor', () => {
     afterEach((done) => {
         mockContext.reset();
         mockTemplate.reset();
+        cacheTemplate.reset();
         server.close(done);
     });
 
@@ -79,17 +94,15 @@ describe('Tailor', () => {
             }
         });
         const server = http.createServer(tailor.requestHandler);
-        server.listen(8888, 'localhost');
-
-        return http.get('http://localhost:8888/test', (response) => {
-            assert.equal(response.statusCode, 503);
-            response.resume();
-            response.on('end', () => {
-                server.close();
-                done();
+        server.listen(8888, 'localhost', () => {
+            http.get('http://localhost:8888/test', (response) => {
+                assert.equal(response.statusCode, 503);
+                response.resume();
+                response.on('end', () => {
+                    server.close(done);
+                });
             });
         });
-
     });
 
     it('should stream content from http and https fragments', (done) => {
@@ -468,4 +481,79 @@ describe('Tailor', () => {
             });
         });
     });
+
+    it('should not mutate the template with the context', (done) => {
+        nock('https://fragment')
+            .get('/yes').reply(200, 'yes');
+
+        nock('https://fragment')
+            .get('/no').reply(200, 'no');
+
+        mockTemplate
+            .returns(
+                '<html>' +
+                '<body>' +
+                '<fragment async=false primary id="f-1" src="https://fragment/no">' +
+                '</body>' +
+                '</html>'
+            );
+
+        const contextObj = {
+            'f-1' : {
+                src : 'https://fragment/yes',
+                primary: false,
+                async: true
+            }
+        };
+        mockContext.returns(Promise.resolve(contextObj));
+
+        http.get('http://localhost:8080/test', (response) => {
+            let result = '';
+            assert.equal(response.statusCode, 200);
+            response.on('data', (data) => {
+                result += data;
+            });
+            response.on('end', () => {
+                assert.equal(
+                    result,
+                    '<html>' +
+                    '<body>' +
+                    '<script data-pipe>p.placeholder(0)</script>' +
+                    '<script data-pipe>p.start(0)</script>' +
+                    'yes' +
+                    '<script data-pipe>p.end(0)</script>' +
+                    '</body>' +
+                    '</html>'
+                );
+
+                // Second request
+                mockContext.returns(Promise.resolve({}));
+                mockTemplate.returns(cacheTemplate.args[0][0]);
+
+                http.get('http://localhost:8080/test', (response) => {
+                    let result = '';
+                    assert.equal(response.statusCode, 200);
+                    response.on('data', (data) => {
+                        result += data;
+                    });
+                    response.on('end', () => {
+                        assert.equal(
+                            result,
+                            '<html>' +
+                            '<body>' +
+                            '<script data-pipe>p.placeholder(0)</script>' +
+                            '<script data-pipe>p.start(0)</script>' +
+                            'no' +
+                            '<script data-pipe>p.end(0)</script>' +
+                            '</body>' +
+                            '</html>'
+                        );
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+
 });
