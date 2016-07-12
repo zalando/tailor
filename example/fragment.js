@@ -29,6 +29,7 @@ module.exports = (fragmentName, fragmentUrl) => (request, response) => {
                     background-color: lightgrey;
                 }
             `);
+            break;
         default:
             // serve fragment's body
             response.writeHead(200, {
