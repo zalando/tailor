@@ -32,8 +32,8 @@ module.exports = (fragmentName, fragmentUrl) => (request, response) => {
         default:
             // serve fragment's body
             response.writeHead(200, {
-                'Link': `<${fragmentUrl}/fragment.css>; rel="stylesheet",
-                         <${fragmentUrl}/fragment.js>; rel="fragment-script"`,
+                'Link': `<${fragmentUrl}/fragment.css>; rel="stylesheet",` +
+                        `<${fragmentUrl}/fragment.js>; rel="fragment-script"`,
                 'Content-Type': 'text/html'
             });
             response.end(`
