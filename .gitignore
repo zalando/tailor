@@ -3,4 +3,5 @@ node_modules
 npm-debug.log
 coverage
 src/pipe.min.js
+jsconfig.json
 .vscode

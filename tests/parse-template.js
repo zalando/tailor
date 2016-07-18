@@ -1,23 +1,28 @@
 'use strict';
-const PassThrough = require('stream').PassThrough;
 const parseTemplate = require('../lib/parse-template');
 const assert = require('assert');
 
 describe('parseTemplate', () => {
 
-    it('returns a Stream', () => {
-        assert(parseTemplate(() => '')('template') instanceof Promise);
+    it('returns a Promise', () => {
+        assert(parseTemplate('')('template') instanceof Promise);
     });
 
-    it('re-emits an error from a template stream', (done) => {
-        const template = new PassThrough();
-        parseTemplate(() => '')(template).then((parsedTemplate) => {
-            parsedTemplate.on('error', (err) => {
-                assert.equal(err, 'something bad happened');
-                done();
-            });
+    it('should reject with error for invalid templates', () => {
+        const template = () => new Error('throw');
+        parseTemplate('')(template()).catch((err)=> {
+            assert(err instanceof Error);
         });
-        setImmediate(() => template.emit('error', 'something bad happened'));
+    });
+
+    it('should support partial templates using slots', (done) => {
+        const template = '<script type="slot" name="head"></script>';
+        const childTemplate = '<meta slot="head"/>';
+        parseTemplate('')(template, childTemplate).then((parsedTemplate) => {
+            const result = '<html><head><meta slot="head"></head><body></body></html>';
+            assert.equal(result, parsedTemplate.toString());
+            done();
+        });
     });
 
 });
