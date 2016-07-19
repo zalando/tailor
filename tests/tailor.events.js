@@ -93,7 +93,7 @@ describe('Tailor events', () => {
 
     it('emits `end(request, contentSize)` event', (done) => {
         const onEnd = sinon.spy();
-        mockTemplate.returns('<html>');
+        mockTemplate.returns('<html><head></head><body><h2></h2></body></html>');
         tailor.on('end', onEnd);
         http.get('http://localhost:8080/template', (response) => {
             response.resume();
@@ -101,7 +101,7 @@ describe('Tailor events', () => {
                 const request = onEnd.args[0][0];
                 const contentSize = onEnd.args[0][1];
                 assert.equal(request.url, '/template');
-                assert.equal(contentSize, 6);
+                assert.equal(contentSize, 48);
                 assert.equal(onEnd.callCount, 1);
                 done();
             });

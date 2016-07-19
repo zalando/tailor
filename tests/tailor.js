@@ -4,7 +4,6 @@ const http = require('http');
 const nock = require('nock');
 const sinon = require('sinon');
 const Tailor = require('../index');
-const PassThrough = require('stream').PassThrough;
 
 describe('Tailor', () => {
 
@@ -20,25 +19,10 @@ describe('Tailor', () => {
             fetchTemplate: (request, parseTemplate) => {
                 const template = mockTemplate(request);
                 if (template) {
-                    if (typeof template === 'string') {
-                        return parseTemplate(template).then((parsedTemplate) => {
-                            const cache = [];
-                            parsedTemplate.on('data', (data) => cache.push(data));
-                            parsedTemplate.on('end', function () {
-                                cacheTemplate(cache);
-                            });
-                            return parsedTemplate;
-                        });
-                    } else if (typeof template === 'function') {
-                        // assuming its a function that returns stream or string
-                        return parseTemplate(template());
-                    } else {
-                        // resume cached template
-                        const tempalteStream = new PassThrough({objectMode: true});
-                        template.forEach((item) => tempalteStream.write(item));
-                        tempalteStream.end();
-                        return Promise.resolve(tempalteStream);
-                    }
+                    return parseTemplate(template).then((parsedTemplate) => {
+                        cacheTemplate(parsedTemplate);
+                        return parsedTemplate;
+                    });
                 } else {
                     return Promise.reject('Error fetching template');
                 }
@@ -66,45 +50,6 @@ describe('Tailor', () => {
         });
     });
 
-    it('should return 500 if the template stream errored', (done) => {
-        mockTemplate.returns(() => {
-            const st = new PassThrough();
-            setImmediate(() => st.emit('error', 'Something bad happened'));
-            return st;
-        });
-        http.get('http://localhost:8080/missing-template', (response) => {
-            assert.equal(response.statusCode, 500);
-            response.resume();
-            response.on('end', done);
-        });
-
-    });
-
-    it('should allow to overide statusCode from template', (done) => {
-
-        const tailor = new Tailor({
-            fetchTemplate: (request, parseTemplate) => {
-                parseTemplate = () => {
-                    const st = new PassThrough();
-                    st.statusCode = '503';
-                    st.end('');
-                    return st;
-                };
-                return Promise.resolve(parseTemplate());
-            }
-        });
-        const server = http.createServer(tailor.requestHandler);
-        server.listen(8888, 'localhost', () => {
-            http.get('http://localhost:8888/test', (response) => {
-                assert.equal(response.statusCode, 503);
-                response.resume();
-                response.on('end', () => {
-                    server.close(done);
-                });
-            });
-        });
-    });
-
     it('should stream content from http and https fragments', (done) => {
 
         nock('https://fragment')
@@ -115,10 +60,8 @@ describe('Tailor', () => {
 
         mockTemplate
             .returns(
-                '<html>' +
-                '<fragment id="f-1" src="https://fragment/1">' +
-                '<fragment id="f-2" src="http://fragment:9000/2">' +
-                '</html>'
+                '<fragment id="f-1" src="https://fragment/1"></fragment>' +
+                '<fragment id="f-2" src="http://fragment:9000/2"></fragment>'
             );
 
         http.get('http://localhost:8080/test', (response) => {
@@ -131,8 +74,11 @@ describe('Tailor', () => {
                 assert.equal(
                     result,
                     '<html>' +
+                    '<head></head>' +
+                    '<body>' +
                     '<script data-pipe>p.start(0)</script>hello<script data-pipe>p.end(0)</script>' +
                     '<script data-pipe>p.start(1)</script>world<script data-pipe>p.end(1)</script>' +
+                    '</body>' +
                     '</html>'
                 );
                 done();
@@ -150,11 +96,9 @@ describe('Tailor', () => {
 
         mockTemplate
             .returns(
-                '<html>' +
-                '<fragment src="https://fragment/1"> ' +
-                '<fragment src="https://fragment/2" primary> ' +
-                '<fragment src="https://fragment/3" primary> ' +
-                '</html>'
+                '<fragment src="https://fragment/1"></fragment>' +
+                '<fragment src="https://fragment/2" primary></fragment>' +
+                '<fragment src="https://fragment/3" primary></fragment>'
             );
 
         http.get('http://localhost:8080/test', (response) => {
@@ -164,7 +108,7 @@ describe('Tailor', () => {
             done();
         });
     });
-
+    
     it('should forward headers to fragment', (done) => {
 
         const headers = {
@@ -189,7 +133,7 @@ describe('Tailor', () => {
         }).get('/').reply(200);
 
         mockTemplate
-            .returns('<fragment src="https://fragment/">');
+            .returns('<fragment src="https://fragment/"></fragment>');
 
         http.get({
             hostname: 'localhost',
@@ -207,7 +151,7 @@ describe('Tailor', () => {
         nock('https://fragment').get('/1').reply(200, 'hello');
 
         mockTemplate
-            .returns('<fragment src="https://fragment/1">');
+            .returns('<fragment src="https://fragment/1"></fragment>');
 
         http.get('http://localhost:8080/test', (response) => {
             const headers = response.headers;
@@ -220,13 +164,13 @@ describe('Tailor', () => {
     it('should set timeout for a fragment request', (done) => {
         nock('https://fragment')
             .get('/1').socketDelay(101).reply(200, 'hello')
-            .get('/2').socketDelay(10001).reply(200, 'world');
+            .get('/2').socketDelay(3001).reply(200, 'world');
 
         mockTemplate
             .returns(
                 '<html>' +
-                '<fragment src="https://fragment/1" timeout="100">' +
-                '<fragment src="https://fragment/2">' +
+                '<fragment src="https://fragment/1" timeout="100"></fragment>' +
+                '<fragment src="https://fragment/2"></fragment>' +
                 '</html>'
             );
 
@@ -236,7 +180,7 @@ describe('Tailor', () => {
                 data += chunk;
             });
             response.on('end', () => {
-                assert.equal(data, '<html></html>');
+                assert.equal(data, '<html><head></head><body></body></html>');
                 done();
             });
         });
@@ -248,9 +192,7 @@ describe('Tailor', () => {
 
         mockTemplate
             .returns(
-                '<html>' +
-                '<fragment src="https://fragment/1" primary timeout="100"> ' +
-                '</html>'
+                '<fragment src="https://fragment/1" primary timeout="100"></fragment>'
             );
 
         http.get('http://localhost:8080/test', (response) => {
@@ -266,9 +208,7 @@ describe('Tailor', () => {
 
         mockTemplate
             .returns(
-                '<html>' +
-                '<fragment src="https://fragment/1" primary> ' +
-                '</html>'
+                '<fragment src="https://fragment/1" primary></fragment>'
             );
 
         http.get('http://localhost:8080/test', (response) => {
@@ -286,9 +226,8 @@ describe('Tailor', () => {
 
         mockTemplate
             .returns(
-                '<html>' +
-                '<fragment src="https://fragment/1" fallback-src="https://fragment/fallback"> ' +
-                '</html>'
+                '<fragment src="https://fragment/1" fallback-src="https://fragment/fallback">' +
+                '</fragment>'
             );
 
         http.get('http://localhost:8080/test', (response) => {
@@ -306,9 +245,8 @@ describe('Tailor', () => {
 
         mockTemplate
             .returns(
-                '<html>' +
                 '<fragment src="https://fragment/1" primary fallback-src="https://fragment/fallback"> ' +
-                '</html>'
+                '</fragment>'
             );
 
         http.get('http://localhost:8080/test', (response) => {
@@ -326,7 +264,7 @@ describe('Tailor', () => {
             });
 
         mockTemplate
-            .returns('<html><fragment src="https://fragment/1"></html>');
+            .returns('<fragment src="https://fragment/1"></fragment>');
 
         http.get('http://localhost:8080/test', (response) => {
             let data = '';
@@ -336,10 +274,13 @@ describe('Tailor', () => {
             response.on('end', () => {
                 assert.equal(data,
                     '<html>' +
+                    '<head></head>' +
+                    '<body>' +
                     '<link rel="stylesheet" href="http://link">' +
                     '<script data-pipe>p.start(0, "http://link2")</script>' +
                     'hello' +
                     '<script data-pipe>p.end(0, "http://link2")</script>' +
+                    '</body>' +
                     '</html>'
                 );
                 done();
@@ -347,14 +288,14 @@ describe('Tailor', () => {
         });
     });
 
-    it('should use loadCSS from async fragments', (done) => {
+    it('should use loadCSS for async fragments', (done) => {
         nock('https://fragment')
             .get('/1').reply(200, 'hello', {
                 'Link': '<http://link>; rel="stylesheet",<http://link2>; rel="fragment-script"'
             });
 
         mockTemplate
-            .returns('<fragment async src="https://fragment/1">');
+            .returns('<fragment async src="https://fragment/1"></fragment>');
 
         http.get('http://localhost:8080/test', (response) => {
             let data = '';
@@ -374,15 +315,14 @@ describe('Tailor', () => {
         });
     });
 
-
     it('should insert link to css and require js  from fragment x-amz-meta-link header', (done) => {
         nock('https://fragment')
-            .get('/1').reply(200, 'hello', {
-                'X-AMZ-META-LINK': '<http://link>; rel="stylesheet",<http://link2>; rel="fragment-script"'
-            });
+             .get('/1').reply(200, 'hello', {
+                 'X-AMZ-META-LINK': '<http://link>; rel="stylesheet",<http://link2>; rel="fragment-script"'
+             });
 
         mockTemplate
-            .returns('<html><fragment src="https://fragment/1"></html>');
+             .returns('<fragment src="https://fragment/1"></fragment>');
 
         http.get('http://localhost:8080/test', (response) => {
             let data = '';
@@ -392,10 +332,13 @@ describe('Tailor', () => {
             response.on('end', () => {
                 assert.equal(data,
                     '<html>' +
+                    '<head></head>' +
+                    '<body>' +
                     '<link rel="stylesheet" href="http://link">' +
                     '<script data-pipe>p.start(0, "http://link2")</script>' +
                     'hello' +
                     '<script data-pipe>p.end(0, "http://link2")</script>' +
+                    '</body>' +
                     '</html>'
                 );
                 done();
@@ -411,7 +354,7 @@ describe('Tailor', () => {
             .returns(
                 '<html>' +
                 '<body>' +
-                '<fragment src="https://fragment/1" async>' +
+                '<fragment src="https://fragment/1" async></fragment>' +
                 '</body>' +
                 '</html>'
             );
@@ -445,7 +388,7 @@ describe('Tailor', () => {
             .returns(
                 '<html>' +
                 '<body>' +
-                '<fragment async=false primary id="f-1" src="https://default/no">' +
+                '<fragment async=false primary id="f-1" src="https://default/no"></fragment>' +
                 '</body>' +
                 '</html>'
             );
