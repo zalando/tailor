@@ -16,14 +16,4 @@ describe('parseTemplate', () => {
         });
     });
 
-    it('should support partial templates using slots', (done) => {
-        const template = '<script type="slot" name="head"></script>';
-        const childTemplate = '<meta slot="head"/>';
-        parseTempatePartial(template, childTemplate).then((parsedTemplate) => {
-            const result = '<html><head><meta slot="head"></head><body></body></html>';
-            assert.equal(result, parsedTemplate.toString());
-            done();
-        });
-    });
-
 });

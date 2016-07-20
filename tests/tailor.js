@@ -9,6 +9,7 @@ describe('Tailor', () => {
 
     let server;
     const mockTemplate = sinon.stub();
+    const mockChildTemplate = sinon.stub();
     const mockContext = sinon.stub();
     const cacheTemplate = sinon.spy();
 
@@ -18,11 +19,12 @@ describe('Tailor', () => {
             pipeDefinition: () => new Buffer(''),
             fetchTemplate: (request, parseTemplate) => {
                 const template = mockTemplate(request);
+                const childTemplate = mockChildTemplate(request);
                 if (template) {
-                    return parseTemplate(template).then((parsedTemplate) => {
-                        cacheTemplate(parsedTemplate);
+                    return parseTemplate(template, childTemplate).then((parsedTemplate) => {
+                        cacheTemplate(template);
                         return parsedTemplate;
-                    });
+                    }).catch(e => console.log(e));
                 } else {
                     return Promise.reject('Error fetching template');
                 }
@@ -37,6 +39,7 @@ describe('Tailor', () => {
     afterEach((done) => {
         mockContext.reset();
         mockTemplate.reset();
+        mockChildTemplate.reset();
         cacheTemplate.reset();
         server.close(done);
     });
@@ -168,10 +171,8 @@ describe('Tailor', () => {
 
         mockTemplate
             .returns(
-                '<html>' +
                 '<fragment src="https://fragment/1" timeout="100"></fragment>' +
-                '<fragment src="https://fragment/2"></fragment>' +
-                '</html>'
+                '<fragment src="https://fragment/2"></fragment>'
             );
 
         http.get('http://localhost:8080/test', (response) => {
@@ -304,11 +305,13 @@ describe('Tailor', () => {
             });
             response.on('end', () => {
                 assert.equal(data,
+                    '<html><head></head><body>' +
                     '<script data-pipe>p.placeholder(0)</script>' +
                     '<script>p.loadCSS("http://link")</script>' +
                     '<script data-pipe>p.start(0, "http://link2")</script>' +
                     'hello' +
-                    '<script data-pipe>p.end(0, "http://link2")</script>'
+                    '<script data-pipe>p.end(0, "http://link2")</script>' +
+                    '</body></html>'
                 );
                 done();
             });
@@ -351,13 +354,7 @@ describe('Tailor', () => {
             .get('/1').reply(200, 'hello');
 
         mockTemplate
-            .returns(
-                '<html>' +
-                '<body>' +
-                '<fragment src="https://fragment/1" async></fragment>' +
-                '</body>' +
-                '</html>'
-            );
+            .returns('<fragment src="https://fragment/1" async></fragment>');
 
         http.get('http://localhost:8080/test', (response) => {
             let data = '';
@@ -367,6 +364,7 @@ describe('Tailor', () => {
             response.on('end', () => {
                 assert.equal(data,
                     '<html>' +
+                    '<head></head>' +
                     '<body>' +
                     '<script data-pipe>p.placeholder(0)</script>' +
                     '<script data-pipe>p.start(0)</script>' +
@@ -385,13 +383,7 @@ describe('Tailor', () => {
             .get('/yes').reply(200, 'yes');
 
         mockTemplate
-            .returns(
-                '<html>' +
-                '<body>' +
-                '<fragment async=false primary id="f-1" src="https://default/no"></fragment>' +
-                '</body>' +
-                '</html>'
-            );
+            .returns('<fragment async=false primary id="f-1" src="https://default/no"></fragment>');
 
         const contextObj = {
             'f-1' : {
@@ -412,6 +404,7 @@ describe('Tailor', () => {
                 assert.equal(
                     result,
                     '<html>' +
+                    '<head></head>' +
                     '<body>' +
                     '<script data-pipe>p.placeholder(0)</script>' +
                     '<script data-pipe>p.start(0)</script>' +
@@ -433,13 +426,7 @@ describe('Tailor', () => {
             .get('/no').reply(200, 'no');
 
         mockTemplate
-            .returns(
-                '<html>' +
-                '<body>' +
-                '<fragment async=false primary id="f-1" src="https://fragment/no">' +
-                '</body>' +
-                '</html>'
-            );
+            .returns('<fragment async=false primary id="f-1" src="https://fragment/no"></frgament>');
 
         const contextObj = {
             'f-1' : {
@@ -460,6 +447,7 @@ describe('Tailor', () => {
                 assert.equal(
                     result,
                     '<html>' +
+                    '<head></head>' +
                     '<body>' +
                     '<script data-pipe>p.placeholder(0)</script>' +
                     '<script data-pipe>p.start(0)</script>' +
@@ -483,6 +471,7 @@ describe('Tailor', () => {
                         assert.equal(
                             result,
                             '<html>' +
+                            '<head></head>' +
                             '<body>' +
                             '<script data-pipe>p.placeholder(0)</script>' +
                             '<script data-pipe>p.start(0)</script>' +
@@ -498,5 +487,134 @@ describe('Tailor', () => {
         });
     });
 
+    it('should support script based fragments for inserting in head', (done) => {
+        nock('https://fragment')
+            .get('/yes').reply(200, 'yes');
+
+        mockTemplate
+            .returns('<script type="fragment" src="https://fragment/yes"></script>');
+
+        http.get('http://localhost:8080/test', (response) => {
+            let data = '';
+            response.on('data', (chunk) => {
+                data += chunk;
+            });
+            response.on('end', () => {
+                assert.equal(data,
+                    '<html>' +
+                    '<head>' +
+                    '<script data-pipe>p.start(0)</script>' +
+                    'yes' +
+                    '<script data-pipe>p.end(0)</script>' +
+                    '</head>' +
+                    '<body></body>' +
+                    '</html>'
+                );
+                done();
+            });
+        });
+    });
+
+    it('should support partial templates using slots', (done) => {
+        mockTemplate
+            .returns(
+                '<head>' +
+                '<script type="slot" name="head"></script>' +
+                '</head>'
+            );
+
+        mockChildTemplate
+            .returns(
+                '<meta slot="head" charset="utf-8">'
+            );
+
+        http.get('http://localhost:8080/test', (response) => {
+            let data = '';
+            response.on('data', (chunk) => {
+                data += chunk;
+            });
+            response.on('end', () => {
+                assert.equal(data,
+                    '<html>' +
+                    '<head>' +
+                    '<meta slot="head" charset="utf-8">' +
+                    '</head>' +
+                    '<body></body>' +
+                    '</html>'
+                );
+                done();
+            });
+        });
+    });
+
+    it('should support custom slots for shuffling the nodes', (done) => {
+        mockTemplate
+            .returns(
+                '<head>' +
+                '<script type="slot" name="head"></script>' +
+                '</head>' +
+                '<body>' +
+                '<slot name="custom"></slot>' +
+                '</body>'
+            );
+
+        mockChildTemplate
+            .returns(
+                '<script slot="custom" src=""></script>' +
+                '<meta slot="head" charset="utf-8">' +
+                '<h2>Last</h2>'
+            );
+
+        http.get('http://localhost:8080/test', (response) => {
+            let data = '';
+            response.on('data', (chunk) => {
+                data += chunk;
+            });
+            response.on('end', () => {
+                assert.equal(data,
+                    '<html>' +
+                    '<head>' +
+                    '<meta slot="head" charset="utf-8">' +
+                    '</head>' +
+                    '<body>' +
+                    '<script slot="custom" src=""></script>' +
+                    '<h2>Last</h2>' +
+                    '</body>' +
+                    '</html>'
+                );
+                done();
+            });
+        });
+    });
+
+    it('should include the child templates after the lastchild of body', (done) => {
+        mockTemplate.returns('<body><h1></h1></body>');
+
+        mockChildTemplate
+            .returns(
+                '<div>' +
+                '<h2></h2>' +
+                '</div>'
+            );
+
+        http.get('http://localhost:8080/test', (response) => {
+            let data = '';
+            response.on('data', (chunk) => {
+                data += chunk;
+            });
+            response.on('end', () => {
+                assert.equal(data,
+                    '<html>' +
+                    '<head></head>' +
+                    '<body>' +
+                    '<h1></h1>' +
+                    '<div><h2></h2></div>' +
+                    '</body>' +
+                    '</html>'
+                );
+                done();
+            });
+        });
+    });
 
 });

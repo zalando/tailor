@@ -5,7 +5,7 @@
   "keywords": [
     "tailor",
     "layout service",
-    "streaming-templates",
+    "streaming templates",
     "node-tailor"
   ],
   "scripts": {
@@ -23,7 +23,7 @@
     "test"
   ],
   "engines": {
-    "node": ">5.0.0"
+    "node": ">4.4.x"
   },
   "repository": {
     "type": "git",
