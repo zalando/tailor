@@ -1,7 +1,6 @@
 'use strict';
 
 const http = require('http');
-const PassThrough = require('stream').PassThrough;
 const metrics = require('metrics');
 const histogram = new metrics.Histogram.createUniformHistogram();
 const html = `
@@ -12,37 +11,18 @@ const html = `
     </head>
     <body>
         <h2>Fragment 1:</h2>
-        <fragment primary src="http://localhost:8081"/>
+        <fragment primary src="http://localhost:8081"></fragment>
         <h2>Fragment 2:</h2>
-        <fragment async src="http://localhost:8081"/>
+        <fragment async src="http://localhost:8081"/></fragment>
     </body>
     </html>
 `;
-const parseTemplate = require('../lib/parse-template')(['fragment']);
-const template = Promise.resolve(html).then(parseTemplate).then(cacheTemplate);
+const parseTemplate = require('../lib/parse-template')(['fragment'], []);
 const requests = new WeakMap();
 const Tailor = require('../');
 const tailor = new Tailor({
-    fetchTemplate : () => template.then(unwrapCachedTemplate)
+    fetchTemplate : () => Promise.resolve(html).then(parseTemplate)
 });
-
-function unwrapCachedTemplate (chunks) {
-    const stream = new PassThrough({objectMode: true});
-    chunks.forEach((chunk) => stream.write(chunk));
-    stream.end();
-    return stream;
-}
-
-function cacheTemplate (stream) {
-    return new Promise((resolve, reject) => {
-        const chunks = [];
-        stream.on('data', (data) => chunks.push(data));
-        stream.on('end', () => resolve(chunks));
-        stream.on('error', (error) => {
-            reject(error);
-        });
-    });
-}
 
 // Tailor Events to collect Metrics
 tailor.on('start', (request) => {
