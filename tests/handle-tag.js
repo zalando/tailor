@@ -42,19 +42,13 @@ describe('Handle tag', () => {
         mockHandleTag.returns('');
         http.get('http://localhost:8080/template', (response) => {
             const request = mockHandleTag.args[0][0];
-            const openTag = mockHandleTag.args[0][1];
-            const closeTag = mockHandleTag.args[1][1];
+            const tag = mockHandleTag.args[0][1];
             assert.equal(request.url, '/template');
-            assert.deepEqual(openTag, {
+            assert.deepEqual(tag, {
                 name: 'x-tag',
                 attributes: {
                     foo: 'bar'
-                },
-                isSelfClosing: false
-            });
-            assert.deepEqual(closeTag, {
-                closingTag: 'x-tag',
-                attributes: {}
+                }
             });
             response.resume();
             response.on('end', done);
@@ -63,19 +57,18 @@ describe('Handle tag', () => {
 
     it('replaces the original tag with stream or string content', (done) => {
         const st = new PassThrough();
-        mockTemplate.returns('<x-tag foo="bar"><strong>test</strong></x-tag>');
+        mockTemplate.returns('<x-tag foo="bar"></x-tag>');
         mockHandleTag.onCall(0).returns(st);
-        mockHandleTag.onCall(1).returns('</foo>');
         http.get('http://localhost:8080/template', (response) => {
             let data = '';
             response.on('data', (chunk) => data += chunk);
             response.on('end', () => {
-                assert.equal(data, '<foo><strong>test</strong></foo>');
+                assert.equal(data, '<html><head></head><body><foo></foo></body></html>');
                 done();
             });
         });
-        st.write('<fo');
-        st.end('o>');
+        st.write('<foo>');
+        st.end('</foo>');
     });
 
 });

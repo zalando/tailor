@@ -1,23 +1,19 @@
 'use strict';
-const PassThrough = require('stream').PassThrough;
 const parseTemplate = require('../lib/parse-template');
 const assert = require('assert');
+const parseTempatePartial = parseTemplate([], []);
 
 describe('parseTemplate', () => {
 
-    it('returns a Stream', () => {
-        assert(parseTemplate(() => '')('template') instanceof Promise);
+    it('returns a Promise', () => {
+        assert(parseTempatePartial('template') instanceof Promise);
     });
 
-    it('re-emits an error from a template stream', (done) => {
-        const template = new PassThrough();
-        parseTemplate(() => '')(template).then((parsedTemplate) => {
-            parsedTemplate.on('error', (err) => {
-                assert.equal(err, 'something bad happened');
-                done();
-            });
+    it('should reject with error for invalid templates', () => {
+        const template = () => new Error('throw');
+        parseTempatePartial(template()).catch((err)=> {
+            assert(err instanceof Error);
         });
-        setImmediate(() => template.emit('error', 'something bad happened'));
     });
 
 });
