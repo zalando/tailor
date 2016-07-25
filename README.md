@@ -37,17 +37,17 @@ server.listen(process.env.PORT || 8080);
 
 # Template
 
-Tailor uses [sax](https://github.com/isaacs/sax-js) to parse the template, where it replaces each `fragmentTag` with a stream from the fragment server and `handledTags` with the result of `handleTag` function.
+Tailor uses [parse5](https://github.com/inikulin/parse5/) to parse the template, where it replaces each `fragmentTag` with a stream from the fragment server and `handledTags` with the result of `handleTag` function.
 
 ```html
 <html>
 <head>
-    <fragment src="http://assets.domain.com">
+    <script type="fragment" src="http://assets.domain.com"></script>
 </head>
 <body>
-    <fragment src="http://header.domain.com">
-    <fragment src="http://content.domain.com" primary>
-    <fragment src="http://footer.domain.com" async>
+    <fragment src="http://header.domain.com"></fragment>
+    <fragment src="http://content.domain.com" primary></fragment>
+    <fragment src="http://footer.domain.com" async></fragment>
 </body>
 </html>
 ```
