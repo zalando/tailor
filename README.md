@@ -95,9 +95,9 @@ Events may be used for logging and monitoring. Check `perf/benchmark.js` for an 
 
 # Partial Templates
 
-When you have multiple pages running in production. You might need to include basic html tags like `doctype, head, body, title, meta` etc
-in your templates and if you want to introduce additional link, script, fragment tags, You need to update all
-the templates which will evict the cache if you are have a caching strategy. We introduced partial templates using slots to address problems like this.
+When running multiple pages in production, you might need to include basic html tags like `doctype, head, body, title, meta` etc
+in your templates and if you want to introduce additional link, script, fragment tags, you need to update all
+the templates which will evict the cache if you have a caching strategy. We introduced partial templates using slots to address problems like this.
 
 *base-template.html*
 ```html
@@ -105,7 +105,7 @@ the templates which will evict the cache if you are have a caching strategy. We 
 <html>
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <script type="slot" name="head-end"></script>
+    <script type="slot" name="head"></script>
 </head>
 <body>
     <slot name="body-start"></slot>
@@ -129,19 +129,19 @@ The rendered html output will look like this
 <html>
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta slot="head" charset="utf-8">
-    <title slot="head">Test Template</title>
+    <meta charset="utf-8">
+    <title>Test Template</title>
 </head>
 <body>
-    <script slot="body-start" src="http://blah"></script>
+    <script src="http://blah"></script>
     <div>Hello</div>
     <fragment src="http://localhost" async primary ></fragment>
 </body>
 </html>
 ```
 
-Base tempaltes are updated less frequently and required page templates are more dynamic which will allow us to implement efficient caching mechanism (Ex -
-You can cache base-templates for longer time and evict the cache of page templates only when they change.)
+Base templates are updated less frequently and required page templates are more dynamic which will allow us to implement efficient caching mechanism
+(Ex - cache base-templates for longer time and evict the cache of page templates only when they change.)
 
 # Example
 
