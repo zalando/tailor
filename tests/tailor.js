@@ -111,7 +111,7 @@ describe('Tailor', () => {
             done();
         });
     });
-    
+
     it('should forward headers to fragment', (done) => {
 
         const headers = {
@@ -537,7 +537,7 @@ describe('Tailor', () => {
                 assert.equal(data,
                     '<html>' +
                     '<head>' +
-                    '<meta slot="head" charset="utf-8">' +
+                    '<meta charset="utf-8">' +
                     '</head>' +
                     '<body></body>' +
                     '</html>'
@@ -574,10 +574,10 @@ describe('Tailor', () => {
                 assert.equal(data,
                     '<html>' +
                     '<head>' +
-                    '<meta slot="head" charset="utf-8">' +
+                    '<meta charset="utf-8">' +
                     '</head>' +
                     '<body>' +
-                    '<script slot="custom" src=""></script>' +
+                    '<script src=""></script>' +
                     '<h2>Last</h2>' +
                     '</body>' +
                     '</html>'
