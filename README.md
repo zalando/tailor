@@ -28,7 +28,7 @@ server.listen(process.env.PORT || 8080);
 # Options
 
 * `fetchContext(request)` a function that returns a promise of the context, that is an object that maps fragment id to fragment url, to be able to override urls of the fragments on the page, defaults to `Promise.resolve({})`
-* `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3. Default implementation `lib/fetch-template.js` streams the template from  the file system
+* `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3. Default implementation `lib/fetch-template.js` fetches the template from  the file system
 * `fragmentTag` a name of the fragment tag, defaults to `fragment`
 * `handledTags` an array of custom tags, check `tests/handle-tag` for more info
 * `handleTag(request, tag)` receives a tag or closing tag and serializes it to a string or returns a stream
@@ -93,6 +93,56 @@ Events may be used for logging and monitoring. Check `perf/benchmark.js` for an 
 
 **Note:**  `fragment:response`, `fragment:fallback` and `fragment:error` are mutually exclusive. `fragment:end` happens only in case of successful response.
 
+# Partial Templates
+
+When you have multiple pages running in production. You might need to include basic html tags like `doctype, head, body, title, meta` etc
+in your templates and if you want to introduce additional link, script, fragment tags, You need to update all
+the templates which will evict the cache if you are have a caching strategy. We introduced partial templates using slots to address problems like this.
+
+*base-template.html*
+```html
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script type="slot" name="head-end"></script>
+</head>
+<body>
+    <slot name="body-start"></slot>
+    <div>Hello</div>
+</body>
+</html>
+```
+
+*example-page.html*
+
+```html
+<meta slot="head" charset="utf-8">
+<script slot="body-start" src="http://blah"></script>
+<fragment src="http://localhost" async primary ></fragment>
+<title slot="head">Test Template</title>
+```
+
+The rendered html output will look like this
+```html
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta slot="head" charset="utf-8">
+    <title slot="head">Test Template</title>
+</head>
+<body>
+    <script slot="body-start" src="http://blah"></script>
+    <div>Hello</div>
+    <fragment src="http://localhost" async primary ></fragment>
+</body>
+</html>
+```
+
+Base tempaltes are updated less frequently and required page templates are more dynamic which will allow us to implement efficient caching mechanism (Ex -
+You can cache base-templates for longer time and evict the cache of page templates only when they change.)
+
 # Example
 
 To start an example execute `npm run example` and open [http://localhost:8080/index](http://localhost:8080/index).
@@ -100,3 +150,21 @@ To start an example execute `npm run example` and open [http://localhost:8080/in
 # Benchmark
 
 To start running benchmark execute `npm run benchmark` and wait for couple of seconds to see the results.
+
+# Changelog
+
+* 1.0.0
+    * Introduced HTML compatible parser
+    * Partial templates using slots
+
+* 0.2.7
+    * Fixed the issue with mutating context
+
+* 0.2.6
+    * Increase listeners for concurrent handlers on stream
+
+* 0.2.5
+    * Allow context to override fragment attributes
+
+* 0.2.4
+    * Allow to override status code from templates
