@@ -36,7 +36,7 @@ describe('Stringifier Stream', () => {
         });
     });
 
-    it('shoudl consume stream asynchronously', (done) => {
+    it('should consume stream asynchronously', (done) => {
         const templatePromise = getTemplate('<fragment id="1"></fragment><fragment id="2"></fragment>');
         return templatePromise.then((nodes) => {
             let data = '';
