@@ -37,18 +37,27 @@ describe('Serializer', () => {
         assert.deepEqual(serializedList[1], { placeholder: 'pipe' });
     });
 
-    it('should output placeholder tags for handle tags', () => {
+    it('should output placeholder and closing tags for handle tags', () => {
         const template = '<x-tag></x-tag>';
         const serializedList = getSerializer(template).serialize();
         assert.deepEqual(serializedList[1], { attributes: {}, name: 'x-tag' });
+        assert.deepEqual(serializedList[2], { closingTag: 'x-tag' });
+    });
+
+    it('should serialize attributes and child nodes inside handle tags', () => {
+        const template = '<x-tag foo="bar"><div>hello</div></x-tag>';
+        const serializedList = getSerializer(template).serialize();
+        assert.deepEqual(serializedList[1], { attributes: {'foo': 'bar'}, name: 'x-tag' });
+        assert.equal(serializedList[2], '<div>hello</div>');
+        assert.deepEqual(serializedList[3], { closingTag: 'x-tag' });
     });
 
     it('should insert async placeholder before end of body tag', () => {
         const template = '<body><x-tag></x-tag></body>';
         const serializedList = getSerializer(template).serialize();
         assert.equal(serializedList[0].toString().trim(), '<html><head></head><body>');
-        assert.deepEqual(serializedList[2], { placeholder: 'async' });
-        assert.equal(serializedList[3].toString().trim(), '</body></html>');
+        assert.deepEqual(serializedList[3], { placeholder: 'async' });
+        assert.equal(serializedList[4].toString().trim(), '</body></html>');
     });
 
     it('should support script based custom tags for inserting in head', () => {
@@ -62,7 +71,7 @@ describe('Serializer', () => {
             async: '',
             src: 'https://example.com'
         }});
-        assert.equal(serializedList[3].toString().trim(), '</head><body></body></html>');
+        assert.equal(serializedList[4].toString().trim(), '</head><body></body></html>');
     });
 
 });
