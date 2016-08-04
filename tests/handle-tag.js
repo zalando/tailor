@@ -71,4 +71,18 @@ describe('Handle tag', () => {
         st.end('</foo>');
     });
 
+    it('should let us inject arbitrary html inside the tags', (done) => {
+        mockTemplate.returns('<x-tag foo="bar"><div>test</div></x-tag>');
+        mockHandleTag.onCall(0).returns('<hello>');
+        mockHandleTag.onCall(1).returns('</hello>');
+        http.get('http://localhost:8080/template', (response) => {
+            let data = '';
+            response.on('data', (chunk) => data += chunk);
+            response.on('end', () => {
+                assert.equal(data, '<html><head></head><body><hello><div>test</div></hello></body></html>');
+                done();
+            });
+        });
+    });
+
 });

@@ -420,9 +420,7 @@ describe('Tailor', () => {
 
     it('should not mutate the template with the context', (done) => {
         nock('https://fragment')
-            .get('/yes').reply(200, 'yes');
-
-        nock('https://fragment')
+            .get('/yes').reply(200, 'yes')
             .get('/no').reply(200, 'no');
 
         mockTemplate
@@ -614,6 +612,63 @@ describe('Tailor', () => {
                 );
                 done();
             });
+        });
+    });
+
+    it('should flatten nested fragments', (done) => {
+        nock('https://fragment')
+            .get('/1').reply(200, 'hello')
+            .get('/2').reply(200, 'world');
+
+        mockTemplate
+            .returns(
+                '<fragment src="https://fragment/1">' +
+                    '<fragment src="https://fragment/2">' +
+                    '</fragmemt>' +
+                '</fragment>'
+            );
+        mockChildTemplate.returns('');
+
+        http.get('http://localhost:8080/test', (response) => {
+            let data = '';
+            response.on('data', (chunk) => {
+                data += chunk;
+            });
+            response.on('end', () => {
+                assert.equal(data,
+                    '<html>' +
+                    '<head></head>' +
+                    '<body>' +
+                    '<script data-pipe>p.start(0)</script>' +
+                    'hello' +
+                    '<script data-pipe>p.end(0)</script>' +
+                    '<script data-pipe>p.start(1)</script>' +
+                    'world' +
+                    '<script data-pipe>p.end(1)</script>' +
+                    '</body>' +
+                    '</html>'
+                );
+                done();
+            });
+        });
+    });
+
+    it('should return 500 even if primary fragment is nested and timed out', (done) => {
+        nock('https://fragment')
+            .get('/1').reply(200, 'hello')
+            .get('/2').socketDelay(101).reply(200, 'world');
+
+        mockTemplate
+            .returns(
+                '<fragment src="https://fragment/1">' +
+                    '<fragment primary timeout="100" src="https://fragment/2">' +
+                    '</fragmemt>' +
+                '</fragment>'
+            );
+
+        http.get('http://localhost:8080/test', (response) => {
+            assert.equal(response.statusCode, 500);
+            done();
         });
     });
 
