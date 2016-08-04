@@ -26,7 +26,9 @@ describe('Tailor', () => {
                         return parsedTemplate;
                     }).catch(e => console.log(e));
                 } else {
-                    return Promise.reject('Error fetching template');
+                    const error = new Error();
+                    error.presentable = '<div>error template</div>';
+                    return Promise.reject(error);
                 }
             },
             pipeInstanceName: () => 'p'
@@ -52,6 +54,22 @@ describe('Tailor', () => {
             response.on('end', done);
         });
     });
+
+    it('should render with presentable error template content', (done) => {
+        mockTemplate.returns(false);
+        http.get('http://localhost:8080/missing-template', (response) => {
+            assert.equal(response.statusCode, 500);
+            let result = '';
+            response.on('data', (data) => {
+                result += data;
+            });
+            response.on('end', () => {
+                assert.equal(result, '<div>error template</div>');
+                done();
+            });
+        });
+    });
+
 
     it('should stream content from http and https fragments', (done) => {
 
