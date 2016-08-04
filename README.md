@@ -93,11 +93,17 @@ Events may be used for logging and monitoring. Check `perf/benchmark.js` for an 
 
 **Note:**  `fragment:response`, `fragment:fallback` and `fragment:error` are mutually exclusive. `fragment:end` happens only in case of successful response.
 
-# Partial Templates
+# Base Templates
 
-When running multiple pages in production, you might need to include basic html tags like `doctype, head, body, title, meta` etc
-in your templates and if you want to introduce additional link, script, fragment tags, you need to update all
-the templates which will evict the cache if you have a caching strategy. We introduced partial templates using slots to address problems like this.
+Seeing how multiple templates are sharing quite a few commonalities, the need to be able to define a base template arose.
+The implemented solution introduces the concept of slots that you define within these templates. Derived templates will use slots as placeholders for their elements.
+
+* A derived template will only contain fragments and tags. These elements will be used to populate the base template.
+* You can assign any number of elements to a slot.
+* If a tag is not valid at the position of the slot then it will be appended to the body of the base template. For example, a div tag is not valid in the head.
+* If you need to place your fragment in a slot inside the head, you will need to define it
+like this `<script type="fragment" slot="custom-slot-name" primary ...></script>`.
+* All fragments and tags that are not assigned to a slot will be appended to the body of the base template.
 
 *base-template.html*
 ```html
@@ -105,6 +111,7 @@ the templates which will evict the cache if you have a caching strategy. We intr
 <html>
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel=”dns-prefetch” href=”https://example.com” />
     <script type="slot" name="head"></script>
 </head>
 <body>
@@ -140,9 +147,6 @@ The rendered html output will look like this
 </html>
 ```
 
-Base templates are updated less frequently and required page templates are more dynamic which will allow us to implement efficient caching mechanism
-(Ex - cache base-templates for longer time and evict the cache of page templates only when they change.)
-
 # Example
 
 To start an example execute `npm run example` and open [http://localhost:8080/index](http://localhost:8080/index).
@@ -155,7 +159,8 @@ To start running benchmark execute `npm run benchmark` and wait for couple of se
 
 * 1.0.0
     * Introduced HTML compatible parser
-    * Partial templates using slots
+    * Base templates using slots
+    * Flattens nested templates
 
 * 0.2.7
     * Fixed the issue with mutating context
