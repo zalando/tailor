@@ -28,7 +28,7 @@ server.listen(process.env.PORT || 8080);
 # Options
 
 * `fetchContext(request)` a function that returns a promise of the context, that is an object that maps fragment id to fragment url, to be able to override urls of the fragments on the page, defaults to `Promise.resolve({})`
-* `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3. Default implementation `lib/fetch-template.js` streams the template from  the file system
+* `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3. Default implementation `lib/fetch-template.js` fetches the template from  the file system
 * `fragmentTag` a name of the fragment tag, defaults to `fragment`
 * `handledTags` an array of custom tags, check `tests/handle-tag` for more info
 * `handleTag(request, tag)` receives a tag or closing tag and serializes it to a string or returns a stream
@@ -93,6 +93,60 @@ Events may be used for logging and monitoring. Check `perf/benchmark.js` for an 
 
 **Note:**  `fragment:response`, `fragment:fallback` and `fragment:error` are mutually exclusive. `fragment:end` happens only in case of successful response.
 
+# Base Templates
+
+Seeing how multiple templates are sharing quite a few commonalities, the need to be able to define a base template arose.
+The implemented solution introduces the concept of slots that you define within these templates. Derived templates will use slots as placeholders for their elements.
+
+* A derived template will only contain fragments and tags. These elements will be used to populate the base template.
+* You can assign any number of elements to a slot.
+* If a tag is not valid at the position of the slot then it will be appended to the body of the base template. For example, a div tag is not valid in the head.
+* If you need to place your fragment in a slot inside the head, you will need to define it
+like this `<script type="fragment" slot="custom-slot-name" primary ...></script>`.
+* All fragments and tags that are not assigned to a slot will be appended to the body of the base template.
+
+*base-template.html*
+```html
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel=”dns-prefetch” href=”https://example.com” />
+    <script type="slot" name="head"></script>
+</head>
+<body>
+    <slot name="body-start"></slot>
+    <div>Hello</div>
+</body>
+</html>
+```
+
+*example-page.html*
+
+```html
+<meta slot="head" charset="utf-8">
+<script slot="body-start" src="http://blah"></script>
+<fragment src="http://localhost" async primary ></fragment>
+<title slot="head">Test Template</title>
+```
+
+The rendered html output will look like this
+```html
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="utf-8">
+    <title>Test Template</title>
+</head>
+<body>
+    <script src="http://blah"></script>
+    <div>Hello</div>
+    <fragment src="http://localhost" async primary ></fragment>
+</body>
+</html>
+```
+
 # Example
 
 To start an example execute `npm run example` and open [http://localhost:8080/index](http://localhost:8080/index).
@@ -100,3 +154,22 @@ To start an example execute `npm run example` and open [http://localhost:8080/in
 # Benchmark
 
 To start running benchmark execute `npm run benchmark` and wait for couple of seconds to see the results.
+
+# Changelog
+
+* 1.0.0
+    * Introduced HTML compatible parser
+    * Base templates using slots
+    * Flattens nested templates
+
+* 0.2.7
+    * Fixed the issue with mutating context
+
+* 0.2.6
+    * Increase listeners for concurrent handlers on stream
+
+* 0.2.5
+    * Allow context to override fragment attributes
+
+* 0.2.4
+    * Allow to override status code from templates
