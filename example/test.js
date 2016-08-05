@@ -7,9 +7,12 @@ const wd = require('wd');
 const http = require('http');
 const path = require('path');
 const Tailor = require('../index');
+const fetchTemplate = require('../lib/fetch-template');
+const templatesPath = path.join(__dirname, '..', 'example', 'templates');
+const baseTemplateFn = () => 'base-template';
 const fragment = require('./fragment');
 const tailor = new Tailor({
-    templatesPath: path.join(__dirname, '..', 'example', 'templates')
+    fetchTemplate: fetchTemplate(templatesPath, baseTemplateFn)
 });
 const assert = require('assert');
 const asserters = wd.asserters;

@@ -11,7 +11,7 @@ describe('Transform', () => {
     class MockSerializer {
         constructor(node, options) {
             this.node = node;
-            this.options = options;        
+            this.options = options;
         }
         serialize() {}
     }
@@ -21,7 +21,7 @@ describe('Transform', () => {
     });
     const handleTags = ['x-tag'];
     const pipeTags = ['script'];
-    
+
     beforeEach(() => {
         Transform = proxyquire('../lib/transform', {
             './serializer': mockSerializer
@@ -59,7 +59,7 @@ describe('Transform', () => {
 
     it('should call serializer with proper options', () => {
         transformInstance.applyTransforms('', '');
-        const options =  mockSerializer.args[0][1];
+        const options = mockSerializer.args[0][1];
         assert(options.slotMap instanceof Map);
         assert(options.treeAdapter instanceof Object);
         assert.equal(options.pipeTags, pipeTags);

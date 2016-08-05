@@ -287,7 +287,7 @@ describe('Tailor', () => {
 
         http.get('http://localhost:8080/test', (response) => {
             let data = '';
-            response.on('data', (chunk) =>  {
+            response.on('data', (chunk) => {
                 data += chunk;
             });
             response.on('end', () => {
@@ -318,7 +318,7 @@ describe('Tailor', () => {
 
         http.get('http://localhost:8080/test', (response) => {
             let data = '';
-            response.on('data', (chunk) =>  {
+            response.on('data', (chunk) => {
                 data += chunk;
             });
             response.on('end', () => {
