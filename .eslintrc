@@ -17,6 +17,7 @@
         "no-empty": 2,
         "no-empty-character-class": 2,
         "no-eval": 2,
+        "no-multi-spaces": 2,
         "no-unused-vars": 2,
         "no-lonely-if": 2,
         "quotes": [2, "single"],

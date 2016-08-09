@@ -1,21 +1,13 @@
 'use strict';
 const http = require('http');
 const path = require('path');
-const fs = require('fs');
-const url = require('url');
 const Tailor = require('../index');
+const fetchTemplateFs = require('../lib/fetch-template');
 const serveFragment = require('./fragment');
-const fetchTemplate  = (templatesPath) => {
-    return (request, parseTemplate) => {
-        const pathname = url.parse(request.url, true).pathname;
-        const templatePath = path.join(templatesPath, pathname) + '.html';
-        const childTemplate = fs.readFileSync(path.join(__dirname, 'templates/child-template.html'), 'utf-8');
-        return Promise.resolve(parseTemplate(fs.readFileSync(templatePath, 'utf-8'), childTemplate));
-    };
-};
+const baseTemplateFn = () => 'base-template';
 
 const tailor = new Tailor({
-    fetchTemplate: fetchTemplate(path.join(__dirname, 'templates'))
+    fetchTemplate: fetchTemplateFs(path.join(__dirname, 'templates'), baseTemplateFn)
 });
 const server = http.createServer(tailor.requestHandler);
 server.listen(8080);
