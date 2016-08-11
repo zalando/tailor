@@ -7,7 +7,7 @@ Tailor is a layout service that uses streams to compose a web page from fragment
 
 Some of Tailor's features and benefits:
 
-- **Composes pre-rendered markup on the backend**. This is important for SEO and fastens the initial render. 
+- **Composes pre-rendered markup on the backend**. This is important for SEO and fastens the initial render.
 - **Ensures a fast Time to First Byte**. Tailor requests fragments in parallel and streams them as soon as possible, without blocking the rest of the page.
 - **Enforces performance budget**. This is quite challenging otherwise, because there is no single point where you can control performance.
 - **Fault Tolerance**. Render the meaningful output, even if a page fragment has failed or timed out.
@@ -37,12 +37,13 @@ server.listen(process.env.PORT || 8080);
 ## Options
 
 * `fetchContext(request)` a function that returns a promise of the context, that is an object that maps fragment id to fragment url, to be able to override urls of the fragments on the page, defaults to `Promise.resolve({})`
-* `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3. Default implementation `lib/fetch-template.js` fetches the template from  the file system
+* `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3.
+Default implementation [`lib/fetch-template.js`](https://github.com/zalando/tailor/blob/master/lib/fetch-template.js) fetches the template from  the file system
 * `fragmentTag` a name of the fragment tag, defaults to `fragment`
-* `handledTags` an array of custom tags, check `tests/handle-tag` for more info
+* `handledTags` an array of custom tags, check [`tests/handle-tag`](https://github.com/zalando/tailor/blob/master/tests/handle-tag.js) for more info
 * `handleTag(request, tag)` receives a tag or closing tag and serializes it to a string or returns a stream
-* `requestFragment(url, fragmentAttributes, request)` a function that returns a promise of request to a fragment server, check the default implementation in `lib/request-fragment`
-* `amdLoaderUrl` - URL to AMD loader. We use [RequireJS from cdnjs](https://cdnjs.com/libraries/require.js) as deafult.
+* `requestFragment(url, fragmentAttributes, request)` a function that returns a promise of request to a fragment server, check the default implementation in [`lib/request-fragment`](https://github.com/zalando/tailor/blob/master/lib/request-fragment.js)
+* `amdLoaderUrl` - URL to AMD loader. We use [RequireJS from cdnjs](https://cdnjs.com/libraries/require.js) as deafult
 
 # Template
 
