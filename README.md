@@ -3,11 +3,18 @@
 [![Build Status](https://travis-ci.org/zalando/tailor.svg?branch=master)](https://travis-ci.org/zalando/tailor)
 [![Test Coverage](https://codeclimate.com/github/zalando/tailor/badges/coverage.svg)](https://codeclimate.com/github/zalando/tailor/coverage)
 
-Tailor is a layout service that uses streams to compose a web page from fragment services.
+Tailor is a layout service that uses streams to compose a web page from fragment services. O'Reilly describes it in the title of [this blog post](https://www.oreilly.com/ideas/better-streaming-layouts-for-frontend-microservices-with-tailor) as "a library that provides a middleware which you can integrate into any Node.js server." It's partially inspired by Facebook’s [BigPipe](https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919/), but developed in an ecommerce context.
 
-To know more about how tailor works, You can check this [blog post](https://www.oreilly.com/ideas/better-streaming-layouts-for-frontend-microservices-with-tailor)
+Some of Tailor's features and benefits:
 
-# Why Layout Service?
+- Composes pre-rendered markup on the backend. This is important for SEO and fastens the initial render. 
+- Ensures a fast Time to First Byte. Tailor requests fragments in parallel and streams them as soon as possible, without blocking the rest of the page.
+- Enforces performance budget. This is quite challenging otherwise, because there is no single point where you can control performance.
+- Fault Tolerance. Render the meaningful output, even if a page fragment has failed or timed out.
+
+Tailor is part of Zalando's open-source [Project Mosaic](https://www.mosaic9.org/), which aims to help developers create microservices for the frontend. If your front-end team is making the monolith-to-microservices transition, you might find Tailor and its siblings beneficial.
+
+## Why a Layout Service?
 
 Microservices get a lot of traction these days. They allow multiple teams to work independently from each other, choose their own technology stacks and establish their own release cycles. Unfortunately, frontend development hasn’t fully capitalized yet on the benefits that microservices offer. The common practice for building websites remains “the monolith”: a single frontend codebase that consumes multiple APIs.
 
@@ -25,7 +32,7 @@ const server = http.createServer(tailor.requestHandler);
 server.listen(process.env.PORT || 8080);
 ```
 
-# Options
+## Options
 
 * `fetchContext(request)` a function that returns a promise of the context, that is an object that maps fragment id to fragment url, to be able to override urls of the fragments on the page, defaults to `Promise.resolve({})`
 * `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3. Default implementation `lib/fetch-template.js` fetches the template from  the file system
