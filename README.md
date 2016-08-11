@@ -7,10 +7,10 @@ Tailor is a layout service that uses streams to compose a web page from fragment
 
 Some of Tailor's features and benefits:
 
-- Composes pre-rendered markup on the backend. This is important for SEO and fastens the initial render. 
-- Ensures a fast Time to First Byte. Tailor requests fragments in parallel and streams them as soon as possible, without blocking the rest of the page.
-- Enforces performance budget. This is quite challenging otherwise, because there is no single point where you can control performance.
-- Fault Tolerance. Render the meaningful output, even if a page fragment has failed or timed out.
+- **Composes pre-rendered markup on the backend**. This is important for SEO and fastens the initial render. 
+- **Ensures a fast Time to First Byte**. Tailor requests fragments in parallel and streams them as soon as possible, without blocking the rest of the page.
+- **Enforces performance budget**. This is quite challenging otherwise, because there is no single point where you can control performance.
+- **Fault Tolerance**. Render the meaningful output, even if a page fragment has failed or timed out.
 
 Tailor is part of Zalando's open-source [Project Mosaic](https://www.mosaic9.org/), which aims to help developers create microservices for the frontend. If your front-end team is making the monolith-to-microservices transition, you might find Tailor and its siblings beneficial.
 
@@ -20,7 +20,9 @@ Microservices get a lot of traction these days. They allow multiple teams to wor
 
 What if we could have microservices on the frontend? This would allow frontend developers to work together with their backend counterparts on the same feature and independently deploy parts of the website — “fragments” such as Header, Product, and Footer. Bringing microservices to the frontend requires a layout service that composes a website out of fragments. Tailor was developed to solve this need.
 
-# Installation
+## Installation
+
+Begin using Tailor with:
 
 `npm i node-tailor --save`
 
