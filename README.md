@@ -12,7 +12,7 @@ Some of Tailor's features and benefits:
 - **Enforces performance budget**. This is quite challenging otherwise, because there is no single point where you can control performance.
 - **Fault Tolerance**. Render the meaningful output, even if a page fragment has failed or timed out.
 
-Tailor is part of Zalando's open-source [Project Mosaic](https://www.mosaic9.org/), which aims to help developers create microservices for the frontend. If your front-end team is making the monolith-to-microservices transition, you might find Tailor and its siblings beneficial.
+Tailor is part of [Project Mosaic](https://www.mosaic9.org/), which aims to help developers create microservices for the frontend. The Mosaic also includes an extendable HTTP router for service composition (Skipper) with related RESTful API that stores routes (Innkeeper); more components are in the pipeline for public release. If your front-end team is making the monolith-to-microservices transition, you might find Tailor and its available siblings beneficial.
 
 ## Why a Layout Service?
 
