@@ -168,6 +168,9 @@ To start running benchmark execute `npm run benchmark` and wait for couple of se
 
 # Changelog
 
+* 1.0.1
+    * Introduced unnamed default slot
+
 * 1.0.0
     * Introduced HTML compatible parser
     * Base templates using slots
@@ -181,6 +184,3 @@ To start running benchmark execute `npm run benchmark` and wait for couple of se
 
 * 0.2.5
     * Allow context to override fragment attributes
-
-* 0.2.4
-    * Allow to override status code from templates
