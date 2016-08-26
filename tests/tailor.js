@@ -531,7 +531,7 @@ describe('Tailor', () => {
         });
     });
 
-    it('should support partial templates using slots', (done) => {
+    it('should support base templates using slots', (done) => {
         mockTemplate
             .returns(
                 '<head>' +
@@ -600,6 +600,50 @@ describe('Tailor', () => {
                 );
                 done();
             });
+        });
+    });
+
+    it('should insert default slots if unnamed slot is present in parent template', (done) => {
+        mockTemplate
+            .returns(
+                '<head>' +
+                '</head>' +
+                '<body>' +
+                '<slot></slot>' +
+                '<h2>blah</h2>' +
+                '</body>'
+            );
+
+        mockChildTemplate.returns('<h1>hello</h1>');
+
+        http.get('http://localhost:8080/test', (response) => {
+            let data = '';
+            response.on('data', (chunk) => {
+                data += chunk;
+            });
+            response.on('end', () => {
+                assert.equal(data,
+                    '<html>' +
+                    '<head></head>' +
+                    '<body>' +
+                    '<h1>hello</h1>' +
+                    '<h2>blah</h2>' +
+                    '</body>' +
+                    '</html>'
+                );
+                done();
+            });
+        });
+    });
+
+    it('should warn if there are duplicate unnamed slots', (done) => {
+        sinon.stub(console, 'warn');
+        mockTemplate.returns('<slot></slot><slot></slot>');
+
+        http.get('http://localhost:8080/test', () => {
+            assert.equal(console.warn.callCount, 1);
+            console.warn.restore();
+            done();
         });
     });
 
