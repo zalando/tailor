@@ -614,10 +614,7 @@ describe('Tailor', () => {
                 '</body>'
             );
 
-        mockChildTemplate
-            .returns(
-                '<script src=""></script>'
-            );
+        mockChildTemplate.returns('<h1>hello</h1>');
 
         http.get('http://localhost:8080/test', (response) => {
             let data = '';
@@ -629,13 +626,24 @@ describe('Tailor', () => {
                     '<html>' +
                     '<head></head>' +
                     '<body>' +
-                    '<script src=""></script>' +
+                    '<h1>hello</h1>' +
                     '<h2>blah</h2>' +
                     '</body>' +
                     '</html>'
                 );
                 done();
             });
+        });
+    });
+
+    it('should warn if there are duplicate unnamed slots', (done) => {
+        sinon.stub(console, 'warn');
+        mockTemplate.returns('<slot></slot><slot></slot>');
+
+        http.get('http://localhost:8080/test', () => {
+            assert.equal(console.warn.callCount, 1);
+            console.warn.restore();
+            done();
         });
     });
 
