@@ -31,7 +31,8 @@ describe('Stringifier Stream', () => {
                 assert.equal(data, '<html><head></head><body>mock</body></html>');
                 done();
             });
-            stream.end(nodes);
+            nodes.forEach(node => stream.write(node));
+            stream.end();
             st.end('mock');
         });
     });
@@ -54,7 +55,8 @@ describe('Stringifier Stream', () => {
                 assert.equal(data, '<html><head></head><body>12</body></html>');
                 done();
             });
-            stream.end(nodes);
+            nodes.forEach(node => stream.write(node));
+            stream.end();
             setTimeout(() => {
                 streams[0].end('1');
             }, 10);
@@ -69,7 +71,8 @@ describe('Stringifier Stream', () => {
                 assert(error instanceof Error);
                 done();
             });
-            stream.end(nodes);
+            nodes.forEach(node => stream.write(node));
+            stream.end();
         });
     });
 
@@ -85,7 +88,8 @@ describe('Stringifier Stream', () => {
                 assert.equal(error.message, 'sorry!');
                 done();
             });
-            stream.end(nodes);
+            nodes.forEach(node => stream.write(node));
+            stream.end();
             st.emit('error', new Error('sorry!'));
             st.end('data');
         });
