@@ -55,7 +55,6 @@ var Pipe = (function (doc) { //eslint-disable-line no-unused-vars, strict
         /* @preserve - loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
         function loadCSS (href) {
             var ss = doc.createElement('link');
-            var media = 'all';
             var ref;
             var refs = (doc.body || doc.getElementsByTagName('head')[0]).childNodes;
             ref = refs[refs.length - 1];
@@ -93,18 +92,18 @@ var Pipe = (function (doc) { //eslint-disable-line no-unused-vars, strict
                     onloadcssdefined(cb);
                 });
             };
+            function loadCB() {
+                if (ss.addEventListener) {
+                    ss.removeEventListener('load', loadCB );
+                }
+                ss.media = 'all';
+            }
             // once loaded, set link's media back to `all` so that the stylesheet applies once it loads
             if (ss.addEventListener) {
-                ss.addEventListener('load', function() {
-                    this.media = media;
-                });
+                ss.addEventListener('load', loadCB);
             }
             ss.onloadcssdefined = onloadcssdefined;
-            onloadcssdefined(function() {
-                if (ss.media !== media) {
-                    ss.media = media;
-                }
-            });
+            onloadcssdefined(loadCB);
             return ss;
         }
         return {
