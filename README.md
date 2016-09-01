@@ -168,8 +168,11 @@ To start running benchmark execute `npm run benchmark` and wait for couple of se
 
 # Changelog
 
+* 1.0.3
+    * Update loadCSS to fix FF 38 crash on Async Fragments.
+
 * 1.0.2
-    * fix issue related to unnamed slot behaviour
+    * Fix issue related to unnamed slot behaviour
 
 * 1.0.1
     * Introduced unnamed default slot
