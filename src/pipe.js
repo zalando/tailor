@@ -1,4 +1,4 @@
-var Pipe = (function (doc) { //eslint-disable-line no-unused-vars, strict
+var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
     return function (require) {
         var placeholders = {};
         var starts = {};
@@ -20,7 +20,7 @@ var Pipe = (function (doc) { //eslint-disable-line no-unused-vars, strict
             starts[index] = currentScript();
             script && require([script]);
         }
-        function end (index, script) {
+        function end (index, script, fragmentId) {
             var placeholder = placeholders[index];
             var start = starts[index];
             var end = currentScript();
@@ -48,7 +48,19 @@ var Pipe = (function (doc) { //eslint-disable-line no-unused-vars, strict
             script && require([script], function (i) {
                 var init = i && i.__esModule ? i.default : i;
                 if (typeof init === 'function') {
-                    init(node);
+                    // capture initializaion cost of each fragment on the page
+                    if (perf && 'mark' in perf) {
+                        var flag = script.replace(/.*?:\/\//g, '') + '-' + fragmentId;
+                        perf.mark(flag);
+                        init(node);
+                        perf.mark(flag + '-end');
+                        perf.measure('fragment-' + flag, flag, flag + '-end');
+                        // Clear the perf entries buffer after measuring
+                        perf.clearMarks(flag);
+                        perf.clearMarks(flag + '-end');
+                    } else {
+                        init(node);
+                    }
                 }
             });
         }
@@ -113,4 +125,4 @@ var Pipe = (function (doc) { //eslint-disable-line no-unused-vars, strict
             loadCSS: loadCSS
         };
     };
-})(window.document);
+})(window.document, window.performance);
