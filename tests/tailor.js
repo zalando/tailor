@@ -298,7 +298,7 @@ describe('Tailor', () => {
                     '<link rel="stylesheet" href="http://link">' +
                     '<script data-pipe>p.start(0, "http://link2")</script>' +
                     'hello' +
-                    '<script data-pipe>p.end(0, "http://link2")</script>' +
+                    '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
                     '</body>' +
                     '</html>'
                 );
@@ -328,7 +328,7 @@ describe('Tailor', () => {
                     '<script>p.loadCSS("http://link")</script>' +
                     '<script data-pipe>p.start(0, "http://link2")</script>' +
                     'hello' +
-                    '<script data-pipe>p.end(0, "http://link2")</script>' +
+                    '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
                     '</body></html>'
                 );
                 done();
@@ -358,7 +358,7 @@ describe('Tailor', () => {
                     '<link rel="stylesheet" href="http://link">' +
                     '<script data-pipe>p.start(0, "http://link2")</script>' +
                     'hello' +
-                    '<script data-pipe>p.end(0, "http://link2")</script>' +
+                    '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
                     '</body>' +
                     '</html>'
                 );
