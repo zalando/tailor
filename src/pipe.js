@@ -50,14 +50,13 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                 if (typeof init === 'function') {
                     // capture initializaion cost of each fragment on the page
                     if (perf && 'mark' in perf) {
-                        var flag = script.replace(/.*?:\/\//g, '') + '-' + fragmentId;
-                        perf.mark(flag);
+                        perf.mark(fragmentId);
                         init(node);
-                        perf.mark(flag + '-end');
-                        perf.measure('fragment-' + flag, flag, flag + '-end');
+                        perf.mark(fragmentId + '-end');
+                        perf.measure('fragment-' + fragmentId, fragmentId, fragmentId + '-end');
                         // Clear the perf entries buffer after measuring
-                        perf.clearMarks(flag);
-                        perf.clearMarks(flag + '-end');
+                        perf.clearMarks(fragmentId);
+                        perf.clearMarks(fragmentId + '-end');
                     } else {
                         init(node);
                     }
