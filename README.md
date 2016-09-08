@@ -69,7 +69,7 @@ Tailor uses [parse5](https://github.com/inikulin/parse5/) to parse the template,
 * *primary* — denotes a fragment that sets the response code of the page
 * *timeout* - optional timeout of fragment in milliseconds (default is 3000)
 * *async* — postpones the fragment until the end of body tag
-* *public* — doesn't send the headers to fragment server
+* *public* — by default, Tailor forwards the headers it gets from upstream to the fragments. To prevent this from happening, use the public attribute.
 * *fallback-src* - URL of the fallback fragment in case of timeout/error on the current fragment
 
 ## Fragment server
