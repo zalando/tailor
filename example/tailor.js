@@ -9,7 +9,13 @@ const baseTemplateFn = () => 'base-template';
 const tailor = new Tailor({
     fetchTemplate: fetchTemplateFs(path.join(__dirname, 'templates'), baseTemplateFn)
 });
-const server = http.createServer(tailor.requestHandler);
+const server = http.createServer((req, res) => {
+    if (req.url === '/favicon.ico') {
+        res.writeHead(200, {'Content-Type': 'image/x-icon'} );
+        return res.end('');
+    }
+    return tailor.requestHandler(req, res);
+});
 server.listen(8080);
 console.log('Tailor started at port 8080');
 
