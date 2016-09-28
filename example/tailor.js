@@ -4,10 +4,14 @@ const path = require('path');
 const Tailor = require('../index');
 const fetchTemplateFs = require('../lib/fetch-template');
 const serveFragment = require('./fragment');
+const injectRootTemplate = require('../lib/inject-root-template');
 const baseTemplateFn = () => 'base-template';
 
+const templatesHandler = fetchTemplateFs(path.join(__dirname, 'templates'), baseTemplateFn);
+const templates = injectRootTemplate('index', templatesHandler);
+
 const tailor = new Tailor({
-    fetchTemplate: fetchTemplateFs(path.join(__dirname, 'templates'), baseTemplateFn)
+    fetchTemplate: templates
 });
 const server = http.createServer((req, res) => {
     if (req.url === '/favicon.ico') {
