@@ -13,6 +13,16 @@ describe('Tailor', () => {
     const mockContext = sinon.stub();
     const cacheTemplate = sinon.spy();
 
+    function getResponse (url) {
+        return new Promise((resolve) => {
+            http.get(url, (response) => {
+                response.body = '';
+                response.on('data', (data) => response.body += data);
+                response.on('end',() => resolve(response));
+            });
+        });
+    }
+
     beforeEach((done) => {
         const tailor = new Tailor({
             fetchContext: mockContext,
@@ -48,25 +58,18 @@ describe('Tailor', () => {
 
     it('should return 500 if the layout wasn\'t found', (done) => {
         mockTemplate.returns(false);
-        http.get('http://localhost:8080/missing-template', (response) => {
+        getResponse('http://localhost:8080/missing-template').then((response) => {
             assert.equal(response.statusCode, 500);
-            response.resume();
-            response.on('end', done);
+            done();
         });
     });
 
     it('should render with presentable error template content', (done) => {
         mockTemplate.returns(false);
-        http.get('http://localhost:8080/missing-template', (response) => {
+        getResponse('http://localhost:8080/missing-template').then((response) => {
             assert.equal(response.statusCode, 500);
-            let result = '';
-            response.on('data', (data) => {
-                result += data;
-            });
-            response.on('end', () => {
-                assert.equal(result, '<div>error template</div>');
-                done();
-            });
+            assert.equal(response.body, '<div>error template</div>');
+            done();
         });
     });
 
@@ -85,25 +88,19 @@ describe('Tailor', () => {
                 '<fragment id="f-2" src="http://fragment:9000/2"></fragment>'
             );
 
-        http.get('http://localhost:8080/test', (response) => {
-            let result = '';
+        getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 200);
-            response.on('data', (data) => {
-                result += data;
-            });
-            response.on('end', () => {
-                assert.equal(
-                    result,
-                    '<html>' +
-                    '<head></head>' +
-                    '<body>' +
-                    '<script data-pipe>p.start(0)</script>hello<script data-pipe>p.end(0)</script>' +
-                    '<script data-pipe>p.start(1)</script>world<script data-pipe>p.end(1)</script>' +
-                    '</body>' +
-                    '</html>'
-                );
-                done();
-            });
+            assert.equal(
+                response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<script data-pipe>p.start(0)</script>hello<script data-pipe>p.end(0)</script>' +
+                '<script data-pipe>p.start(1)</script>world<script data-pipe>p.end(1)</script>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
         });
 
     });
@@ -122,10 +119,9 @@ describe('Tailor', () => {
                 '<fragment src="https://fragment/3" primary></fragment>'
             );
 
-        http.get('http://localhost:8080/test', (response) => {
+        getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 300);
             assert.equal(response.headers.location, 'https://redirect');
-            response.resume();
             done();
         });
     });
@@ -174,7 +170,7 @@ describe('Tailor', () => {
         mockTemplate
             .returns('<fragment src="https://fragment/1"></fragment>');
 
-        http.get('http://localhost:8080/test', (response) => {
+        getResponse('http://localhost:8080/test').then((response) => {
             const headers = response.headers;
             assert.equal('no-cache, no-store, must-revalidate', headers['cache-control']);
             assert.equal('no-cache', headers['pragma']);
@@ -193,15 +189,9 @@ describe('Tailor', () => {
                 '<fragment src="https://fragment/2"></fragment>'
             );
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data, '<html><head></head><body></body></html>');
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body, '<html><head></head><body></body></html>');
+            done();
         });
     });
 
@@ -214,9 +204,8 @@ describe('Tailor', () => {
                 '<fragment src="https://fragment/1" primary timeout="100"></fragment>'
             );
 
-        http.get('http://localhost:8080/test', (response) => {
+        getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 500);
-            response.resume();
             done();
         });
     });
@@ -230,9 +219,8 @@ describe('Tailor', () => {
                 '<fragment src="https://fragment/1" primary></fragment>'
             );
 
-        http.get('http://localhost:8080/test', (response) => {
+        getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 500);
-            response.resume();
             done();
         });
     });
@@ -249,9 +237,8 @@ describe('Tailor', () => {
                 '</fragment>'
             );
 
-        http.get('http://localhost:8080/test', (response) => {
+        getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 200);
-            response.resume();
             done();
         });
     });
@@ -268,9 +255,8 @@ describe('Tailor', () => {
                 '</fragment>'
             );
 
-        http.get('http://localhost:8080/test', (response) => {
+        getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 500);
-            response.resume();
             done();
         });
     });
@@ -285,25 +271,19 @@ describe('Tailor', () => {
         mockTemplate
             .returns('<fragment src="https://fragment/1"></fragment>');
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html>' +
-                    '<head></head>' +
-                    '<body>' +
-                    '<link rel="stylesheet" href="http://link">' +
-                    '<script data-pipe>p.start(0, "http://link2")</script>' +
-                    'hello' +
-                    '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
-                    '</body>' +
-                    '</html>'
-                );
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<link rel="stylesheet" href="http://link">' +
+                '<script data-pipe>p.start(0, "http://link2")</script>' +
+                'hello' +
+                '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
         });
     });
 
@@ -316,23 +296,17 @@ describe('Tailor', () => {
         mockTemplate
             .returns('<fragment async src="https://fragment/1"></fragment>');
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html><head></head><body>' +
-                    '<script data-pipe>p.placeholder(0)</script>' +
-                    '<script>p.loadCSS("http://link")</script>' +
-                    '<script data-pipe>p.start(0, "http://link2")</script>' +
-                    'hello' +
-                    '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
-                    '</body></html>'
-                );
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html><head></head><body>' +
+                '<script data-pipe>p.placeholder(0)</script>' +
+                '<script>p.loadCSS("http://link")</script>' +
+                '<script data-pipe>p.start(0, "http://link2")</script>' +
+                'hello' +
+                '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
+                '</body></html>'
+            );
+            done();
         });
     });
 
@@ -345,25 +319,19 @@ describe('Tailor', () => {
         mockTemplate
              .returns('<fragment src="https://fragment/1"></fragment>');
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html>' +
-                    '<head></head>' +
-                    '<body>' +
-                    '<link rel="stylesheet" href="http://link">' +
-                    '<script data-pipe>p.start(0, "http://link2")</script>' +
-                    'hello' +
-                    '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
-                    '</body>' +
-                    '</html>'
-                );
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<link rel="stylesheet" href="http://link">' +
+                '<script data-pipe>p.start(0, "http://link2")</script>' +
+                'hello' +
+                '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
         });
     });
 
@@ -374,25 +342,19 @@ describe('Tailor', () => {
         mockTemplate
             .returns('<fragment src="https://fragment/1" async></fragment>');
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html>' +
-                    '<head></head>' +
-                    '<body>' +
-                    '<script data-pipe>p.placeholder(0)</script>' +
-                    '<script data-pipe>p.start(0)</script>' +
-                    'hello' +
-                    '<script data-pipe>p.end(0)</script>' +
-                    '</body>' +
-                    '</html>'
-                );
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<script data-pipe>p.placeholder(0)</script>' +
+                '<script data-pipe>p.start(0)</script>' +
+                'hello' +
+                '<script data-pipe>p.end(0)</script>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
         });
     });
 
@@ -412,27 +374,20 @@ describe('Tailor', () => {
         };
         mockContext.returns(Promise.resolve(contextObj));
 
-        http.get('http://localhost:8080/test', (response) => {
-            let result = '';
+        getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 200);
-            response.on('data', (data) => {
-                result += data;
-            });
-            response.on('end', () => {
-                assert.equal(
-                    result,
-                    '<html>' +
-                    '<head></head>' +
-                    '<body>' +
-                    '<script data-pipe>p.placeholder(0)</script>' +
-                    '<script data-pipe>p.start(0)</script>' +
-                    'yes' +
-                    '<script data-pipe>p.end(0)</script>' +
-                    '</body>' +
-                    '</html>'
-                );
-                done();
-            });
+            assert.equal(response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<script data-pipe>p.placeholder(0)</script>' +
+                '<script data-pipe>p.start(0)</script>' +
+                'yes' +
+                '<script data-pipe>p.end(0)</script>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
         });
     });
 
@@ -453,52 +408,38 @@ describe('Tailor', () => {
         };
         mockContext.returns(Promise.resolve(contextObj));
 
-        http.get('http://localhost:8080/test', (response) => {
-            let result = '';
+        getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 200);
-            response.on('data', (data) => {
-                result += data;
-            });
-            response.on('end', () => {
-                assert.equal(
-                    result,
+            assert.equal(response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<script data-pipe>p.placeholder(0)</script>' +
+                '<script data-pipe>p.start(0)</script>' +
+                'yes' +
+                '<script data-pipe>p.end(0)</script>' +
+                '</body>' +
+                '</html>'
+            );
+
+            // Second request
+            mockContext.returns(Promise.resolve({}));
+            mockTemplate.returns(cacheTemplate.args[0][0]);
+
+            getResponse('http://localhost:8080/test').then((response) => {
+                assert.equal(response.statusCode, 200);
+                assert.equal(response.body,
                     '<html>' +
                     '<head></head>' +
                     '<body>' +
                     '<script data-pipe>p.placeholder(0)</script>' +
                     '<script data-pipe>p.start(0)</script>' +
-                    'yes' +
+                    'no' +
                     '<script data-pipe>p.end(0)</script>' +
                     '</body>' +
                     '</html>'
                 );
-
-                // Second request
-                mockContext.returns(Promise.resolve({}));
-                mockTemplate.returns(cacheTemplate.args[0][0]);
-
-                http.get('http://localhost:8080/test', (response) => {
-                    let result = '';
-                    assert.equal(response.statusCode, 200);
-                    response.on('data', (data) => {
-                        result += data;
-                    });
-                    response.on('end', () => {
-                        assert.equal(
-                            result,
-                            '<html>' +
-                            '<head></head>' +
-                            '<body>' +
-                            '<script data-pipe>p.placeholder(0)</script>' +
-                            '<script data-pipe>p.start(0)</script>' +
-                            'no' +
-                            '<script data-pipe>p.end(0)</script>' +
-                            '</body>' +
-                            '</html>'
-                        );
-                        done();
-                    });
-                });
+                done();
             });
         });
     });
@@ -510,24 +451,18 @@ describe('Tailor', () => {
         mockTemplate
             .returns('<script type="fragment" src="https://fragment/yes"></script>');
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html>' +
-                    '<head>' +
-                    '<script data-pipe>p.start(0)</script>' +
-                    'yes' +
-                    '<script data-pipe>p.end(0)</script>' +
-                    '</head>' +
-                    '<body></body>' +
-                    '</html>'
-                );
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head>' +
+                '<script data-pipe>p.start(0)</script>' +
+                'yes' +
+                '<script data-pipe>p.end(0)</script>' +
+                '</head>' +
+                '<body></body>' +
+                '</html>'
+            );
+            done();
         });
     });
 
@@ -544,22 +479,16 @@ describe('Tailor', () => {
                 '<meta slot="head" charset="utf-8">'
             );
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html>' +
-                    '<head>' +
-                    '<meta charset="utf-8">' +
-                    '</head>' +
-                    '<body></body>' +
-                    '</html>'
-                );
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head>' +
+                '<meta charset="utf-8">' +
+                '</head>' +
+                '<body></body>' +
+                '</html>'
+            );
+            done();
         });
     });
 
@@ -581,25 +510,19 @@ describe('Tailor', () => {
                 '<h2>Last</h2>'
             );
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html>' +
-                    '<head>' +
-                    '<meta charset="utf-8">' +
-                    '</head>' +
-                    '<body>' +
-                    '<script src=""></script>' +
-                    '<h2>Last</h2>' +
-                    '</body>' +
-                    '</html>'
-                );
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head>' +
+                '<meta charset="utf-8">' +
+                '</head>' +
+                '<body>' +
+                '<script src=""></script>' +
+                '<h2>Last</h2>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
         });
     });
 
@@ -616,23 +539,17 @@ describe('Tailor', () => {
 
         mockChildTemplate.returns('<h1>hello</h1>');
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html>' +
-                    '<head></head>' +
-                    '<body>' +
-                    '<h1>hello</h1>' +
-                    '<h2>blah</h2>' +
-                    '</body>' +
-                    '</html>'
-                );
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<h1>hello</h1>' +
+                '<h2>blah</h2>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
         });
     });
 
@@ -657,23 +574,17 @@ describe('Tailor', () => {
                 '</div>'
             );
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html>' +
-                    '<head></head>' +
-                    '<body>' +
-                    '<h1></h1>' +
-                    '<div><h2></h2></div>' +
-                    '</body>' +
-                    '</html>'
-                );
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<h1></h1>' +
+                '<div><h2></h2></div>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
         });
     });
 
@@ -691,27 +602,21 @@ describe('Tailor', () => {
             );
         mockChildTemplate.returns('');
 
-        http.get('http://localhost:8080/test', (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-            response.on('end', () => {
-                assert.equal(data,
-                    '<html>' +
-                    '<head></head>' +
-                    '<body>' +
-                    '<script data-pipe>p.start(0)</script>' +
-                    'hello' +
-                    '<script data-pipe>p.end(0)</script>' +
-                    '<script data-pipe>p.start(1)</script>' +
-                    'world' +
-                    '<script data-pipe>p.end(1)</script>' +
-                    '</body>' +
-                    '</html>'
-                );
-                done();
-            });
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<script data-pipe>p.start(0)</script>' +
+                'hello' +
+                '<script data-pipe>p.end(0)</script>' +
+                '<script data-pipe>p.start(1)</script>' +
+                'world' +
+                '<script data-pipe>p.end(1)</script>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
         });
     });
 
