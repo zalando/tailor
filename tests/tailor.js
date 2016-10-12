@@ -34,7 +34,7 @@ describe('Tailor', () => {
                     return parseTemplate(template, childTemplate).then((parsedTemplate) => {
                         cacheTemplate(template);
                         return parsedTemplate;
-                    }).catch(e => console.log(e));
+                    });
                 } else {
                     const error = new Error();
                     error.presentable = '<div>error template</div>';
@@ -560,6 +560,54 @@ describe('Tailor', () => {
         http.get('http://localhost:8080/test', () => {
             assert.equal(console.warn.callCount, 1);
             console.warn.restore();
+            done();
+        });
+    });
+
+    it('should use the fallback slot nodes if present in the template', (done) => {
+        mockTemplate
+            .returns(
+                '<slot name="custom">' +
+                    '<h2>hello</h2>' +
+                '</slot>'
+            );
+
+        mockChildTemplate.returns('');
+
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head>' +
+                '</head>' +
+                '<body>' +
+                '<h2>hello</h2>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
+        });
+    });
+
+    it('should override the fallback slot nodes with slotted nodes from child template', (done) => {
+        mockTemplate
+            .returns(
+                '<slot name="custom">' +
+                    '<h2>hello</h2>' +
+                '</slot>'
+            );
+
+        mockChildTemplate.returns('<h2 slot="custom">child</h1>');
+
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head>' +
+                '</head>' +
+                '<body>' +
+                '<h2>child</h2>' +
+                '</body>' +
+                '</html>'
+            );
             done();
         });
     });
