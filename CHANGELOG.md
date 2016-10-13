@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 1.0.5
+    * Add support for fallback slots
+
 ### 1.0.4
     * Fragment initialization metrics
 
