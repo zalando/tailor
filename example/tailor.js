@@ -18,6 +18,7 @@ const server = http.createServer((req, res) => {
 });
 server.listen(8080);
 console.log('Tailor started at port 8080');
+tailor.on('error', (request, err) => console.error(err));
 
 const fragment1 = http.createServer(
     serveFragment('hello', 'http://localhost:8081')
