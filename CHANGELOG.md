@@ -1,5 +1,9 @@
 # Tailor Changelog
 
+### 1.0.6
+    * Asynchronous file read in built-in fetch
+    * Respond 404 in case of not found template
+
 ### 1.0.5
     * Add support for fallback slots
 
