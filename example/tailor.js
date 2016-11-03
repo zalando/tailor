@@ -1,14 +1,11 @@
 'use strict';
 const http = require('http');
 const path = require('path');
-const fs = require('fs');
 const Tailor = require('../index');
 const fetchTemplateFs = require('../lib/fetch-template');
 const serveFragment = require('./fragment');
 const baseTemplateFn = () => 'base-template';
-// You can also pass AMD URL
-// const AMD_LOADER = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js';
-const AMD_LOADER = fs.readFileSync(require.resolve('iamdee'), 'utf-8');
+const AMD_LOADER = 'file://' + require.resolve('iamdee');
 const tailor = new Tailor({
     amdLoaderUrl: AMD_LOADER,
     fetchTemplate: fetchTemplateFs(path.join(__dirname, 'templates'), baseTemplateFn)
