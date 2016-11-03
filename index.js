@@ -1,20 +1,28 @@
 'use strict';
 
+const path = require('path');
+const fs = require('fs');
 const EventEmitter = require('events').EventEmitter;
 const requestHandler = require('./lib/request-handler');
 const fetchTemplate = require('./lib/fetch-template');
 const parseTemplate = require('./lib/parse-template');
 const requestFragment = require('./lib/request-fragment');
-const path = require('path');
-const fs = require('fs');
 const PIPE_DEFINITION = fs.readFileSync(path.resolve(__dirname, 'src/pipe.min.js'));
-const AMD_LOADER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js';
 
 module.exports = class Tailor extends EventEmitter {
 
     constructor (options) {
         super();
-        const amdLoaderUrl = options.amdLoaderUrl || AMD_LOADER_URL;
+        const pipeChunk = (amdLoaderUrl, pipeInstanceName) => {
+            let definition;
+            if (amdLoaderUrl.startsWith('http')) {
+                definition = `<script src="${amdLoaderUrl}"></script>\n` +
+                `<script>${PIPE_DEFINITION}\n`;
+            } else {
+                definition = `<script>${amdLoaderUrl};${PIPE_DEFINITION}\n`;
+            }
+            return new Buffer(definition + `${pipeInstanceName} = new Pipe(require)</script>\n`);
+        };
         const requestOptions = Object.assign({
             fetchContext: () => Promise.resolve({}),
             fetchTemplate: fetchTemplate(
@@ -25,11 +33,7 @@ module.exports = class Tailor extends EventEmitter {
             handledTags: [],
             handleTag: () => '',
             requestFragment,
-            pipeDefinition: (pipeInstanceName) => new Buffer(
-                `<script src="${amdLoaderUrl}"></script>\n` +
-                `<script>${PIPE_DEFINITION}\n` +
-                `${pipeInstanceName} = new Pipe(require)</script>\n`
-            ),
+            pipeDefinition: (pipeInstanceName) => pipeChunk(options.amdLoaderUrl, pipeInstanceName),
             pipeInstanceName : () => '_p' + Math.round(Math.random() * 999)
         }, options);
         requestOptions.parseTemplate = parseTemplate(
