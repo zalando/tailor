@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 1.0.7
+    * Inline AMD loader if specified as file URL (Performance)
+
 ### 1.0.6
     * Asynchronous file read in built-in fetch
     * Respond 404 in case of not found template

@@ -1,6 +1,6 @@
 {
   "name": "node-tailor",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Tailor assembles a web page from multiple fragments",
   "keywords": [
     "tailor",
