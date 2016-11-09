@@ -5,3 +5,4 @@ coverage
 src/pipe.min.js
 jsconfig.json
 .vscode
+.idea
