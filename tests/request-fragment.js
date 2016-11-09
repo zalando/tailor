@@ -3,6 +3,7 @@
 const requestFragment = require('../lib/request-fragment');
 const assert = require('assert');
 const nock = require('nock');
+const zlib = require('zlib');
 
 describe('requestFragment', () => {
 
@@ -38,6 +39,34 @@ describe('requestFragment', () => {
                 assert.equal(data, 'HTTPS');
                 done();
             });
+        });
+    });
+
+    it('Should request fragment using https protocol and gzip compression', (done) => {
+        nock('https://fragment')
+            .defaultReplyHeaders({
+                'content-encoding': 'gzip',
+            })
+            .get('/')
+            .reply(200, () => {
+                const text = 'HTTP+GZIP';
+                const buf = new Buffer(text, 'utf-8');
+                return zlib.gzipSync(buf);
+            });
+
+        requestFragment('https://fragment/', fragmentAttrb, {
+            headers: {}
+        }).then((response) => {
+            let data = '';
+            response.on('data', (chunk) => {
+                data += chunk.toString();
+            });
+            response.on('end', () => {
+                assert.equal(data, 'HTTP+GZIP');
+                done();
+            });
+        }).catch(err => {
+            done(err);
         });
     });
 
