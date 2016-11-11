@@ -3,6 +3,7 @@ const assert = require('assert');
 const http = require('http');
 const nock = require('nock');
 const sinon = require('sinon');
+const zlib = require('zlib');
 const Tailor = require('../index');
 
 describe('Tailor', () => {
@@ -16,9 +17,12 @@ describe('Tailor', () => {
     function getResponse (url) {
         return new Promise((resolve) => {
             http.get(url, (response) => {
-                response.body = '';
-                response.on('data', (data) => response.body += data);
-                response.on('end',() => resolve(response));
+                let chunks = [];
+                response.on('data', (chunk) => chunks.push(chunk));
+                response.on('end',() => {
+                    response.body = Buffer.concat(chunks).toString('utf8');
+                    resolve(response);
+                });
             });
         });
     }
@@ -683,6 +687,41 @@ describe('Tailor', () => {
 
         http.get('http://localhost:8080/test', (response) => {
             assert.equal(response.statusCode, 500);
+            done();
+        });
+    });
+
+    it('should unzip the fragment response if it is compressed', (done) => {
+        nock('https://fragment')
+            .get('/1').reply(200, 'hello')
+            .defaultReplyHeaders({
+                'content-encoding': 'gzip',
+            })
+            .get('/2')
+            .reply(200, ()=> {
+                return zlib.gzipSync('GZIPPED');
+            });
+
+        mockTemplate
+            .returns(
+                '<fragment src="https://fragment/1"></fragment>' +
+                '<fragment src="https://fragment/2"></fragment>'
+            );
+
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<script data-pipe>p.start(0)</script>' +
+                'hello' +
+                '<script data-pipe>p.end(0)</script>' +
+                '<script data-pipe>p.start(1)</script>' +
+                'GZIPPED' +
+                '<script data-pipe>p.end(1)</script>' +
+                '</body>' +
+                '</html>'
+            );
             done();
         });
     });

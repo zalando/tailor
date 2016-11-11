@@ -1,6 +1,6 @@
 {
   "name": "node-tailor",
-  "version": "1.1.0",
+  "version": "1.0.7",
   "description": "Tailor assembles a web page from multiple fragments",
   "keywords": [
     "tailor",
@@ -10,7 +10,6 @@
   ],
   "scripts": {
     "test": "mocha --harmony tests/**",
-    "test:watch": "mocha --harmony tests/** --watch",
     "test-frontend": "mocha --harmony example/test.js",
     "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests/**",
     "lint": "eslint lib/ tests/ src/pipe.js",
