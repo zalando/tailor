@@ -16,11 +16,12 @@ describe('requestFragment', () => {
     it('Should request fragment using http protocol', (done) => {
         nock('http://fragment').get('/').reply(200, 'HTTP');
         requestFragment('http://fragment/', fragmentAttrb, {headers: {}}).then((response) => {
-            let data = '';
+            const chunks = [];
             response.on('data', (chunk) => {
-                data += chunk.toString();
+                chunks.push(chunk);
             });
             response.on('end', () => {
+                const data = Buffer.concat(chunks).toString('utf8');
                 assert.equal(data, 'HTTP');
                 done();
             });
@@ -30,11 +31,12 @@ describe('requestFragment', () => {
     it('Should request fragment using https protocol', (done) => {
         nock('https://fragment').get('/').reply(200, 'HTTPS');
         requestFragment('https://fragment/', fragmentAttrb, {headers: {}}).then((response) => {
-            let data = '';
+            let chunks = [];
             response.on('data', (chunk) => {
-                data += chunk.toString();
+                chunks.push(chunk);
             });
             response.on('end', () => {
+                const data = Buffer.concat(chunks).toString('utf8');
                 assert.equal(data, 'HTTPS');
                 done();
             });
