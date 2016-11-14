@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 1.1.0
+    * Support fragment level compression (gzip/deflate)
+
 ### 1.0.7
     * Inline AMD loader if specified as file URL (Performance)
 
