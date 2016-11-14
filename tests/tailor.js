@@ -726,4 +726,33 @@ describe('Tailor', () => {
         });
     });
 
+    it('should close the streams properly during unzping error', (done) => {
+        nock('https://fragment')
+            .defaultReplyHeaders({
+                'content-encoding': 'gzip',
+            })
+            .get('/2')
+            .reply(200, ()=> {
+                return new Error('GZIP Error');
+            });
+
+        mockTemplate
+            .returns(
+                '<fragment src="https://fragment/2"></fragment>'
+            );
+
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html>' +
+                '<head></head>' +
+                '<body>' +
+                '<script data-pipe>p.start(0)</script>' +
+                '<script data-pipe>p.end(0)</script>' +
+                '</body>' +
+                '</html>'
+            );
+            done();
+        });
+    });
+
 });
