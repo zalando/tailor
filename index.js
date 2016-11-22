@@ -9,6 +9,7 @@ const parseTemplate = require('./lib/parse-template');
 const requestFragment = require('./lib/request-fragment');
 const PIPE_DEFINITION = fs.readFileSync(path.resolve(__dirname, 'src/pipe.min.js'));
 const AMD_LOADER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js';
+const handleTag = require('./lib/handle-tag');
 
 const stripUrl = (fileUrl) => {
     return path.normalize(fileUrl.replace('file://', ''));
@@ -40,8 +41,8 @@ module.exports = class Tailor extends EventEmitter {
                 path.join(process.cwd(), 'templates')
             ),
             fragmentTag: 'fragment',
-            handledTags: [],
-            handleTag: () => '',
+            handledTags: ['service-worker'],
+            handleTag,
             requestFragment,
             pipeDefinition: (pipeInstanceName) => pipeChunk(amdLoaderUrl, pipeInstanceName),
             pipeInstanceName : () => '_p' + Math.round(Math.random() * 999)

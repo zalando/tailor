@@ -4,3 +4,4 @@ npm-debug.log
 coverage
 src/pipe.min.js
 jsconfig.json
+lib/assets.js
