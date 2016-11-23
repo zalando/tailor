@@ -12,7 +12,8 @@
     "test": "mocha --harmony tests/**",
     "test-frontend": "mocha --harmony examples/multiple-fragments-with-custom-amd/test.js",
     "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests/**",
-    "lint": "eslint lib/ tests/ src/pipe.js",
+    "lint": "eslint .",
+    "fix": "eslint . --fix",
     "benchmark": "node perf/benchmark",
     "prepublish": "uglifyjs src/pipe.js --mangle --compress --comments -o src/pipe.min.js"
   },
