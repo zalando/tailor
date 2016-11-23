@@ -1,8 +1,8 @@
 'use strict';
 const http = require('http');
 const path = require('path');
-const Tailor = require('../index');
-const fetchTemplateFs = require('../lib/fetch-template');
+const Tailor = require('../../index');
+const fetchTemplateFs = require('../../lib/fetch-template');
 const serveFragment = require('./fragment');
 const baseTemplateFn = () => 'base-template';
 const AMD_LOADER = 'file://' + require.resolve('iamdee');
