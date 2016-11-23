@@ -6,9 +6,9 @@ const TUNNEL_ID = process.env.TRAVIS_JOB_NUMBER;
 const wd = require('wd');
 const http = require('http');
 const path = require('path');
-const Tailor = require('../index');
-const fetchTemplate = require('../lib/fetch-template');
-const templatesPath = path.join(__dirname, '..', 'example', 'templates');
+const Tailor = require('../../index');
+const fetchTemplate = require('../../lib/fetch-template');
+const templatesPath = path.join(__dirname, 'templates');
 const baseTemplateFn = () => 'base-template';
 const fragment = require('./fragment');
 const tailor = new Tailor({
