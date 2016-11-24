@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
+    <script type="slot" name="head"></script>
+    <script>
+        define('word', function () {
+            // Example dependency for the fragments
+            return 'initialised';
+        });
+    </script>
+</head>
+<body>
+    <slot name="body-start"></slot>
+    <div>
+        <script>
+            // this tests that the pipe functionality may
+            // not be broken by script after the placeholder scripts
+            document.body.appendChild(document.createElement('script'));
+        </script>
+        <h2>Fragment 1:</h2>
+        <fragment src="http://localhost:8081" primary fallback-src="http://localhost:8081"></fragment>
+        <h2>Fragment 2:</h2>
+        <fragment async src="http://localhost:8082"></fragment>
+        <div>All done!</div>
+    </div>
+</body>
+</html>
