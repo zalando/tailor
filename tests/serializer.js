@@ -10,7 +10,7 @@ describe('Serializer', () => {
         treeAdapter: adapter,
         slotMap: new Map(),
         pipeTags: ['script', 'fragment'],
-        handleTags: ['x-tag', 'fragment']
+        handleTags: ['x-tag', 'fragment', 'text/template']
     };
     const getSerializer = (template) => {
         const rootNode = parse5.parse(template, { treeAdapter: adapter });
@@ -65,12 +65,29 @@ describe('Serializer', () => {
         const serializedList = getSerializer(template).serialize();
         assert.equal(serializedList[0].toString().trim(), '<html><head>');
         assert.equal(serializedList[1].toString().trim(), { placeholder: 'pipe' });
-        assert.deepEqual(serializedList[2], { name: 'fragment', attributes: {
-            type: 'fragment',
-            primary: '',
-            async: '',
-            src: 'https://example.com'
-        } });
+        assert.deepEqual(serializedList[2], {
+            name: 'fragment',
+            attributes: {
+                type: 'fragment',
+                primary: '',
+                async: '',
+                src: 'https://example.com'
+            },
+            textContent: ''
+        });
+        assert.equal(serializedList[4].toString().trim(), '</head><body></body></html>');
+    });
+
+    it('should not serialize script tags that are not text/javascript', () => {
+        const template = '<script type="text/template">console.log("yo")</script>';
+        const serializedList = getSerializer(template).serialize();
+        assert.equal(serializedList[0].toString().trim(), '<html><head>');
+        assert.equal(serializedList[1].toString().trim(), { placeholder: 'pipe' });
+        assert.deepEqual(serializedList[2], {
+            name: 'text/template',
+            attributes: { type: 'text/template' },
+            textContent: 'console.log("yo")'
+        });
         assert.equal(serializedList[4].toString().trim(), '</head><body></body></html>');
     });
 
