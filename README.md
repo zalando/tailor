@@ -158,9 +158,19 @@ The rendered html output will look like this
 </html>
 ```
 
-# Example
+# Examples
 
-To start an example execute `npm run example` and open [http://localhost:8080/index](http://localhost:8080/index).
+## Basic
+
+`node examples/basic` and open [http://localhost:8080/index](http://localhost:8080/index).
+
+## CSS and JS
+
+`node examples/basic-css-and-js` and open [http://localhost:8080/index](http://localhost:8080/index).
+
+## Multiple Fragments and AMD
+
+`node examples/multiple-fragments-with-custom-amd` and open [http://localhost:8080/index](http://localhost:8080/index).
 
 # Benchmark
 
