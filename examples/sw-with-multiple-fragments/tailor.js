@@ -16,7 +16,7 @@ const tailor = new Tailor({
         enabled: true,
         publicPath: '/sw.js',
         contents: `
-            console.log(CSS, JS);
+            console.log("Hi from serviceWorker", CSS, JS);
         `
     }
 });

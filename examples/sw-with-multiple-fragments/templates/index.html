@@ -1,3 +1,8 @@
 <title slot="head">Test Page</title>
 <h2 slot="body-start">Fragment 3</h2>
 <fragment slot="body-start" src="http://localhost:8083" timeout="1000"></fragment>
+<script>
+    navigator.serviceWorker.register("/sw.js").then(() => {
+        console.log("ServiceWorker successfully registered");
+    });
+</script>
