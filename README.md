@@ -172,6 +172,8 @@ The rendered html output will look like this
 
 `node examples/multiple-fragments-with-custom-amd` and open [http://localhost:8080/index](http://localhost:8080/index).
 
+**Note: Please run the examples with `--harmony` flag for node 4.x versions**
+
 # Benchmark
 
 To start running benchmark execute `npm run benchmark` and wait for couple of seconds to see the results.
