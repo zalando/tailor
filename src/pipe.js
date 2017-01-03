@@ -12,7 +12,7 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                     return script;
                 }
             }
-        };
+        }
         function placeholder (index) {
             placeholders[index] = currentScript();
         }
@@ -46,21 +46,48 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
             start.parentNode.removeChild(start);
             end.parentNode.removeChild(end);
             script && require([script], function (i) {
+                // Exposed fragment initialization Function/Promise
                 var init = i && i.__esModule ? i.default : i;
-                if (typeof init === 'function') {
-                    // capture initializaion cost of each fragment on the page
-                    if (perf && 'mark' in perf) {
-                        perf.mark(fragmentId);
-                        init(node);
-                        perf.mark(fragmentId + '-end');
-                        perf.measure('fragment-' + fragmentId, fragmentId, fragmentId + '-end');
-                        // Clear the perf entries buffer after measuring
-                        perf.clearMarks(fragmentId);
-                        perf.clearMarks(fragmentId + '-end');
-                    } else {
-                        init(node);
-                    }
+                // early return
+                if (!init) {
+                    return;
                 }
+                // check if User Timing API is supported
+                var isUTSupported = perf && 'mark' in perf;
+
+                function isPromise(obj) {
+                    return typeof obj === 'object'
+                        && typeof obj.then === 'function';
+                }
+
+                function measureInitCost(fragmentId, metricName) {
+                    if (!isUTSupported) {
+                        return;
+                    }
+                    perf.mark(fragmentId + '-end');
+                    perf.measure(metricName + fragmentId, fragmentId, fragmentId + '-end');
+                    // Clear the perf entries buffer after measuring
+                    perf.clearMarks(fragmentId);
+                    perf.clearMarks(fragmentId + '-end');
+                }
+
+                (function executeAndCapture() {
+                    isUTSupported && perf.mark(fragmentId);
+                    // Check if the exposed function is a Promise to allow lazy rendering
+                    // Capture initializaion cost of each fragment on the page using User Timing API if available
+                    if (isPromise(init)) {
+                        init.then(function(module) {
+                            module(node);
+                            measureInitCost(fragmentId, 'fragment-');
+                        });
+                    } else if (typeof init === 'function') {
+                        init(node);
+                        measureInitCost(fragmentId, 'fragment-');
+                    } else {
+                        // this case should be ideally caught by early return
+                        isUTSupported && perf.clearMarks(fragmentId);
+                    }
+                })();
             });
         }
         /* @preserve - loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
