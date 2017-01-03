@@ -49,7 +49,7 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                 // Exposed fragment initialization Function/Promise
                 var init = i && i.__esModule ? i.default : i;
                 // early return
-                if (!init) {
+                if (typeof init !== 'function') {
                     return;
                 }
                 // check if User Timing API is supported
@@ -64,30 +64,28 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                     if (!isUTSupported) {
                         return;
                     }
-                    perf.mark(fragmentId + '-end');
-                    perf.measure(metricName + fragmentId, fragmentId, fragmentId + '-end');
-                    // Clear the perf entries buffer after measuring
-                    perf.clearMarks(fragmentId);
-                    perf.clearMarks(fragmentId + '-end');
+                    perf.mark(fragmentId);
+                    return function () {
+                        perf.mark(fragmentId + '-end');
+                        perf.measure(metricName + fragmentId, fragmentId, fragmentId + '-end');
+                        // Clear the perf entries buffer after measuring
+                        perf.clearMarks(fragmentId);
+                        perf.clearMarks(fragmentId + '-end');
+                    };
                 }
 
-                (function executeAndCapture() {
-                    isUTSupported && perf.mark(fragmentId);
-                    // Check if the exposed function is a Promise to allow lazy rendering
-                    // Capture initializaion cost of each fragment on the page using User Timing API if available
-                    if (isPromise(init)) {
-                        init.then(function(module) {
-                            module(node);
-                            measureInitCost(fragmentId, 'fragment-');
-                        });
-                    } else if (typeof init === 'function') {
-                        init(node);
-                        measureInitCost(fragmentId, 'fragment-');
+                function doInit(init, node, callback) {
+                    var fragmentRender = init(node);
+                    // Check if the response from fragment is a Promise to allow lazy rendering
+                    if (isPromise(fragmentRender)) {
+                        fragmentRender.then(callback, callback);
                     } else {
-                        // this case should be ideally caught by early return
-                        isUTSupported && perf.clearMarks(fragmentId);
+                        callback();
                     }
-                })();
+                }
+
+                // Capture initializaion cost of each fragment on the page using User Timing API if available
+                doInit(init, node, measureInitCost(fragmentId, 'fragment-'));
             });
         }
         /* @preserve - loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
