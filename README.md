@@ -121,7 +121,7 @@ like this `<script type="fragment" slot="custom-slot-name" primary ...></script>
 <html>
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel=”dns-prefetch” href=”https://example.com” />
+    <link rel="dns-prefetch" href="https://example.com" />
     <script type="slot" name="head"></script>
 </head>
 <body>
@@ -146,7 +146,7 @@ The rendered html output will look like this
 <html>
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel=”dns-prefetch” href=”https://example.com” />
+    <link rel="dns-prefetch" href="https://example.com" />
     <meta charset="utf-8">
     <title>Test Template</title>
 </head>
