@@ -3,6 +3,9 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
         var placeholders = {};
         var starts = {};
         var scripts = doc.getElementsByTagName('script');
+        // Fragments that decide the interactive time of main content on the page
+        var mainFragments = Object.create(null);
+        var isInteractiveDone = false;
         function currentScript () {
             var script;
             for (var s = scripts.length - 1; s >= 0; s--) {
@@ -16,9 +19,18 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
         function placeholder (index) {
             placeholders[index] = currentScript();
         }
-        function start (index, script) {
+        function start (index, script, isMainFragment) {
             starts[index] = currentScript();
-            script && require([script]);
+            if (script) {
+                // Main Fragments helps in deciding the interactivity of the page
+                // Primary fragments by default are considered to be main
+                if (isMainFragment) {
+                    mainFragments[index] = {
+                        initialized: false
+                    };
+                }
+                require([script]);
+            }
         }
         function end (index, script, fragmentId) {
             var placeholder = placeholders[index];
@@ -60,7 +72,7 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                         && typeof obj.then === 'function';
                 }
 
-                function measureInitCost(fragmentId, metricName) {
+                function measureInitCost(metricName) {
                     if (!isUTSupported) {
                         return;
                     }
@@ -74,18 +86,56 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                     };
                 }
 
+                function isMainContentInteractive() {
+                    for (var index in mainFragments) {
+                        var obj = mainFragments[index];
+                        if (!obj.initialized) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                function captureInteractivity() {
+                    // Handle if there are no main fragments on the page
+                    if (JSON.stringify(mainFragments) === '{}') {
+                        isInteractiveDone = true;
+                        return;
+                    }
+
+                    if (isMainContentInteractive()) {
+                        isInteractiveDone = true;
+                        // This will measure the high resolution time from navigationStart till current time
+                        perf.measure('interactive');
+                    }
+                }
+
+                function markInitialized() {
+                    if (typeof mainFragments[index] === 'object') {
+                        mainFragments[index].initialized = true;
+                    }
+                }
+
                 function doInit(init, node, callback) {
                     var fragmentRender = init(node);
+                    var handlerFn = function() {
+                        markInitialized();
+                        callback();
+                    };
                     // Check if the response from fragment is a Promise to allow lazy rendering
                     if (isPromise(fragmentRender)) {
-                        fragmentRender.then(callback, callback);
+                        fragmentRender.then(handlerFn, handlerFn);
                     } else {
-                        callback();
+                        handlerFn();
                     }
                 }
 
                 // Capture initializaion cost of each fragment on the page using User Timing API if available
-                doInit(init, node, measureInitCost(fragmentId, 'fragment-'));
+                doInit(init, node, measureInitCost('fragment-'));
+                // Capture the interactivity once all the main fragments are initialized
+                if (!isInteractiveDone) {
+                    captureInteractivity();
+                }
             });
         }
         /* @preserve - loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
