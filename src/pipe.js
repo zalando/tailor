@@ -3,7 +3,7 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
         var placeholders = {};
         var starts = {};
         var scripts = doc.getElementsByTagName('script');
-        // Fragments that decide the interactive time of main content on the page
+        // Fragments that decide the when all the javascript from main content on the page gets executed
         var mainFragments = Object.create(null);
         var isInteractiveDone = false;
         function currentScript () {
@@ -96,7 +96,7 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                     return true;
                 }
 
-                function captureInteractivity() {
+                function measureInteractivity() {
                     // Handle if there are no main fragments on the page
                     if (JSON.stringify(mainFragments) === '{}') {
                         isInteractiveDone = true;
@@ -121,6 +121,10 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                     var handlerFn = function() {
                         markInitialized();
                         callback();
+                        // Measure the main content interactivity once all the main fragments are initialized
+                        if (!isInteractiveDone) {
+                            measureInteractivity();
+                        }
                     };
                     // Check if the response from fragment is a Promise to allow lazy rendering
                     if (isPromise(fragmentRender)) {
@@ -132,10 +136,6 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
 
                 // Capture initializaion cost of each fragment on the page using User Timing API if available
                 doInit(init, node, measureInitCost('fragment-'));
-                // Capture the interactivity once all the main fragments are initialized
-                if (!isInteractiveDone) {
-                    captureInteractivity();
-                }
             });
         }
         /* @preserve - loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
