@@ -45,7 +45,7 @@ performance.measure('interactive'); // User Timing API
     startTime: 0
 }
 ```
-[!Interactivity](/images/interactive-time.png)
+[!Interactivity](/doc/images/interactive-time.png)
 
 ## Requirements
 
