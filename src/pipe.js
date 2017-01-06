@@ -3,9 +3,25 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
         var placeholders = {};
         var starts = {};
         var scripts = doc.getElementsByTagName('script');
-        // Fragments that decide the when all the javascript from main content on the page gets executed
-        var mainFragments = Object.create(null);
-        var isInteractiveDone = false;
+        //
+        var timingGroupsMap = Object.create(null);
+        function getTimingGroups(attributes) {
+            var timingGroups = attributes.timingGroups;
+            // By default all the fragments are added to default timing group
+            timingGroups.push('everything-init');
+            if (attributes.primary) {
+                timingGroups.push('primary-init');
+            }
+            return timingGroups;
+        }
+        function mapOver(arr, callback) {
+            if (!arr) {
+                return;
+            }
+            for (var i = 0; i < arr.length; i++) {
+                callback(arr[i]);
+            }
+        }
         function currentScript () {
             var script;
             for (var s = scripts.length - 1; s >= 0; s--) {
@@ -19,20 +35,23 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
         function placeholder (index) {
             placeholders[index] = currentScript();
         }
-        function start (index, script, isMainFragment) {
+        function start (index, script, attributes) {
             starts[index] = currentScript();
             if (script) {
-                // Main Fragments helps in deciding the interactivity of the page
-                // Primary fragments by default are considered to be main
-                if (isMainFragment) {
-                    mainFragments[index] = {
-                        initialized: false
+                // Group the fragments that satisfies the same timing group
+                var timingGroups = getTimingGroups(attributes);
+                mapOver(timingGroups, function(groupName) {
+                    if (!timingGroupsMap[groupName]) {
+                        timingGroupsMap[groupName] = Object.create(null);;
+                    }
+                    timingGroupsMap[groupName][index] = {
+                        initialized: false,
                     };
-                }
+                });
                 require([script]);
             }
         }
-        function end (index, script, fragmentId) {
+        function end (index, script, attributes) {
             var placeholder = placeholders[index];
             var start = starts[index];
             var end = currentScript();
@@ -72,10 +91,12 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                         && typeof obj.then === 'function';
                 }
 
+                // Measure initialization cost of each fragments on the page
                 function measureInitCost(metricName) {
                     if (!isUTSupported) {
                         return;
                     }
+                    var fragmentId = attributes.id ? attributes.id : index;
                     perf.mark(fragmentId);
                     return function () {
                         perf.mark(fragmentId + '-end');
@@ -86,9 +107,10 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                     };
                 }
 
-                function isMainContentInteractive() {
-                    for (var index in mainFragments) {
-                        var obj = mainFragments[index];
+                function isTimingGroupInteractive(groupName) {
+                    var fragments = timingGroupsMap[groupName];
+                    for (var index in fragments) {
+                        var obj = fragments[index];
                         if (!obj.initialized) {
                             return false;
                         }
@@ -96,39 +118,41 @@ var Pipe = (function (doc, perf) { //eslint-disable-line no-unused-vars, strict
                     return true;
                 }
 
-                function measureInteractivity() {
-                    // Handle if there are no main fragments on the page
-                    if (JSON.stringify(mainFragments) === '{}') {
-                        isInteractiveDone = true;
-                        return;
-                    }
+                function measureTimingGroup(timingGroups) {
+                    mapOver(timingGroups, function(groupName) {
+                        // Do not measure anything if the group is empty
+                        if (!timingGroupsMap[groupName]) {
+                            return;
+                        }
 
-                    if (isMainContentInteractive()) {
-                        isInteractiveDone = true;
-                        // This will measure the high resolution time from navigationStart till current time
-                        perf.measure('interactive');
-                    }
+                        if (isTimingGroupInteractive(groupName)) {
+                            // This will measure the high resolution time from navigationStart till current time
+                            perf.measure(groupName);
+                        }
+                    });
                 }
 
-                function markInitialized() {
-                    if (typeof mainFragments[index] === 'object') {
-                        mainFragments[index].initialized = true;
-                    }
+                function markInitialized(timingGroups) {
+                    mapOver(timingGroups, function(groupName) {
+                        var fragments = timingGroupsMap[groupName];
+                        if (typeof fragments[index] === 'object') {
+                            fragments[index].initialized = true;
+                        }
+                    });
                 }
 
                 function doInit(init, node, callback) {
                     var fragmentRender = init(node);
+                    // Determine the timing groups of the fragments
+                    var timingGroups = getTimingGroups(attributes);
                     var handlerFn = function() {
-                        markInitialized();
+                        markInitialized(timingGroups);
                         callback();
-                        // Measure the main content interactivity once all the main fragments are initialized
-                        if (!isInteractiveDone) {
-                            measureInteractivity();
-                        }
+                        measureTimingGroup(timingGroups);
                     };
                     // Check if the response from fragment is a Promise to allow lazy rendering
                     if (isPromise(fragmentRender)) {
-                        fragmentRender.then(handlerFn, handlerFn);
+                        fragmentRender.then(handlerFn).catch(handlerFn);
                     } else {
                         handlerFn();
                     }
