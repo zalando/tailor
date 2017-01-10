@@ -14,6 +14,10 @@ const stripUrl = (fileUrl) => {
     return path.normalize(fileUrl.replace('file://', ''));
 };
 
+const getPipeAttributes = ({ primary, id }) => {
+    return { primary, id };
+};
+
 module.exports = class Tailor extends EventEmitter {
 
     constructor (options) {
@@ -22,16 +26,17 @@ module.exports = class Tailor extends EventEmitter {
         let memoizedDefinition;
         const pipeChunk = (amdLoaderUrl, pipeInstanceName) => {
             if (!memoizedDefinition) {
+                const pipeScript = `var ${pipeInstanceName}=${PIPE_DEFINITION}\n</script>\n`;
                 // Allow reading from fs for inlining AMD
                 if (amdLoaderUrl.startsWith('file://')) {
                     let fileData = fs.readFileSync(stripUrl(amdLoaderUrl), 'utf-8');
-                    memoizedDefinition = `<script>${fileData}\n${PIPE_DEFINITION}\n`;
+                    memoizedDefinition = `<script>${fileData}\n${pipeScript}`;
                 } else {
                     memoizedDefinition = `<script src="${amdLoaderUrl}"></script>\n` +
-                    `<script>${PIPE_DEFINITION}\n`;
+                    `<script>${pipeScript}`;
                 }
             }
-            return new Buffer(memoizedDefinition + `${pipeInstanceName} = new Pipe(require)</script>\n`);
+            return new Buffer(memoizedDefinition);
         };
         const requestOptions = Object.assign({
             fetchContext: () => Promise.resolve({}),
@@ -44,7 +49,8 @@ module.exports = class Tailor extends EventEmitter {
             handleTag: () => '',
             requestFragment,
             pipeDefinition: (pipeInstanceName) => pipeChunk(amdLoaderUrl, pipeInstanceName),
-            pipeInstanceName : () => '_p' + Math.round(Math.random() * 999)
+            pipeInstanceName: () => 'Pipe',
+            pipeAttributes: (attributes) => getPipeAttributes(attributes)
         }, options);
         requestOptions.parseTemplate = parseTemplate(
             [requestOptions.fragmentTag].concat(requestOptions.handledTags),
