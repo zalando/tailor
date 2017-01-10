@@ -6,15 +6,12 @@ node_js:
 cache:
   directories:
   - node_modules
-before_install:
-- npm install -g codeclimate-test-reporter
 before_script:
 - npm run lint
 script:
 - npm run test-frontend
 - npm run coverage
 after_script:
-- codeclimate-test-reporter < coverage/lcov.info
 - npm run codecov
 matrix:
   fast_finish: true
