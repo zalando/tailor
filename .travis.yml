@@ -6,15 +6,13 @@ node_js:
 cache:
   directories:
   - node_modules
-before_install:
-- npm install -g codeclimate-test-reporter
 before_script:
 - npm run lint
 script:
 - npm run test-frontend
 - npm run coverage
 after_script:
-- codeclimate-test-reporter < coverage/lcov.info
+- npm run codecov
 matrix:
   fast_finish: true
 addons:
@@ -22,9 +20,6 @@ addons:
     username: akuzmin
     access_key:
       secure: tn+6q2Q2m1Qwsxe8Av3pPVgMNTr+GD1PoArz6pRcseCKI0dST+jIU2uFwcJB6zj3icW/DULbKzO41OO96PseFBdt9EyphB+aPokV52SFYm1UVtKdClij9yOCHGPgng9AoeN9rXacMrHV1o6ipTOS9RYP2Ytp5h8ZVIX1ZLM2a5bkcJcqdiSBof3332Fs+MJUXSQHaMe6u8or7YPZuvr2IJqARqQcoLPzUR5SpZZwcLwF6wwZOAX3e+SXwiK/LEd8XjCbzJFbkdd9THVGF2gCjnKX0g45plCfp/+MrspXysAEvjygpfOiDYAshtzp55wOrpyC0EGKuZzMcOgKGLPBVwyOSnQsRM8BBSY75PiEQhn9zPuYEfMpprcwsj90XNaOjrpxCUZR/aTMUDdbA33LfbQr+3QeSlMpDetfc+xO24lBoLQgHaKZvA+QD1mQ9HDG3Hyq6WzRddplME6uzVetuR/Q/3CrRW1RLEhIaEaC2oUsDtYywFVeGMYjLkdWeqYT+P7XNl/eMXXBdYuAdPsdjmxnBGrC9syW7K/kvBno6Aaer11n0VJ+fRpZyizcBcKTYRvoeZ55BlPvaWEq7+dRrHd+T59nrrsZG29hK9lkdAyUDDpft2xID5+KTsUVJrGSdrhvwUlWSSr7eUiI1XVVPaR0kPml0prdBslwjepSlYc=
-  code_climate:
-    repo_token:
-      secure: RazrTSMK0xQU6PnSCP2gRZ/nxLvY2u6TW4Pqw6adihjSMmQ8+j79WX+K2ZGt3O2RICxqSrc0/c45F0tJBOlvebOBDR5b3aVhtAP14yj6EDVcvpfphepc4SHAaZTqWK3dw6YxkPh/uL5iGOMOp2CDm2KQ4KawT5zTjNSWRslsu9+aJf8Qe4CBTrOQCH4HJ8sb4mQnUGm2wbqNA1qEEdCUB0AOeRw2/1AazvPgBvM9D07pAkJn1Tr3JHJeKl8SwjUpZPt0xdZBF6MNAFfyUTh2OJH+4LYuNl5Nm0lt0tgUWngk5qTWOgOjSuZWh9q3y7L46joCz9g74XD6KXf46n7vr+PmiYt52IYgCAtpvigLREOG3/u1BJ55cyd8nLNiTjvNTzS59AYUou4QFBvIZHR+wW6d6Wqq6Yj18ZXBoAUo0yK9geTe3UsuUrIaJg2XEgMNmBKB8+rxqM+xgfNJ8qoI7UMP/UNeOb0b0vQZV7Ng+L5/eafTeEJs/7fdhasrrD7QqvHYgLJgKaHMNnjE/7vC09mUwY+4D/EXcX8TNUFwKs/ClaBL8dNnzPe0qNXh7Wy1wMXZyNuiWqt4mCQxHAUfbggoFkJoipLgrotTjb/jWx26dcreCef75UV6yd/ZCt/tQ7vPMncG3r2rK4XAXEv+LsrMYzrccoch5s2RfWLQJhE=
 deploy:
   provider: npm
   email: vignesh.shanmugam22@gmail.com
