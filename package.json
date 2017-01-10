@@ -12,6 +12,7 @@
     "test": "mocha --harmony tests/**",
     "test-frontend": "mocha --harmony examples/multiple-fragments-with-custom-amd/test.js",
     "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests/**",
+    "codecov": "cat coverage/*/lcov.info | codecov",
     "lint": "eslint .",
     "fix": "eslint . --fix",
     "benchmark": "node perf/benchmark",
@@ -36,6 +37,7 @@
     "parse5": "^2.1.5"
   },
   "devDependencies": {
+    "codecov": "^1.0.1",
     "eslint": "^2.0.0",
     "iamdee": "^0.4.0",
     "istanbul": "^0.4.1",
