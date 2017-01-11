@@ -14,8 +14,13 @@ const stripUrl = (fileUrl) => {
     return path.normalize(fileUrl.replace('file://', ''));
 };
 
-const getPipeAttributes = ({ primary, id }) => {
-    return { primary, id };
+const getPipeAttributes = (attributes) => {
+    const primary = (attributes.primary ||
+    attributes.primary === '') ? true : false;
+    return {
+        primary,
+        id: attributes.id
+    };
 };
 
 module.exports = class Tailor extends EventEmitter {
