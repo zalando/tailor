@@ -14,15 +14,6 @@ const stripUrl = (fileUrl) => {
     return path.normalize(fileUrl.replace('file://', ''));
 };
 
-const getPipeAttributes = (attributes) => {
-    const primary = (attributes.primary ||
-    attributes.primary === '') ? true : false;
-    return {
-        primary,
-        id: attributes.id
-    };
-};
-
 module.exports = class Tailor extends EventEmitter {
 
     constructor (options) {
@@ -54,8 +45,7 @@ module.exports = class Tailor extends EventEmitter {
             handleTag: () => '',
             requestFragment,
             pipeDefinition: (pipeInstanceName) => pipeChunk(amdLoaderUrl, pipeInstanceName),
-            pipeInstanceName: () => 'Pipe',
-            pipeAttributes: (attributes) => getPipeAttributes(attributes)
+            pipeInstanceName: () => 'Pipe'
         }, options);
         requestOptions.parseTemplate = parseTemplate(
             [requestOptions.fragmentTag].concat(requestOptions.handledTags),
