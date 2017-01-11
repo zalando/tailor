@@ -1,13 +1,13 @@
 <h1><img width="400" alt="Tailor" src="https://rawgithub.com/zalando/tailor/master/tailor.svg"></h1>
 
-[![NPM](https://nodei.co/npm/node-tailor.png)](https://npmjs.org/package/add-eventlistener-with-options)
+[![NPM](https://nodei.co/npm/node-tailor.png)](https://npmjs.org/package/node-tailor)
 
 [![Build Status](https://travis-ci.org/zalando/tailor.svg?branch=master)](https://travis-ci.org/zalando/tailor)
-[![Test Coverage](https://codecov.io/github/zalando/tailor/coverage.svg?precision=0)](https://codecov.io/github/addi90/build-notification-api/coverage)
+[![Test Coverage](https://codecov.io/github/zalando/tailor/coverage.svg?precision=0)](https://codecov.io/github/zalando/tailor)
 
 ## npm status
-[![downloads](https://img.shields.io/npm/dt/node-tailor.svg)]()
-[![version](https://img.shields.io/npm/v/node-tailor.svg)]()
+[![downloads](https://img.shields.io/npm/dt/node-tailor.svg)](https://npmjs.org/package/node-tailor)
+[![version](https://img.shields.io/npm/v/node-tailor.svg)](https://npmjs.org/package/node-tailor)
 
 
 Tailor is a layout service that uses streams to compose a web page from fragment services. O'Reilly describes it in the title of [this blog post](https://www.oreilly.com/ideas/better-streaming-layouts-for-frontend-microservices-with-tailor) as "a library that provides a middleware which you can integrate into any Node.js server." It's partially inspired by Facebook’s [BigPipe](https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919/), but developed in an ecommerce context.
