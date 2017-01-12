@@ -40,7 +40,7 @@ By using the API hooks and with the help of User Timing API, We can easily measu
 
 The metrics are shown visually on the Browser's timeline graph.
 
-[!Fragment Initialization](https://github.com/zalando/tailor/tree/master/docs/images/fragment-init-cost.png)
+![Fragment Initialization](https://raw.githubusercontent.com/zalando/tailor/master/docs/images/fragment-init-cost.png)
 
 We can collect the measured data using the Performance Timing API
 
@@ -111,7 +111,7 @@ Now to measure the time, We are going to use the hooks that are provided by Tail
 </html>
 ```
 
-[!Interativity](https://github.com/zalando/tailor/tree/master/docs/images/content-interactive.png)
+![Interativity](https://raw.githubusercontent.com/zalando/tailor/master/docs/images/content-interactive.png)
 
 Please use the drop in replacement script [here](https://github.com/zalando/tailor/tree/master/examples/fragment-performance/index.html) which measures both the fragment initialization as well the timing groups.
 
