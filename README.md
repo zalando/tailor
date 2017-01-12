@@ -179,6 +179,10 @@ The rendered html output will look like this
 
 `node examples/multiple-fragments-with-custom-amd` and open [http://localhost:8080/index](http://localhost:8080/index).
 
+## Fragment Performance
+
+`node examples/fragment-performance` and open [http://localhost:8080/index](http://localhost:8080/index).
+
 **Note: Please run the examples with `--harmony` flag for node 4.x versions**
 
 # Benchmark

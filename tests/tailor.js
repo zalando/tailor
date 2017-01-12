@@ -286,7 +286,7 @@ describe('Tailor', () => {
                 '<head></head>' +
                 '<body>' +
                 '<link rel="stylesheet" href="http://link">' +
-                '<script data-pipe>p.start(0, "http://link2")</script>' +
+                '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
                 'hello' +
                 '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
                 '</body>' +
@@ -296,7 +296,7 @@ describe('Tailor', () => {
         });
     });
 
-    it('should call the pipe end with custom pipe attributes', (done) => {
+    it('should call the pipe start and end with custom pipe attributes', (done) => {
         nock('https://fragment')
             .get('/1').reply(200, 'hello', {
                 'Link': '<http://link2>; rel="fragment-script"'
@@ -308,7 +308,7 @@ describe('Tailor', () => {
         getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.body,
                 '<html><head></head><body>' +
-                '<script data-pipe>p.start(0, "http://link2")</script>' +
+                '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
                 'hello' +
                 '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
                 '</body></html>'
@@ -331,7 +331,7 @@ describe('Tailor', () => {
                 '<html><head></head><body>' +
                 '<script data-pipe>p.placeholder(0)</script>' +
                 '<script>p.loadCSS("http://link")</script>' +
-                '<script data-pipe>p.start(0, "http://link2")</script>' +
+                '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
                 'hello' +
                 '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
                 '</body></html>'
@@ -355,7 +355,7 @@ describe('Tailor', () => {
                 '<head></head>' +
                 '<body>' +
                 '<link rel="stylesheet" href="http://link">' +
-                '<script data-pipe>p.start(0, "http://link2")</script>' +
+                '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
                 'hello' +
                 '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
                 '</body>' +

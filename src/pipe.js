@@ -2,10 +2,12 @@
     var placeholders = {};
     var starts = {};
     var scripts = doc.getElementsByTagName('script');
-    // To maintain if all fragments on the page are initialized
+    // State to maintain if all fragments on the page are initialized
     var initState = [];
     var noop = function() {};
+    // Hooks that will be replaced later on the page
     var hooks = {
+        onStart: noop,
         onBeforeInit: noop,
         onAfterInit: noop,
         onDone: noop
@@ -26,10 +28,11 @@
         placeholders[index] = currentScript();
     }
 
-    function start(index, script) {
+    function start(index, script, attributes) {
         starts[index] = currentScript();
         if (script) {
             initState.push(index);
+            hooks.onStart(attributes);
             require([script]);
         }
     }
@@ -78,7 +81,11 @@
                 var handlerFn = function() {
                     initState.pop();
                     hooks.onAfterInit(attributes);
-                    if (initState.length === 0) {
+                    // OnDone will be called once the document is completed parsed and there are no other fragments getting streamed.
+                    if (initState.length === 0
+                        && doc.readyState
+                        && (doc.readyState === 'complete'
+                        || doc.readyState === 'interactive') ) {
                         hooks.onDone();
                     }
                 };
@@ -159,6 +166,7 @@
         start: start,
         end: end,
         loadCSS: loadCSS,
+        onStart: assignHook('onStart'),
         onBeforeInit: assignHook('onBeforeInit'),
         onAfterInit: assignHook('onAfterInit'),
         onDone: assignHook('onDone')

@@ -10,8 +10,10 @@ const requestFragment = require('./lib/request-fragment');
 const PIPE_DEFINITION = fs.readFileSync(path.resolve(__dirname, 'src/pipe.min.js'));
 const AMD_LOADER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js';
 
-const stripUrl = (fileUrl) => {
-    return path.normalize(fileUrl.replace('file://', ''));
+const stripUrl = (fileUrl) => path.normalize(fileUrl.replace('file://', ''));
+const getPipeAttributes = (attributes) => {
+    const primary = (attributes.primary || attributes.primary === '') ? true : false;
+    return { primary, id: attributes.id };
 };
 
 module.exports = class Tailor extends EventEmitter {
@@ -22,17 +24,15 @@ module.exports = class Tailor extends EventEmitter {
         let memoizedDefinition;
         const pipeChunk = (amdLoaderUrl, pipeInstanceName) => {
             if (!memoizedDefinition) {
-                const pipeScript = `var ${pipeInstanceName}=${PIPE_DEFINITION}\n</script>\n`;
                 // Allow reading from fs for inlining AMD
                 if (amdLoaderUrl.startsWith('file://')) {
                     let fileData = fs.readFileSync(stripUrl(amdLoaderUrl), 'utf-8');
-                    memoizedDefinition = `<script>${fileData}\n${pipeScript}`;
+                    memoizedDefinition = `<script>${fileData}\n`;
                 } else {
-                    memoizedDefinition = `<script src="${amdLoaderUrl}"></script>\n` +
-                    `<script>${pipeScript}`;
+                    memoizedDefinition = `<script src="${amdLoaderUrl}"></script>\n<script>`;
                 }
             }
-            return new Buffer(memoizedDefinition);
+            return new Buffer(`${memoizedDefinition}var ${pipeInstanceName}=${PIPE_DEFINITION}</script>\n`);
         };
         const requestOptions = Object.assign({
             fetchContext: () => Promise.resolve({}),
@@ -45,7 +45,8 @@ module.exports = class Tailor extends EventEmitter {
             handleTag: () => '',
             requestFragment,
             pipeDefinition: (pipeInstanceName) => pipeChunk(amdLoaderUrl, pipeInstanceName),
-            pipeInstanceName: () => 'Pipe'
+            pipeInstanceName: () => 'Pipe',
+            pipeAttributes: (attributes) => getPipeAttributes(attributes)
         }, options);
         requestOptions.parseTemplate = parseTemplate(
             [requestOptions.fragmentTag].concat(requestOptions.handledTags),

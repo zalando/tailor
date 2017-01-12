@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
+    <script>
+        const timingGroupMap = new Map();
+        const markInitialized = (groupName, id) => {
+            timingGroupMap
+                .get(groupName)
+                .set(id, {initialised: true})
+        };
+        const hasInitialized = (groupName) => {
+            const groupMap = timingGroupMap.get(groupName);
+
+            if(!groupMap) {
+                return false;
+            }
+
+            for (let key of groupMap.keys()) {
+                let value = groupMap.get(key);
+                if (!value.initialised) {
+                    return false;
+                }
+            }
+            return true;
+        };
+        Pipe.onStart((attributes) => {
+            attributes.timingGroups.forEach((groupName) => {
+                if (!timingGroupMap.has(groupName)) {
+                    timingGroupMap.set(groupName, new Map());
+                }
+                timingGroupMap
+                    .get(groupName)
+                    .set(attributes.id, {initialised: false});
+            });
+        });
+        Pipe.onBeforeInit(function(attributes) {
+            var fragmentId = attributes.id;
+            performance.mark(fragmentId);
+        });
+        Pipe.onAfterInit((attributes) => {
+            var fragmentId = attributes.id;
+            performance.mark(fragmentId + 'end');
+            performance.measure('fragment-' + fragmentId, fragmentId, fragmentId + 'end');
+            attributes.timingGroups.forEach((groupName) => markInitialized(groupName, attributes.id));
+            attributes.timingGroups.forEach((groupName) => {
+                if (hasInitialized(groupName)) {
+                    performance.measure(groupName);
+                }
+            });
+        });
+        Pipe.onDone(() => {
+            performance.measure('all-done');
+        });
+    </script>
+    <script>
+        define('word', function () {
+            // Example dependency for the fragments
+            return 'initialised';
+        });
+    </script>
+</head>
+<body>
+    <div>
+        <h2>Header:</h2>
+        <fragment timing-group="abovethefold,interactive" id="hello" src="http://localhost:8081"></fragment>
+        <h2>Product/Primary:</h2>
+        <fragment timing-group="abovethefold,interactive" id="product" primary src="http://localhost:8082"></fragment>
+        <h2>Async Recos:</h2>
+        <fragment  timing-group="interactive" id="recos" async src="http://localhost:8083"></fragment>
+        <h2>Async Footer:</h2>
+        <fragment id="footer" async src="http://localhost:8083"></fragment>
+    </div>
+</body>
+</html>
