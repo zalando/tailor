@@ -48,19 +48,19 @@ We can collect the measured data using the Performance Timing API
 var data = performance.getEntriesByType('measure');
 // Output
 [
-    0: {
+    {
         duration: 0.370,
         entryType: "measure",
         name: "fragment-header",
         startTime: 419.95
     },
-    1: {
+    {
         duration: 0.609,
         entryType: "measure",
         name: "fragment-product",
         startTime: 435.02
     },
-    2: {
+    {
         duration: 0.299,
         entryType: "measure",
         name: "fragment-footer",
