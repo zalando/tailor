@@ -45,7 +45,12 @@ describe('Tailor', () => {
                     return Promise.reject(error);
                 }
             },
-            pipeInstanceName: () => 'p'
+            pipeInstanceName: () => 'p',
+            pipeAttributes: (attributes) => {
+                return {
+                    id: attributes.id
+                };
+            }
         });
         mockContext.returns(Promise.resolve({}));
         server = http.createServer(tailor.requestHandler);
@@ -281,11 +286,32 @@ describe('Tailor', () => {
                 '<head></head>' +
                 '<body>' +
                 '<link rel="stylesheet" href="http://link">' +
-                '<script data-pipe>p.start(0, "http://link2")</script>' +
+                '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
                 'hello' +
-                '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
+                '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
                 '</body>' +
                 '</html>'
+            );
+            done();
+        });
+    });
+
+    it('should call the pipe start and end with custom pipe attributes', (done) => {
+        nock('https://fragment')
+            .get('/1').reply(200, 'hello', {
+                'Link': '<http://link2>; rel="fragment-script"'
+            });
+
+        mockTemplate
+            .returns('<fragment src="https://fragment/1"></fragment>');
+
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.body,
+                '<html><head></head><body>' +
+                '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
+                'hello' +
+                '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
+                '</body></html>'
             );
             done();
         });
@@ -305,9 +331,9 @@ describe('Tailor', () => {
                 '<html><head></head><body>' +
                 '<script data-pipe>p.placeholder(0)</script>' +
                 '<script>p.loadCSS("http://link")</script>' +
-                '<script data-pipe>p.start(0, "http://link2")</script>' +
+                '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
                 'hello' +
-                '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
+                '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
                 '</body></html>'
             );
             done();
@@ -329,9 +355,9 @@ describe('Tailor', () => {
                 '<head></head>' +
                 '<body>' +
                 '<link rel="stylesheet" href="http://link">' +
-                '<script data-pipe>p.start(0, "http://link2")</script>' +
+                '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
                 'hello' +
-                '<script data-pipe>p.end(0, "http://link2", "0")</script>' +
+                '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
                 '</body>' +
                 '</html>'
             );
