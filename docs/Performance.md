@@ -1,6 +1,6 @@
 # Performance
 
-With the help of front end [hooks](https://github.com/zalando/tailor/tree/master/docs/Hooks.md), we can easily analayze the performance and report the data to our backend server for monitoring.
+With the help of front end [hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md), we can easily analayze the performance and report the data to our backend server for monitoring.
 
 ## Measuring fragment Initialization cost
 
@@ -113,7 +113,7 @@ Now to measure the time, We are going to use the hooks that are provided by Tail
 
 ![Interativity](https://raw.githubusercontent.com/zalando/tailor/master/docs/images/content-interactive.png)
 
-Please use the drop in replacement script [here](https://github.com/zalando/tailor/tree/master/examples/fragment-performance/index.html) which measures both the fragment initialization as well the timing groups.
+Please use the drop in replacement script [here](https://github.com/zalando/tailor/blob/master/examples/fragment-performance/templates/index.html#L7) which measures both the fragment initialization as well the timing groups.
 
 ## Caveats
 
