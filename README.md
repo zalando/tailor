@@ -85,6 +85,8 @@ A fragment is an http(s) server that renders only the part of the page and sets 
 
 A JavaScript of the fragment is an AMD module, that exports an `init` function, that will be called with DOM element of the fragment as an argument.
 
+**Note** For compatability with AWS the `Link` header can also be passed as `x-amz-meta-link`.
+
 # Events
 
 `Tailor` extends `EventEmitter`, so you can subscribe to events with `tailor.on('eventName', callback)`.
