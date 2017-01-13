@@ -77,9 +77,11 @@ The idea is heavily inspired by [Time to interactive](https://docs.google.com/do
 
 In order to measure the interactivity of the critical content, we need to agree on a set/group of fragments that can decide the page interactivity and also help in measuring the time taken for the same.
 
-### Definition
+### How its measured
 
 Time to interactive of critical content seeks to identify the time when the JavaScript from the critical fragments(group of fragments) of the page gets initialized(compiled + parsed + executed) and the page is visually ready or meaningful. It is the difference between the marked time and the browser's [navigation start](https://w3c.github.io/navigation-timing/#dom-performancetiming-navigationstart).
+
+If any of the critical fragments is rendered lazily, then interactive time would take the lazy rendering into account.
 
 ### Clustering fragments
 
