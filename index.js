@@ -12,10 +12,13 @@ const AMD_LOADER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22
 
 
 const stripUrl = fileUrl => path.normalize(fileUrl.replace('file://', ''));
-const getPipeAttributes = ({ primary: primaryAttr, id }) => ({
-    primary: !!(primaryAttr || primaryAttr === ''),
-    id
-});
+const getPipeAttributes = attributes => {
+    const { primary, id} = attributes;
+    return { 
+        primary: !!(primary || primary === ''), 
+        id 
+    };
+};
 
 module.exports = class Tailor extends EventEmitter {
 
