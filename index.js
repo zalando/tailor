@@ -47,7 +47,6 @@ module.exports = class Tailor extends EventEmitter {
             pipeInstanceName : () => '_p' + Math.round(Math.random() * 999)
         }, options);
 
-        // TODO: Check if we could decouple this from requestOptions and use object shorthand syntax
         requestOptions.parseTemplate = parseTemplate(
             [requestOptions.fragmentTag].concat(requestOptions.handledTags),
             ['script', requestOptions.fragmentTag]
