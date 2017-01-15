@@ -30,10 +30,7 @@ module.exports = class Tailor extends EventEmitter {
                     let fileData = fs.readFileSync(stripUrl(amdLoaderUrl), 'utf-8');
                     memoizedDefinition = `<script>${fileData}\n`;
                 } else {
-
-                    memoizedDefinition = 
-                        `<script src="${amdLoaderUrl}"></script>\n
-                        <script>${PIPE_DEFINITION}\n`;
+                    memoizedDefinition = `<script src="${amdLoaderUrl}"></script>\n<script>`;
                 }
             }
             return new Buffer(`${memoizedDefinition}var ${pipeInstanceName}=${PIPE_DEFINITION}</script>\n`);
