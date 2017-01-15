@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "fix": "eslint . --fix",
     "benchmark": "node perf/benchmark",
-    "prepublish": "uglifyjs src/pipe.js --mangle --compress --comments -o src/pipe.min.js"
+    "prepublish": "uglifyjs src/pipe.js --mangle --compress=negate_iife=false --comments -o src/pipe.min.js"
   },
   "pre-commit": [
     "lint",
@@ -24,7 +24,7 @@
     "test"
   ],
   "engines": {
-    "node": ">4.4.x"
+    "node": ">4.4.3"
   },
   "repository": {
     "type": "git",

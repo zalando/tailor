@@ -85,6 +85,8 @@ A fragment is an http(s) server that renders only the part of the page and sets 
 
 A JavaScript of the fragment is an AMD module, that exports an `init` function, that will be called with DOM element of the fragment as an argument.
 
+**Note** For compatability with AWS the `Link` header can also be passed as `x-amz-meta-link`.
+
 # Events
 
 `Tailor` extends `EventEmitter`, so you can subscribe to events with `tailor.on('eventName', callback)`.
@@ -178,6 +180,10 @@ The rendered html output will look like this
 ## Multiple Fragments and AMD
 
 `node examples/multiple-fragments-with-custom-amd` and open [http://localhost:8080/index](http://localhost:8080/index).
+
+## Fragment Performance
+
+`node examples/fragment-performance` and open [http://localhost:8080/index](http://localhost:8080/index).
 
 **Note: Please run the examples with `--harmony` flag for node 4.x versions**
 
