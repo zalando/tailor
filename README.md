@@ -85,105 +85,28 @@ A fragment is an http(s) server that renders only the part of the page and sets 
 
 A JavaScript of the fragment is an AMD module, that exports an `init` function, that will be called with DOM element of the fragment as an argument.
 
-**Note** For compatability with AWS the `Link` header can also be passed as `x-amz-meta-link`.
+**Note: For compatability with AWS the `Link` header can also be passed as `x-amz-meta-link`**
 
-# Events
+## Concepts
 
-`Tailor` extends `EventEmitter`, so you can subscribe to events with `tailor.on('eventName', callback)`.
+Some of the concepts in tailor are described in detail on the specific docs.
 
-Events may be used for logging and monitoring. Check `perf/benchmark.js` for an example of getting metrics from Tailor.
-
-## Top level events
-
-* Client request received: `start(request)`
-* Response started (headers flushed and stream connected to output): `response(request, status, headers)`
-* Response ended (with the total size of response): `end(request, contentSize)`
-* Error: `error(request, error)` in case an error from template (parsing,fetching) and primary error(socket/timeout/50x)
-* Context Error: `context:error(request, error)` in case of an error fetching the context
-
-## Fragment events
-
-* Request start: `fragment:start(request, fragment.attributes)`
-* Response Start when headers received: `fragment:response(request, fragment.attributes, status, headers)`
-* Response End (with response size): `fragment:end(request, fragment.attributes, contentSize)`
-* Error: `fragment:error(request, fragment.attributes, error)` in case of socket error, timeout, 50x
-* Fallback: `fragment:fallback(request, fragment.attributes, error)` in case of timeout/error from the fragment if the *fallback-src* is specified
-
-
-**Note:**  `fragment:response`, `fragment:fallback` and `fragment:error` are mutually exclusive. `fragment:end` happens only in case of successful response.
-
-# Base Templates
-
-Seeing how multiple templates are sharing quite a few commonalities, the need to be able to define a base template arose.
-The implemented solution introduces the concept of slots that you define within these templates. Derived templates will use slots as placeholders for their elements.
-
-* A derived template will only contain fragments and tags. These elements will be used to populate the base template.
-* You can assign any number of elements to a slot.
-* If a tag is not valid at the position of the slot then it will be appended to the body of the base template. For example, a div tag is not valid in the head.
-* If you need to place your fragment in a slot inside the head, you will need to define it
-like this `<script type="fragment" slot="custom-slot-name" primary ...></script>`.
-* All fragments and tags that are not assigned to a slot will be appended to the body of the base template.
-
-*base-template.html*
-```html
-<!doctype html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel="dns-prefetch" href="https://example.com" />
-    <script type="slot" name="head"></script>
-</head>
-<body>
-    <slot name="body-start"></slot>
-    <div>Hello</div>
-</body>
-</html>
-```
-
-*example-page.html*
-
-```html
-<meta slot="head" charset="utf-8">
-<script slot="body-start" src="http://blah"></script>
-<fragment src="http://localhost" async primary ></fragment>
-<title slot="head">Test Template</title>
-```
-
-The rendered html output will look like this
-```html
-<!doctype html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel="dns-prefetch" href="https://example.com" />
-    <meta charset="utf-8">
-    <title>Test Template</title>
-</head>
-<body>
-    <script src="http://blah"></script>
-    <div>Hello</div>
-    <fragment src="http://localhost" async primary ></fragment>
-</body>
-</html>
-```
++ [Events](https://github.com/zalando/tailor/blob/master/docs/Events.md)
++ [Base Templates](https://github.com/zalando/tailor/blob/master/docs/Base-Templates.md)
++ [Hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md)
++ [Performance](https://github.com/zalando/tailor/blob/master/docs/Performance.md)
 
 # Examples
 
-## Basic
++ Basic - `node examples/basic`
 
-`node examples/basic` and open [http://localhost:8080/index](http://localhost:8080/index).
++ CSS and JS - `node examples/basic-css-and-js`
 
-## CSS and JS
++ Multiple Fragments and AMD - `node examples/multiple-fragments-with-custom-amd`
 
-`node examples/basic-css-and-js` and open [http://localhost:8080/index](http://localhost:8080/index).
++ Fragment Performance - `node examples/fragment-performance`
 
-## Multiple Fragments and AMD
-
-`node examples/multiple-fragments-with-custom-amd` and open [http://localhost:8080/index](http://localhost:8080/index).
-
-## Fragment Performance
-
-`node examples/fragment-performance` and open [http://localhost:8080/index](http://localhost:8080/index).
+Go to [http://localhost:8080/index](http://localhost:8080/index) after running the specific example.
 
 **Note: Please run the examples with `--harmony` flag for node 4.x versions**
 
