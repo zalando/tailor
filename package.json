@@ -33,6 +33,7 @@
   "author": "Andrey Kuzmin",
   "license": "MIT",
   "dependencies": {
+    "lodash": "4.17.4",
     "parse-link-header": "^0.2.0",
     "parse5": "^2.1.5"
   },
