@@ -139,7 +139,9 @@ describe('Tailor events', () => {
 
     it('emits `context:error(request, error)` event', (done) => {
         const onContextError = sinon.spy();
-        mockContext.returns(Promise.reject('Error fetching context'));
+        const rejectPrm = Promise.reject('Error fetching context');
+        rejectPrm.catch(() => {});
+        mockContext.returns(rejectPrm);
         tailor.on('context:error', onContextError);
         http.get('http://localhost:8080/template', (response) => {
             const request = onContextError.args[0][0];
