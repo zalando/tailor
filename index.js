@@ -49,7 +49,7 @@ module.exports = class Tailor extends EventEmitter {
             handledTags: [],
             handleTag: () => '',
             requestFragment,
-            pipeDefinition: (pipeInstanceName) => pipeChunk(amdLoaderUrl, pipeInstanceName),
+            pipeDefinition: pipeChunk.bind(null, amdLoaderUrl),
             pipeInstanceName: () => 'Pipe',
             pipeAttributes: getPipeAttributes
         }, options);
