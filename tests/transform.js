@@ -55,6 +55,22 @@ describe('Transform', () => {
         transformInstance.applyTransforms('', childTemplate);
         const slotMap = mockSerializer.args[0][1].slotMap;
         assert.equal(slotMap.size, 3);
+        assert.ok(slotMap.get('default'));
+        assert.ok(slotMap.has('head'));
+        assert.ok(slotMap.has('body'));
+    });
+
+    it('should group text nodes along with the childTemplate nodes', () => {
+        const childTemplate = `
+            <meta slot="head">
+            <fragment></fragment>
+        `;
+        transformInstance.applyTransforms('', childTemplate);
+        const slotMap = mockSerializer.args[0][1].slotMap;
+        assert.equal(slotMap.size, 2);
+        // Text node that symbolizes next line of HTML
+        assert.equal(slotMap.get('default')[1].type, 'text');
+        assert.equal(slotMap.get('head')[1].type, 'text');
     });
 
     it('should call serializer with proper options', () => {
