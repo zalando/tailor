@@ -85,7 +85,7 @@ A fragment is an http(s) server that renders only the part of the page and sets 
 
 A JavaScript of the fragment is an AMD module, that exports an `init` function, that will be called with DOM element of the fragment as an argument.
 
-**Note** For compatability with AWS the `Link` header can also be passed as `x-amz-meta-link`.
+**Note: For compatability with AWS the `Link` header can also be passed as `x-amz-meta-link`**
 
 ## Concepts
 
@@ -106,7 +106,7 @@ Some of the concepts in tailor are described in detail on the specific docs.
 
 + Fragment Performance - `node examples/fragment-performance`
 
-Please open [http://localhost:8080/index](http://localhost:8080/index) after running the specific example.
+Go to [http://localhost:8080/index](http://localhost:8080/index) after running the specific example.
 
 **Note: Please run the examples with `--harmony` flag for node 4.x versions**
 

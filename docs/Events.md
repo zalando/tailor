@@ -2,7 +2,7 @@
 
 `Tailor` extends `EventEmitter`, so you can subscribe to events with `tailor.on('eventName', callback)`.
 
-Events may be used for logging and monitoring. Check `perf/benchmark.js` for an example of getting metrics from Tailor.
+Events may be used for logging and monitoring. Check [perf/benchmark.js](https://github.com/zalando/tailor/blob/master/perf/benchmark.js#L28) for an example of getting metrics from Tailor.
 
 ## Top level events
 
