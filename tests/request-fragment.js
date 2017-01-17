@@ -1,6 +1,6 @@
 'use strict';
 
-const requestFragment = require('../lib/request-fragment');
+const requestFragment = require('../lib/request-fragment')();
 const assert = require('assert');
 const nock = require('nock');
 
