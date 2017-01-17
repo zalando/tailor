@@ -6,7 +6,7 @@ module.exports = (fragmentName, fragmentUrl) => (request, response) => {
     switch (pathname) {
         case '/fragment.js':
             // serve fragment's JavaScript
-            response.writeHead(200, {'Content-Type': 'application/javascript'});
+            response.writeHead(200, { 'Content-Type': 'application/javascript' });
             response.end(`
                 define (['word'], function (word) {
                     return function initFragment (element) {
@@ -18,7 +18,7 @@ module.exports = (fragmentName, fragmentUrl) => (request, response) => {
             break;
         case '/fragment.css':
             // serve fragment's CSS
-            response.writeHead(200, {'Content-Type': 'text/css'});
+            response.writeHead(200, { 'Content-Type': 'text/css' });
             response.end(`
                 .fragment-${fragmentName} {
                     padding: 30px;

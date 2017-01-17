@@ -118,7 +118,7 @@ describe('Tailor', () => {
        'of the 1st primary fragment', (done) => {
         nock('https://fragment')
             .get('/1').reply(200, 'hello')
-            .get('/2').reply(300, 'world', {'Location': 'https://redirect'})
+            .get('/2').reply(300, 'world', { 'Location': 'https://redirect' })
             .get('/3').reply(500, '!');
 
         mockTemplate

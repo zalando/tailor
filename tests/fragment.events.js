@@ -2,12 +2,12 @@
 const Fragment = require('../lib/fragment');
 const assert = require('assert');
 const nock = require('nock');
-const TAG = {attributes: {src: 'https://fragment'}};
-const TAG_FALLBACK = {attributes: {src: 'https://fragment', 'fallback-src': 'https://fallback-fragment'}};
+const TAG = { attributes: { src: 'https://fragment' } };
+const TAG_FALLBACK = { attributes: { src: 'https://fragment', 'fallback-src': 'https://fallback-fragment' } };
 const REQUEST = {
     headers: {}
 };
-const RESPONSE_HEADERS = {connection: 'close'};
+const RESPONSE_HEADERS = { connection: 'close' };
 const sinon = require('sinon');
 const requestFragment = require('../lib/request-fragment');
 
@@ -136,7 +136,7 @@ describe('Fragment events', () => {
 
     it('triggers `error(error)` when fragment times out', (done) => {
         nock('https://fragment').get('/').socketDelay(101).reply(200);
-        const tag = {attributes: {src: 'https://fragment', timeout: '100'}};
+        const tag = { attributes: { src: 'https://fragment', timeout: '100' } };
         const fragment = new Fragment(tag, {}, false, requestFragment);
         fragment.on('error', (err) => {
             assert.equal(err.message, 'Request aborted');
