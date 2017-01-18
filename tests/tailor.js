@@ -45,7 +45,7 @@ describe('Tailor', () => {
                     return Promise.reject(error);
                 }
             },
-            pipeInstanceName: () => 'p',
+            pipeInstanceName: 'p',
             pipeAttributes: (attributes) => {
                 return {
                     id: attributes.id
@@ -303,14 +303,14 @@ describe('Tailor', () => {
             });
 
         mockTemplate
-            .returns('<fragment src="https://fragment/1"></fragment>');
+            .returns('<fragment id="foo" src="https://fragment/1"></fragment>');
 
         getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.body,
                 '<html><head></head><body>' +
-                '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
+                '<script data-pipe>p.start(0, "http://link2", {"id":"foo"})</script>' +
                 'hello' +
-                '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
+                '<script data-pipe>p.end(0, "http://link2", {"id":"foo"})</script>' +
                 '</body></html>'
             );
             done();
