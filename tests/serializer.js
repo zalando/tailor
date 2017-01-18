@@ -13,7 +13,7 @@ describe('Serializer', () => {
         handleTags: ['x-tag', 'fragment']
     };
     const getSerializer = (template) => {
-        const rootNode = parse5.parse(template, {treeAdapter: adapter});
+        const rootNode = parse5.parse(template, { treeAdapter: adapter });
         return new CustomSerializer(rootNode, serializerOptions);
     };
 
@@ -47,7 +47,7 @@ describe('Serializer', () => {
     it('should serialize attributes and child nodes inside handle tags', () => {
         const template = '<x-tag foo="bar"><div>hello</div></x-tag>';
         const serializedList = getSerializer(template).serialize();
-        assert.deepEqual(serializedList[1], { attributes: {'foo': 'bar'}, name: 'x-tag' });
+        assert.deepEqual(serializedList[1], { attributes: { 'foo': 'bar' }, name: 'x-tag' });
         assert.equal(serializedList[2], '<div>hello</div>');
         assert.deepEqual(serializedList[3], { closingTag: 'x-tag' });
     });
@@ -70,7 +70,7 @@ describe('Serializer', () => {
             primary: '',
             async: '',
             src: 'https://example.com'
-        }});
+        } });
         assert.equal(serializedList[4].toString().trim(), '</head><body></body></html>');
     });
 
