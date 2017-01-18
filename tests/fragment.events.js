@@ -6,14 +6,15 @@ const TAG = {attributes: {src: 'https://fragment'}};
 const TAG_FALLBACK = {attributes: {src: 'https://fragment', 'fallback-src': 'https://fallback-fragment'}};
 const REQUEST = { headers: {} };
 const RESPONSE_HEADERS = {connection: 'close'};
+const filterHeaderFn = () => ({});
 const sinon = require('sinon');
-const requestFragment = require('../lib/request-fragment')();
+const requestFragment = require('../lib/request-fragment');
 const getOptions = (tag) => {
     return {
         tag,
         context: {},
         index: false,
-        requestFragment
+        requestFragment: requestFragment(filterHeaderFn)
     };
 };
 
