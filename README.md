@@ -43,14 +43,18 @@ server.listen(process.env.PORT || 8080);
 
 ## Options
 
-* `fetchContext(request)` a function that returns a promise of the context, that is an object that maps fragment id to fragment url, to be able to override urls of the fragments on the page, defaults to `Promise.resolve({})`
-* `fetchTemplate(request, parseTemplate)` a function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3.
+* `fetchContext(request)` - Function that returns a promise of the context, that is an object that maps fragment id to fragment url, to be able to override urls of the fragments on the page, defaults to `Promise.resolve({})`
+* `fetchTemplate(request, parseTemplate)` - Function that should fetch the template, call `parseTemplate` and return a promise of the result. Useful to implement your own way to retrieve and cache the templates, e.g. from s3.
 Default implementation [`lib/fetch-template.js`](https://github.com/zalando/tailor/blob/master/lib/fetch-template.js) fetches the template from  the file system
-* `fragmentTag` a name of the fragment tag, defaults to `fragment`
-* `handledTags` an array of custom tags, check [`tests/handle-tag`](https://github.com/zalando/tailor/blob/master/tests/handle-tag.js) for more info
-* `handleTag(request, tag)` receives a tag or closing tag and serializes it to a string or returns a stream
-* `requestFragment(url, fragmentAttributes, request)` a function that returns a promise of request to a fragment server, check the default implementation in [`lib/request-fragment`](https://github.com/zalando/tailor/blob/master/lib/request-fragment.js)
+* `templatesPath` - To specify the path where the templates are stored locally, Defaults to `/templates/`
+* `fragmentTag` - Name of the fragment tag, defaults to `fragment`
+* `handledTags` - An array of custom tags, check [`tests/handle-tag`](https://github.com/zalando/tailor/blob/master/tests/handle-tag.js) for more info
+* `handleTag(request, tag)` - Receives a tag or closing tag and serializes it to a string or returns a stream
+* `filterHeaders(attributes, request)` - Function that filters the request headers that are passed to fragment request, check default implementation in [`lib/filter-headers`](https://github.com/zalando/tailor/blob/master/lib/filter-headers.js)
+* `requestFragment(filterHeaders)(url, attributes, request)` - Function that returns a promise of request to a fragment server, check the default implementation in [`lib/request-fragment`](https://github.com/zalando/tailor/blob/master/lib/request-fragment.js)
 * `amdLoaderUrl` - URL to AMD loader. We use [RequireJS from cdnjs](https://cdnjs.com/libraries/require.js) as deafult
+* `pipeInstanceName` - Pipe instance name that is available in the browser window for consuming frontend hooks.
+* `pipeAttributes(attributes)` - Function that returns the minimal set of fragment attributes available on the frontend [hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md).
 
 # Template
 

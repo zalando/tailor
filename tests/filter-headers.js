@@ -14,11 +14,11 @@ describe('filter-headers', () => {
 
     it('keeps only certain headers', () => {
         const after = {'accept-language': '1', 'referer': '2', 'user-agent': '3'};
-        assert.deepEqual(filterHeaders({}, headers), after);
+        assert.deepEqual(filterHeaders({}, { headers }), after);
     });
 
     it('removes headers if fragment is public', () => {
-        assert.deepEqual(filterHeaders({public: true}, headers), {});
+        assert.deepEqual(filterHeaders({ public: true }, { headers }), {});
     });
 
 });
