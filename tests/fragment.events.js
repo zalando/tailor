@@ -146,7 +146,7 @@ describe('Fragment events', () => {
         const tag = { attributes: { src: 'https://fragment', timeout: '100' } };
         const fragment = new Fragment(getOptions(tag));
         fragment.on('error', (err) => {
-            assert.equal(err.message, 'Request aborted');
+            assert.equal(err.message, 'socket hang up');
             done();
         });
         fragment.fetch(REQUEST, false);

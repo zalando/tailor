@@ -55,7 +55,7 @@ describe('requestFragment', () => {
     it('Should timeout when the fragment is not reachable', (done) => {
         nock('http://fragment').get('/').socketDelay(1001).reply(200, 'hello');
         requestFragment('http://fragment/', fragmentAttrb, { headers: { } }).catch((err) => {
-            assert.equal(err.message, 'Request aborted');
+            assert.equal(err.message, 'socket hang up');
             done();
         });
 
