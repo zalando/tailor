@@ -15,7 +15,7 @@ describe('Stringifier Stream', () => {
     it('should stream the content from a fragment tag', () => {
         let st = new PassThrough();
         const templatePromise = getTemplate('<fragment title="mock"></fragment>');
-        return templatePromise.then(nodes => {
+        templatePromise.then(nodes => {
             let data = '';
             const stream = new StringifierStream((tag) => {
                 if (tag && tag.name) {
@@ -39,7 +39,7 @@ describe('Stringifier Stream', () => {
 
     it('should consume stream asynchronously', (done) => {
         const templatePromise = getTemplate('<fragment id="1"></fragment><fragment id="2"></fragment>');
-        return templatePromise.then((nodes) => {
+        templatePromise.then((nodes) => {
             let data = '';
             let streams = [new PassThrough(), new PassThrough()];
             const stream = new StringifierStream((tag) => {
@@ -65,7 +65,7 @@ describe('Stringifier Stream', () => {
     });
 
     it('should emit an error if a fragment is not handled', (done) => {
-        return getTemplate('<fragment>').then((nodes) => {
+        getTemplate('<fragment>').then((nodes) => {
             let stream = new StringifierStream();
             stream.on('error', (error) => {
                 assert(error instanceof Error);
@@ -77,7 +77,7 @@ describe('Stringifier Stream', () => {
     });
 
     it('should re-emit errors from fragment streams', (done) => {
-        return getTemplate('<fragment>').then((nodes) => {
+        getTemplate('<fragment>').then((nodes) => {
             let st = new PassThrough();
             let stream = new StringifierStream((tag) => {
                 if (tag) {
