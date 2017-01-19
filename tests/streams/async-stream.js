@@ -37,11 +37,11 @@ describe('Async Stream', () => {
         const asyncStream = new AsyncStream();
         const st1 = new stream.PassThrough();
         asyncStream.on('error', (err) => {
-            assert.equal(err.message, 'blah');
+            assert.equal(err.message, 'Test');
             done();
         });
         asyncStream.end(st1);
-        st1.emit('error', new Error('blah'));
+        st1.emit('error', new Error('Test'));
         st1.end('aa');
     });
 
