@@ -48,16 +48,14 @@ describe('requestFragment', () => {
         nock('http://fragment').get('/').reply(500, 'Internal Server Error');
         requestFragment('http://fragment/', fragmentAttrb, { headers: { } }).catch((err) => {
             assert.equal(err.message, 'Internal Server Error');
-            done();
-        });
+        }).then(done, done);
     });
 
     it('Should timeout when the fragment is not reachable', (done) => {
         nock('http://fragment').get('/').socketDelay(1001).reply(200, 'hello');
         requestFragment('http://fragment/', fragmentAttrb, { headers: { } }).catch((err) => {
             assert.equal(err.message, 'socket hang up');
-            done();
-        });
+        }).then(done, done);
 
     });
 
