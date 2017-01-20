@@ -69,8 +69,7 @@ describe('Tailor', () => {
         mockTemplate.returns(false);
         getResponse('http://localhost:8080/missing-template').then((response) => {
             assert.equal(response.statusCode, 500);
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should render with presentable error template content', (done) => {
@@ -78,8 +77,7 @@ describe('Tailor', () => {
         getResponse('http://localhost:8080/missing-template').then((response) => {
             assert.equal(response.statusCode, 500);
             assert.equal(response.body, '<div>error template</div>');
-            done();
-        });
+        }).then(done, done);
     });
 
 
@@ -109,8 +107,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
 
     });
 
@@ -131,8 +128,7 @@ describe('Tailor', () => {
         getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 300);
             assert.equal(response.headers.location, 'https://redirect');
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should forward headers to fragment', (done) => {
@@ -183,8 +179,7 @@ describe('Tailor', () => {
             const headers = response.headers;
             assert.equal('no-cache, no-store, must-revalidate', headers['cache-control']);
             assert.equal('no-cache', headers['pragma']);
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should set timeout for a fragment request', (done) => {
@@ -200,8 +195,7 @@ describe('Tailor', () => {
 
         getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.body, '<html><head></head><body></body></html>');
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should return 500 in case of primary timeout', (done) => {
@@ -215,8 +209,7 @@ describe('Tailor', () => {
 
         getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 500);
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should return 500 in case of primary error if fallback is not specified', (done) => {
@@ -230,8 +223,7 @@ describe('Tailor', () => {
 
         getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 500);
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should fetch the fallback fragment when specified', (done) => {
@@ -248,8 +240,7 @@ describe('Tailor', () => {
 
         getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 200);
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should return 500 if both primary and fallback fragment is not reachable', (done) => {
@@ -266,8 +257,7 @@ describe('Tailor', () => {
 
         getResponse('http://localhost:8080/test').then((response) => {
             assert.equal(response.statusCode, 500);
-            done();
-        });
+        }).then(done, done);
     });
 
 
@@ -292,8 +282,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should call the pipe start and end with custom pipe attributes', (done) => {
@@ -313,8 +302,7 @@ describe('Tailor', () => {
                 '<script data-pipe>p.end(0, "http://link2", {"id":"foo"})</script>' +
                 '</body></html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should use loadCSS for async fragments', (done) => {
@@ -336,8 +324,7 @@ describe('Tailor', () => {
                 '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
                 '</body></html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should insert link to css and require js  from fragment x-amz-meta-link header', (done) => {
@@ -361,8 +348,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should support async fragments', (done) => {
@@ -384,8 +370,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should replace fragment attributes with the one from context', (done) => {
@@ -417,8 +402,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should not mutate the template with the context', (done) => {
@@ -469,8 +453,7 @@ describe('Tailor', () => {
                     '</body>' +
                     '</html>'
                 );
-                done();
-            });
+            }).then(done, done);
         });
     });
 
@@ -492,8 +475,7 @@ describe('Tailor', () => {
                 '<body></body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should support base templates using slots', (done) => {
@@ -518,8 +500,7 @@ describe('Tailor', () => {
                 '<body></body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should support custom slots for shuffling the nodes', (done) => {
@@ -552,8 +533,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should insert default slots if unnamed slot is present in parent template', (done) => {
@@ -579,8 +559,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should warn if there are duplicate unnamed slots', (done) => {
@@ -614,8 +593,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should override the fallback slot nodes with slotted nodes from child template', (done) => {
@@ -638,8 +616,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should include the child templates after the lastchild of body', (done) => {
@@ -662,8 +639,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should flatten nested fragments', (done) => {
@@ -694,8 +670,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should return 500 even if primary fragment is nested and timed out', (done) => {
@@ -748,8 +723,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
     it('should close the streams properly during unzping error', (done) => {
@@ -777,8 +751,7 @@ describe('Tailor', () => {
                 '</body>' +
                 '</html>'
             );
-            done();
-        });
+        }).then(done, done);
     });
 
 });
