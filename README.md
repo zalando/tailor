@@ -102,6 +102,13 @@ Some of the concepts in tailor are described in detail on the specific docs.
 
 # Examples
 
+```sh
+git clone git@github.com:zalando/tailor.git && cd tailor
+npm install // install depedencies
+```
+
+**Note: Please run the examples with nove versions > 6.0.0**
+
 + Basic - `node examples/basic`
 
 + CSS and JS - `node examples/basic-css-and-js`
@@ -112,7 +119,9 @@ Some of the concepts in tailor are described in detail on the specific docs.
 
 Go to [http://localhost:8080/index](http://localhost:8080/index) after running the specific example.
 
-**Note: Please run the examples with `--harmony` flag for node 4.x versions**
+### Contributing
+
+Please check the Contributing guidelines [here](https://github.com/zalando/tailor/blob/master/CONTRIBUTING.md)
 
 # Benchmark
 
