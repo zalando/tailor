@@ -1,45 +1,36 @@
 'use strict';
 
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 const Tailor = require('../../');
-const MemoryStore = require('../../lib/stores/MemoryStore');
+
+const SW_FILE = path.join(__dirname, 'build/sw.js');
 
 const tailor = new Tailor({
     templatesPath: __dirname + '/templates',
 
-    store: new MemoryStore,
-
-    serviceWorker: {
-        // enable or disable the serviceWorker
-        enabled: true,
-
-        // publicPath where the sw.js should be served
-        // Remeber that scope of the service worker will be determined
-        // based on this location
-        publicPath: '/sw.js',
-
-        // service worker contents
-        contents: `
-            ${Math.random()}
-            self.addEventListener('install', event => {
-                console.log('Installing service worker');
-                console.log('You should precache your css_assets and js_assets here');
-                console.log('CSS files :', css_assets);
-                console.log('JS files :', js_assets);
+    onBeforeEnd(assets) {
+        // use this to generate a sw.js file
+        const contents = `
+            var css = ${JSON.stringify(assets.css)};
+            var js = ${JSON.stringify(assets.js)};
+            ${Math.random()};
+            self.addEventListener('install', () => {
+                console.log(css, js);
             });
-        `,
-
-        // variable names to be used for css assets and js assets
-        varNames: {
-            css: 'css_assets', // default is CSS
-            js: 'js_assets', // default is JS
-        },
-    }
+        `;
+        fs.writeFileSync(SW_FILE, contents);
+    },
 });
 
 // Root Server
 http.createServer((req, res) => {
+    if (req.url === '/sw.js') {
+        res.setHeader('Content-Type', 'application/javascript');
+        return res.end(fs.readFileSync(SW_FILE).toString());
+    }
     tailor.requestHandler(req, res);
 }).listen(8080, function () {
     console.log('Tailor server listening on port 8080');

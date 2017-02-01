@@ -1,3 +1,8 @@
 <!-- Tailor needs an index.html -->
 <h1>Service Worker</h1>
 <fragment src="http://localhost:8081"></fragment>
+<script>
+navigator.serviceWorker.register("/sw.js").then(() => {
+    console.log("Registration successful");
+});
+</script>

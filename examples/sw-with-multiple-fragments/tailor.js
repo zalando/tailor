@@ -23,7 +23,7 @@ const tailor = new Tailor({
 
 const server = http.createServer((req, res) => {
     if (req.url === '/favicon.ico') {
-        res.writeHead(200, {'Content-Type': 'image/x-icon'} );
+        res.writeHead(200, { 'Content-Type': 'image/x-icon' } );
         return res.end('');
     }
     return tailor.requestHandler(req, res);
