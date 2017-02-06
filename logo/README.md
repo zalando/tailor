@@ -8,7 +8,7 @@ Download as [SVG](https://raw.githubusercontent.com/zalando/tailor/logo/tailor-l
 
 The Tailor logo was designed by [Nadya Kuzmina](http://nadyakuzmina.com/).  
 
-## License
+## Logo License
 
 The Tailor logo is licensed under CC0, waiving all copyright.  
 [Read the license.](../LICENSE-logo.md)
