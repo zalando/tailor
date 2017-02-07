@@ -1,4 +1,4 @@
-<h1><img width="500" height="200" alt="Tailor" src="https://raw.githubusercontent.com/zalando/tailor/logo/tailor-logo.svg"></h1>
+<h1><img width="500" height="200" alt="Tailor" src="https://raw.githubusercontent.com/zalando/tailor/master/logo/tailor-logo.svg"></h1>
 
 [![NPM](https://nodei.co/npm/node-tailor.png)](https://npmjs.org/package/node-tailor)
 
