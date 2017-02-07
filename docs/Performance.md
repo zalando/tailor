@@ -1,5 +1,17 @@
 # Performance
 
+**Table of Contents**
+
+- [Performance](#performance)
+	- [Measuring fragment Initialization cost](#measuring-fragment-initialization-cost)
+	- [Measuring Time to interactive of critical content](#measuring-time-to-interactive-of-critical-content)
+		- [How its measured](#how-its-measured)
+		- [Clustering fragments](#clustering-fragments)
+	- [Caveats](#caveats)
+		- [Is the main thread available to handle the user input](#is-the-main-thread-available-to-handle-the-user-input)
+
+## Introduction
+
 With the help of front end [hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md), we can easily analayze the performance and report the data to our backend server for monitoring.
 
 ## Measuring fragment Initialization cost
