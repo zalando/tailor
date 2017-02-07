@@ -1,6 +1,6 @@
 # Tailor logo
 
-<img src="https://raw.githubusercontent.com/zalando/tailor/master/logo/tailor-logo.svg" alt="Tailor" width="500" height="200">
+<img src="https://rawgithub.com/zalando/tailor/master/logo/tailor-logo.svg" alt="Tailor" width="500" height="200">
 
 Download as [SVG](https://raw.githubusercontent.com/zalando/tailor/master/logo/tailor-logo.svg).
 
