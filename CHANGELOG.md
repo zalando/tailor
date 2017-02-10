@@ -12,7 +12,7 @@
 * Modified logic for `pipeInstanceName` and `requestFragment`. Please check the [options](https://github.com/zalando/tailor#options)
 
 ##### Contributors
-- Aditya Pratap ([addi90](https://github.com/addi90))
+- Aditya Pratap Singh ([addityasingh](https://github.com/addityasingh))
 - Simeon Cheeseman ([SimeonC](https://github.com/SimeonC))
 - Boopathi Rajaa ([boopathi](https://github.com/boopathi))
 - Dan Peddle ([dazld](https://github.com/dazld))
