@@ -107,7 +107,7 @@ git clone git@github.com:zalando/tailor.git && cd tailor
 npm install // install depedencies
 ```
 
-**Note: Please run the examples with nove versions > 6.0.0**
+**Note: Please run the examples with node versions > 6.0.0**
 
 + Basic - `node examples/basic`
 
