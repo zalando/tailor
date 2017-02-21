@@ -41,7 +41,7 @@ By using the API hooks and with the help of User Timing API, We can easily measu
     </script>
 </head>
 <body>
-    <!-- Measure till till the header fragment is initialized -->
+    <!-- Measure till the header fragment is initialized -->
     <fragment id="header" src="http://header.zalando.de"/>
     <!-- Primary fragment -->
     <fragment primary id="product" src="http://product.zalando.de" />
