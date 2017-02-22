@@ -103,7 +103,7 @@ To cluster the fragments, we are going to add a new attribute `timing-groups` to
 
 The interactivity of the example Productpage is decided by Header, Product and Footer fragments and above the fold time is decided by Header and Product fragment.
 
-Now to measure the time, We are going to use the hooks that are provided by Tailor.
+Now to measure the time, We are going to use the [hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md) that are provided by Tailor.
 
 *ProductPage.html*
 ```html
