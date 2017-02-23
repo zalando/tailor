@@ -1,6 +1,6 @@
 # Front end Hooks
 
-Tailor provides three hooks on the client side(Browser) that can be used for programmatically measuring Performance.
+Tailor provides four hooks on the client side(Browser) that can be used for programmatically measuring Performance.
 
 ## API
 
