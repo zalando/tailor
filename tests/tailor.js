@@ -754,4 +754,37 @@ describe('Tailor', () => {
         }).then(done, done);
     });
 
+    it('should send Link headers for preloading if primary fragment exists', (done) => {
+        nock('https://fragment')
+            .get('/1').reply(200, 'non-primary', {
+                'Link': '<http://non-primary>; rel="stylesheet",<http://non-primary>; rel="fragment-script"'
+            })
+            .get('/2').reply(200, 'primary', {
+                'Link': '<http://primary>; rel="stylesheet",<http://primary>; rel="fragment-script"'
+            });
+
+        mockTemplate
+            .returns(
+                '<fragment src="https://fragment/1"></fragment>' +
+                '<fragment primary src="https://fragment/2"></fragment>'
+            );
+
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.headers.link, '<http://primary>; rel="preload"; as="style",<http://primary>; rel="preload"; as="script",');
+        }).then(done, done);
+    });
+
+    it('shouldn\'t send preloading headers if primary fragment doesn\'t exist', (done) => {
+        nock('https://fragment')
+            .get('/1').reply(200, 'hello', {
+                'Link': '<http://link>; rel="stylesheet",<http://link>; rel="fragment-script"'
+            });
+
+        mockTemplate.returns('<fragment src="https://fragment/1"></fragment>');
+
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.headers.link, undefined);
+        }).then(done, done);
+    });
+
 });
