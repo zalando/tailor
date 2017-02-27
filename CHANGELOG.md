@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 2.0.1
+* [Perf] Preload the Primary fragment's assets ([#127](https://github.com/zalando/tailor/issues/127))
+
 ### 2.0.0
 * Allow Lazy fragment initialization through promise ([#94](https://github.com/zalando/tailor/issues/94))
 * Hooks for measuring performance of fragments initialization on frontend ([#95](https://github.com/zalando/tailor/issues/95))
