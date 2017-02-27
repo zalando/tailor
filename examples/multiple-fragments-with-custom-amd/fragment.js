@@ -6,7 +6,10 @@ module.exports = (fragmentName, fragmentUrl) => (request, response) => {
     switch (pathname) {
         case '/fragment.js':
             // serve fragment's JavaScript
-            response.writeHead(200, { 'Content-Type': 'application/javascript' });
+            response.writeHead(200, {
+                'Content-Type': 'application/javascript',
+                'Access-Control-Allow-Origin': '*'
+            });
             response.end(`
                 define (['word'], function (word) {
                     return function initFragment (element) {
