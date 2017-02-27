@@ -770,7 +770,20 @@ describe('Tailor', () => {
             );
 
         getResponse('http://localhost:8080/test').then((response) => {
-            assert.equal(response.headers.link, '<http://primary>; rel="preload"; as="style",<http://primary>; rel="preload"; as="script",');
+            assert.equal(response.headers.link, '<http://primary>; rel="preload"; as="style",<http://primary>; rel="preload"; as="script"; crossorigin,');
+        }).then(done, done);
+    });
+
+    it('should not send crossorigin in Link headers for cross origin scripts', (done) => {
+        nock('http://fragment')
+            .get('/').reply(200, 'primary', {
+                'Link': '<http://localhost:8080>; rel="stylesheet",<http://localhost:8080>; rel="fragment-script"'
+            });
+
+        mockTemplate.returns('<fragment primary src="http://fragment/"></fragment>');
+
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.headers.link, '<http://localhost:8080>; rel="preload"; as="style",<http://localhost:8080>; rel="preload"; as="script"; ,');
         }).then(done, done);
     });
 
