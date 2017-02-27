@@ -1,8 +1,8 @@
 sudo: false
 language: node_js
 node_js:
-- '6.1.0'
-- '7.1.0'
+- 6.1.0
+- 7.1.0
 cache:
   directories:
   - node_modules
@@ -17,9 +17,9 @@ matrix:
   fast_finish: true
 addons:
   sauce_connect:
-    username: akuzmin
+    username: _vigneshh
     access_key:
-      secure: tn+6q2Q2m1Qwsxe8Av3pPVgMNTr+GD1PoArz6pRcseCKI0dST+jIU2uFwcJB6zj3icW/DULbKzO41OO96PseFBdt9EyphB+aPokV52SFYm1UVtKdClij9yOCHGPgng9AoeN9rXacMrHV1o6ipTOS9RYP2Ytp5h8ZVIX1ZLM2a5bkcJcqdiSBof3332Fs+MJUXSQHaMe6u8or7YPZuvr2IJqARqQcoLPzUR5SpZZwcLwF6wwZOAX3e+SXwiK/LEd8XjCbzJFbkdd9THVGF2gCjnKX0g45plCfp/+MrspXysAEvjygpfOiDYAshtzp55wOrpyC0EGKuZzMcOgKGLPBVwyOSnQsRM8BBSY75PiEQhn9zPuYEfMpprcwsj90XNaOjrpxCUZR/aTMUDdbA33LfbQr+3QeSlMpDetfc+xO24lBoLQgHaKZvA+QD1mQ9HDG3Hyq6WzRddplME6uzVetuR/Q/3CrRW1RLEhIaEaC2oUsDtYywFVeGMYjLkdWeqYT+P7XNl/eMXXBdYuAdPsdjmxnBGrC9syW7K/kvBno6Aaer11n0VJ+fRpZyizcBcKTYRvoeZ55BlPvaWEq7+dRrHd+T59nrrsZG29hK9lkdAyUDDpft2xID5+KTsUVJrGSdrhvwUlWSSr7eUiI1XVVPaR0kPml0prdBslwjepSlYc=
+      secure: x2k2Hxs/Q3M4JsJ38IFPSm18M8oS93S4RwAiMbPYexJt7ar2eAexSRvMd11jWMRgbzgqA4jfyJ5cVKXlYgCZxdieb7xImmjn/szvRMe93F2jIe2I8kZo4FQiK7L2oBYCD75wDNR3wVTRI/Vv8Ag8IxiI/drldynxV0OC7t6zes9Adaoo9eiUm+LGmZ8G64wWSdY1JerbClMIUQCBU05m7wo5C9QfRdEj1jhVFCaBfhFGUvilSbJ3XwU8yjxtry2E+xSO4ISjow2q6XBY5SE8lwqu8r+ihHCpu2HkdWvtKpR5QcjcAAsWamuh2MrZdUCseb957NgxL4x6DFsPeMT6dA9nvD66wpYIJbJVd67HkaWioHpHzw9bH/6sNNZg4sG9F0d6WpcqgUq4xobDVcU9Fugz9IE9VEt1J+Tt28Go/aLIwYcTiM76egOJYu2x6JRMIE3kQNFMPgdXlHO4keknPUZIzL/Sq3iRD4eEvZnX9Z7x0ZX+6MgaXU3PfGT3nSTFwbw0pslBMi5EWNzrfqojRaI61eLJcfrplVDC0CojUKg/4JIVeCpoPjPgOIYaG8OFeM8glJt3BochozfYkY2YURPd/SN4nRYPxdq3F4ndeMGgyB856y3dugApCYdX7ydKO+Iq20Qzw6T06LppOjh9YiFTwrs3OTinsJDBZN0d8vs=
 deploy:
   provider: npm
   email: vignesh.shanmugam22@gmail.com
