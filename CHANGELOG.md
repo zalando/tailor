@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 2.0.2
+* Fix preloading headers for crossorigin scripts([#130](https://github.com/zalando/tailor/pull/130))
+
 ### 2.0.1
 * [Perf] Preload the Primary fragment's assets ([#127](https://github.com/zalando/tailor/issues/127))
 
