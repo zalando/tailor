@@ -774,7 +774,7 @@ describe('Tailor', () => {
         }).then(done, done);
     });
 
-    it('should not send crossorigin in Link headers for cross origin scripts', (done) => {
+    it('should not send crossorigin in Link headers for same origin scripts', (done) => {
         nock('http://fragment')
             .get('/').reply(200, 'primary', {
                 'Link': '<http://localhost:8080>; rel="stylesheet",<http://localhost:8080>; rel="fragment-script"'
