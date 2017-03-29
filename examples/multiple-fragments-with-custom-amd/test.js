@@ -20,22 +20,18 @@ const asserters = wd.asserters;
 const PLATFORMS = [
     {
         browserName: 'internet explorer',
-        platform: 'Windows XP',
-        version: '8.0'
+        version: '10.0'
     },
     {
         browserName: 'chrome'
     }
 ];
 
-
 describe('Frontend test', function () {
 
     this.timeout(100000);
 
-    let server;
-    let fragment1;
-    let fragment2;
+    let server, fragment1, fragment2, fragment3;
 
     function testOnPlatform (platform, callback) {
         const browser = wd.promiseChainRemote(
@@ -60,10 +56,12 @@ describe('Frontend test', function () {
         server = http.createServer(tailor.requestHandler);
         fragment1 = http.createServer(fragment('hello', 'http://localhost:8081'));
         fragment2 = http.createServer(fragment('world', 'http://localhost:8082'));
+        fragment3 = http.createServer(fragment('world', 'http://localhost:8083'));
         return Promise.all([
             new Promise((resolve) => server.listen(8080, () => resolve())),
             new Promise((resolve) => fragment1.listen(8081, () => resolve())),
-            new Promise((resolve) => fragment2.listen(8082, () => resolve()))
+            new Promise((resolve) => fragment2.listen(8082, () => resolve())),
+            new Promise((resolve) => fragment3.listen(8083, () => resolve()))
         ]);
     });
 
@@ -71,7 +69,8 @@ describe('Frontend test', function () {
         return Promise.all([
             new Promise((resolve) => server.close(() => resolve())),
             new Promise((resolve) => fragment1.close(() => resolve())),
-            new Promise((resolve) => fragment2.close(() => resolve()))
+            new Promise((resolve) => fragment2.close(() => resolve())),
+            new Promise((resolve) => fragment3.close(() => resolve()))
         ]);
     });
 
@@ -85,7 +84,8 @@ describe('Frontend test', function () {
                         assert.equal(title, 'Test Page', 'Test page is not loaded');
                     })
                     .waitForElementByCss('.fragment-hello-initialised', asserters.textInclude('initialised'), 2000)
-                    .waitForElementByCss('.fragment-world-initialised', asserters.textInclude('initialised'), 2000);
+                    .waitForElementByCss('.fragment-world-initialised', asserters.textInclude('initialised'), 2000)
+                    .waitForElementByCss('.fragment-body-start-initialised', asserters.textInclude('initialised'), 2000);
             });
         });
     });
