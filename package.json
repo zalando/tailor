@@ -58,6 +58,7 @@
     "MAINTAINERS",
     "index.js",
     "README.md",
-    "src/pipe.min.js"
+    "src/pipe.min.js",
+    "yarn.lock"
   ]
 }
