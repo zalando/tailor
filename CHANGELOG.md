@@ -1,5 +1,9 @@
 # Tailor Changelog
 
+### 2.1.0
+* Fix uglify-js options to preserve implicit return in IIFE ([#133](https://github.com/zalando/tailor/pull/133))
+* Lock down the dependencies version to avoid issues with external libs ([#135](https://github.com/zalando/tailor/pull/135))
+
 ### 2.0.2
 * Fix preloading headers for crossorigin scripts([#130](https://github.com/zalando/tailor/pull/130))
 
