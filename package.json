@@ -34,11 +34,11 @@
   "license": "MIT",
   "dependencies": {
     "parse-link-header": "^0.4.1",
-    "parse5": "^3.0.1"
+    "parse5": "^3.0.2"
   },
   "devDependencies": {
-    "codecov": "^1.0.1",
-    "eslint": "^3.13.1",
+    "codecov": "^2.1.0",
+    "eslint": "^3.18.0",
     "iamdee": "^0.4.0",
     "istanbul": "^0.4.1",
     "lazypipe": "^1.0.1",
@@ -49,8 +49,8 @@
     "pre-commit": "^1.2.2",
     "proxyquire": "^1.7.10",
     "sinon": "^1.17.7",
-    "uglify-js": "^2.7.5",
-    "wd": "^1.1.1"
+    "uglify-js": "^2.8.18",
+    "wd": "^1.2.0"
   },
   "files": [
     "lib",
