@@ -12,11 +12,11 @@
 
 ## Introduction
 
-With the help of front end [hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md), we can easily analayze the performance and report the data to our backend server for monitoring.
+With the help of front end [hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md), we can easily analyze the performance and report the data to our backend server for monitoring.
 
 ## Measuring fragment Initialization cost
 
-By using the API hooks and with the help of User Timing API, We can easily measure the initialization time of all the fragments on the page.
+By using the API hooks and with the help of [User Timing API](https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API), We can easily measure the initialization time of all the fragments on the page.
 
 *page.html*
 ```html
