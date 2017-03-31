@@ -770,7 +770,7 @@ describe('Tailor', () => {
             );
 
         getResponse('http://localhost:8080/test').then((response) => {
-            assert.equal(response.headers.link, '<http://primary>; rel="preload"; as="style",<http://primary>; rel="preload"; as="script"; crossorigin,');
+            assert.equal(response.headers.link, '<http://primary>; rel="preload"; as="style"; nopush,<http://primary>; rel="preload"; as="script"; nopush; crossorigin,');
         }).then(done, done);
     });
 
@@ -783,7 +783,7 @@ describe('Tailor', () => {
         mockTemplate.returns('<fragment primary src="http://fragment/"></fragment>');
 
         getResponse('http://localhost:8080/test').then((response) => {
-            assert.equal(response.headers.link, '<http://localhost:8080>; rel="preload"; as="style",<http://localhost:8080>; rel="preload"; as="script"; ,');
+            assert.equal(response.headers.link, '<http://localhost:8080>; rel="preload"; as="style"; nopush,<http://localhost:8080>; rel="preload"; as="script"; nopush; ,');
         }).then(done, done);
     });
 
