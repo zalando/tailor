@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 2.1.1
+* Opt out of server push for preloaded JS and CSS([#139](https://github.com/zalando/tailor/pull/139))
+
 ### 2.1.0
 * Fix uglify-js options to preserve implicit return in IIFE ([#133](https://github.com/zalando/tailor/pull/133))
 * Lock down the dependencies version to avoid issues with external libs ([#135](https://github.com/zalando/tailor/pull/135))
