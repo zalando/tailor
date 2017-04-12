@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 2.2.0
+* Fix issue with preloading primary fragment assets([#141](https://github.com/zalando/tailor/pull/141))
+
 ### 2.1.1
 * Opt out of server push for preloaded JS and CSS([#139](https://github.com/zalando/tailor/pull/139))
 
