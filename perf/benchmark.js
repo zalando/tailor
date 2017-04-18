@@ -2,6 +2,7 @@
 
 const http = require('http');
 const metrics = require('metrics');
+const { spawn } = require('child_process');
 const histogram = new metrics.Histogram.createUniformHistogram();
 const html = `
     <html>
@@ -19,38 +20,60 @@ const html = `
 `;
 const parseTemplate = require('../lib/parse-template')(['fragment'], []);
 const requests = new WeakMap();
+const fragments = new WeakMap();
 const Tailor = require('../');
 const tailor = new Tailor({
     fetchTemplate : () => Promise.resolve(html).then(parseTemplate)
 });
 
+const getMillisecs = (hrTime) => {
+    // [seconds, nanoseconds]
+    return hrTime && hrTime[0] * 1e3 + hrTime[1] / 1e6;
+};
+
+const updateTailorOverhead = (headersTime, primaryOverhead) => {
+    let duration = headersTime - primaryOverhead;
+    histogram.update(duration);
+};
+
+let primaryOverhead = 0;
 // Tailor Events to collect Metrics
 tailor.on('start', (request) => {
-    requests.set(request, Date.now());
+    requests.set(request, process.hrtime());
 });
 
-tailor.on('end', (request) => {
-    if (requests.has(request)) {
+tailor.on('response', (request) => {
+    if (primaryOverhead > 0 && requests.has(request)) {
         const startTime = requests.get(request);
-        const duration = Date.now() - startTime;
-        histogram.update(duration);
+        const timeToHeaders = getMillisecs(process.hrtime(startTime));
+        updateTailorOverhead(timeToHeaders, primaryOverhead);
     }
 });
 
-tailor.on('template:error', (request, error) => {
-    console.log('Tailor-Template Error', error);
+tailor.on('end', () => {
+    // reset
+    primaryOverhead = 0;
 });
 
-tailor.on('primary:error', (request, fragment, error) => {
-    console.log('Tailor-Primary Error', error);
+tailor.on('fragment:start', (request, fragment) => {
+    fragments.set(fragment, process.hrtime());
 });
 
+tailor.on('fragment:response', (request, fragment) => {
+    const startTime = fragments.get(fragment);
+    if (fragment.primary) {
+        primaryOverhead = getMillisecs(process.hrtime(startTime));
+    }
+});
 
+tailor.on('error', (request, error) => {
+    console.log('Tailor Error ', error);
+});
+
+// Tailor server
 const server = http.createServer(tailor.requestHandler);
-
 server.listen(8080);
 
-const spawn = require('child_process').spawn;
 //Mock fragment server
 const fragment = spawn('node' ,['perf/fragment-server.js']);
 // Load testing
@@ -58,8 +81,8 @@ const worker = spawn('node' ,['perf/loadtest.js']);
 worker.stdout.pipe(process.stdout);
 
 worker.on('close', () => {
-    console.log('Tailor Metrics', JSON.stringify(histogram.printObj(), null, 2));
-    worker.kill();
+    console.log('Tailor Overhead Metrics', JSON.stringify(histogram.printObj(), null, 2));
     fragment.kill();
+    worker.kill();
     process.exit(0);
 });

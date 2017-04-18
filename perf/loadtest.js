@@ -8,5 +8,5 @@ const options = {
 };
 
 loadtest.loadTest(options, (error, result) => {
-    console.log('Benchmarks', JSON.stringify(result, null, 2));
+    console.log('LoadTest Metrics', JSON.stringify(result, null, 2));
 });
