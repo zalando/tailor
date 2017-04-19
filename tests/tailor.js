@@ -9,6 +9,7 @@ const Tailor = require('../index');
 describe('Tailor', () => {
 
     let server;
+    let serverCustomOptions;
     const mockTemplate = sinon.stub();
     const mockChildTemplate = sinon.stub();
     const mockContext = sinon.stub();
@@ -800,4 +801,251 @@ describe('Tailor', () => {
         }).then(done, done);
     });
 
+    describe('without option `maxAssetLinks` provided', () => {
+        it('should handle the first fragment-script Header Link only', (done) => {
+            nock('https://fragment')
+                .get('/1').reply(200, 'hello maxAssetLinks default', {
+                    'Link': '<http://link1>; rel="fragment-script", <http://link2>; rel="fragment-script", <http://link3>; rel="fragment-script"'
+                });
+
+            mockTemplate
+                .returns('<fragment src="https://fragment/1"></fragment>');
+
+            getResponse('http://localhost:8080/test').then((response) => {
+                assert.equal(response.body,
+                    '<html><head></head><body>' +
+                    '<script data-pipe>p.start(0, "http://link1", {"id":0})</script>' +
+                    'hello maxAssetLinks default' +
+                    '<script data-pipe>p.end(0, "http://link1", {"id":0})</script>' +
+                    '</body></html>'
+                );
+            }).then(done, done);
+        });
+
+        it('should handle the first stylesheet Header Link only', (done) => {
+            nock('https://fragment')
+                .get('/1').reply(200, 'hello multiple styles with default config', {
+                    'Link': '<http://css1>; rel="stylesheet",<http://css2>; rel="stylesheet",<http://css3>; rel="stylesheet"'
+                });
+            mockTemplate
+                .returns('<fragment src="https://fragment/1"></fragment>');
+
+            getResponse('http://localhost:8080/test').then((response) => {
+                assert.equal(response.body,
+                    '<html>' +
+                    '<head></head>' +
+                    '<body>' +
+                    '<link rel="stylesheet" href="http://css1">' +
+                    '<script data-pipe>p.start(0)</script>' +
+                    'hello multiple styles with default config' +
+                    '<script data-pipe>p.end(0)</script>' +
+                    '</body>' +
+                    '</html>'
+                );
+            }).then(done, done);
+        });
+    });
+
+    describe('with `maxAssetLinks` set to `3`', () => {
+        beforeEach((done) => {
+            const tailor2 = new Tailor({
+                maxAssetLinks: 3,
+                fetchContext: mockContext,
+                pipeDefinition: () => new Buffer(''),
+                fetchTemplate: (request, parseTemplate) => {
+                    const template = mockTemplate(request);
+                    const childTemplate = mockChildTemplate(request);
+                    if (template) {
+                        return parseTemplate(template, childTemplate).then((parsedTemplate) => {
+                            cacheTemplate(template);
+                            return parsedTemplate;
+                        });
+                    } else {
+                        const error = new Error();
+                        error.presentable = '<div>error template</div>';
+                        return Promise.reject(error);
+                    }
+                },
+                pipeInstanceName: 'p',
+                pipeAttributes: (attributes) => {
+                    return {
+                        id: attributes.id
+                    };
+                }
+            });
+            mockContext.returns(Promise.resolve({}));
+            serverCustomOptions = http.createServer(tailor2.requestHandler);
+            serverCustomOptions.listen(8081, 'localhost', done);
+        });
+
+        afterEach((done) => {
+            mockContext.reset();
+            mockTemplate.reset();
+            mockChildTemplate.reset();
+            cacheTemplate.reset();
+            serverCustomOptions.close(done);
+        });
+
+        it('should handle all 3 fragment-script Link-rels', (done) => {
+            nock('https://fragment')
+                .get('/1').reply(200, 'hello multiple', {
+                    'Link': '<http://link1>; rel="fragment-script", <http://link2>; rel="fragment-script", <http://link3>; rel="fragment-script"'
+                });
+
+            mockTemplate
+                .returns('<fragment src="https://fragment/1"></fragment>');
+
+            getResponse('http://localhost:8081/test').then((response) => {
+                assert.equal(response.body,
+                    '<html><head></head><body>' +
+                    '<script data-pipe>p.start(0, "http://link1", {"id":0})</script>' +
+                    '<script data-pipe>p.start(1, "http://link2", {"id":1})</script>' +
+                    '<script data-pipe>p.start(2, "http://link3", {"id":2})</script>' +
+                    'hello multiple' +
+                    '<script data-pipe>p.end(2, "http://link3", {"id":2})</script>' +
+                    '<script data-pipe>p.end(1, "http://link2", {"id":1})</script>' +
+                    '<script data-pipe>p.end(0, "http://link1", {"id":0})</script>' +
+                    '</body></html>'
+                );
+            }).then(done, done);
+        });
+
+        it('should handle only the first 3 fragment-script Link-rels', (done) => {
+            nock('https://fragment')
+                .get('/1').reply(200, 'hello multiple', {
+                    'Link': '<http://link1>; rel="fragment-script", <http://link2>; rel="fragment-script", <http://link3>; rel="fragment-script",' +
+                    '<http://link4>; rel="fragment-script", <http://link5>; rel="fragment-script", <http://link6>; rel="fragment-script"'
+                });
+
+            mockTemplate
+                .returns('<fragment src="https://fragment/1"></fragment>');
+
+            getResponse('http://localhost:8081/test').then((response) => {
+                assert.equal(response.body,
+                    '<html><head></head><body>' +
+                    '<script data-pipe>p.start(0, "http://link1", {"id":0})</script>' +
+                    '<script data-pipe>p.start(1, "http://link2", {"id":1})</script>' +
+                    '<script data-pipe>p.start(2, "http://link3", {"id":2})</script>' +
+                    'hello multiple' +
+                    '<script data-pipe>p.end(2, "http://link3", {"id":2})</script>' +
+                    '<script data-pipe>p.end(1, "http://link2", {"id":1})</script>' +
+                    '<script data-pipe>p.end(0, "http://link1", {"id":0})</script>' +
+                    '</body></html>'
+                );
+            }).then(done, done);
+        });
+
+        it('should assign correct IDs to sync and async fragments', (done) => {
+            nock('https://fragment')
+                .get('/1').reply(200, 'hello many', {
+                    'Link': '<http://link-a1>; rel="fragment-script", <http://link-a2>; rel="fragment-script", <http://link-a3>; rel="fragment-script",' +
+                    '<http://link-a4>; rel="fragment-script"'
+                })
+                .get('/2').reply(200, 'hello single', {
+                    'Link': '<http://link-b1>; rel="fragment-script"'
+                })
+                .get('/3').reply(200, 'hello exactly three async', {
+                    'Link': '<http://link-c1>; rel="fragment-script", <http://link-c2>; rel="fragment-script", <http://link-c3>; rel="fragment-script",'
+                })
+                .get('/4').reply(200, 'hello exactly three', {
+                    'Link': '<http://link-d1>; rel="fragment-script", <http://link-d2>; rel="fragment-script", <http://link-d3>; rel="fragment-script",'
+                });
+
+            mockTemplate
+                .returns(
+                    '<fragment src="https://fragment/1"></fragment>' +
+                    '<fragment async src="https://fragment/2"></fragment>' +
+                    '<fragment async src="https://fragment/3"></fragment>' +
+                    '<fragment src="https://fragment/4"></fragment>'
+                );
+
+            getResponse('http://localhost:8081/test').then((response) => {
+                assert.equal(response.body,
+                    '<html><head></head><body>' +
+                    '<script data-pipe>p.start(0, "http://link-a1", {"id":0})</script>' +
+                    '<script data-pipe>p.start(1, "http://link-a2", {"id":1})</script>' +
+                    '<script data-pipe>p.start(2, "http://link-a3", {"id":2})</script>' +
+                    'hello many' +
+                    '<script data-pipe>p.end(2, "http://link-a3", {"id":2})</script>' +
+                    '<script data-pipe>p.end(1, "http://link-a2", {"id":1})</script>' +
+                    '<script data-pipe>p.end(0, "http://link-a1", {"id":0})</script>' +
+
+                    '<script data-pipe>p.placeholder(3)</script>' +
+
+                    '<script data-pipe>p.placeholder(6)</script>' +
+
+                    '<script data-pipe>p.start(9, "http://link-d1", {"id":9})</script>' +
+                    '<script data-pipe>p.start(10, "http://link-d2", {"id":10})</script>' +
+                    '<script data-pipe>p.start(11, "http://link-d3", {"id":11})</script>' +
+                    'hello exactly three' +
+                    '<script data-pipe>p.end(11, "http://link-d3", {"id":11})</script>' +
+                    '<script data-pipe>p.end(10, "http://link-d2", {"id":10})</script>' +
+                    '<script data-pipe>p.end(9, "http://link-d1", {"id":9})</script>' +
+
+                    '<script data-pipe>p.start(3, "http://link-b1", {"id":3})</script>' +
+                    'hello single' +
+                    '<script data-pipe>p.end(3, "http://link-b1", {"id":3})</script>' +
+
+                    '<script data-pipe>p.start(6, "http://link-c1", {"id":6})</script>' +
+                    '<script data-pipe>p.start(7, "http://link-c2", {"id":7})</script>' +
+                    '<script data-pipe>p.start(8, "http://link-c3", {"id":8})</script>' +
+                    'hello exactly three async' +
+                    '<script data-pipe>p.end(8, "http://link-c3", {"id":8})</script>' +
+                    '<script data-pipe>p.end(7, "http://link-c2", {"id":7})</script>' +
+                    '<script data-pipe>p.end(6, "http://link-c1", {"id":6})</script>' +
+
+                    '</body></html>'
+                );
+            }).then(done, done);
+        });
+
+        it('should insert all 3 links to css from fragment link header', (done) => {
+            nock('https://fragment')
+                .get('/1').reply(200, 'hello multiple styles ', {
+                    'Link': '<http://script-link>; rel="fragment-script",<http://css1>; rel="stylesheet",<http://css2>; rel="stylesheet",<http://css3>; rel="stylesheet"'
+                });
+            mockTemplate
+                .returns('<fragment src="https://fragment/1"></fragment>');
+
+            getResponse('http://localhost:8081/test').then((response) => {
+                assert.equal(response.body,
+                    '<html>' +
+                    '<head></head>' +
+                    '<body>' +
+                    '<link rel="stylesheet" href="http://css1">' +
+                    '<link rel="stylesheet" href="http://css2">' +
+                    '<link rel="stylesheet" href="http://css3">' +
+                    '<script data-pipe>p.start(0, "http://script-link", {"id":0})</script>' +
+                    'hello multiple styles ' +
+                    '<script data-pipe>p.end(0, "http://script-link", {"id":0})</script>' +
+                    '</body>' +
+                    '</html>'
+                );
+            }).then(done, done);
+        });
+
+        it('should use loadCSS for async fragments for all 3 styles', (done) => {
+            nock('https://fragment')
+                .get('/1').reply(200, 'hello multiple styles async', {
+                    'Link': '<http://link1>; rel="stylesheet",<http://link2>; rel="stylesheet",<http://link3>; rel="stylesheet",<http://link4>; rel="fragment-script"'
+                });
+
+            mockTemplate
+                .returns('<fragment async src="https://fragment/1"></fragment>');
+
+            getResponse('http://localhost:8081/test').then((response) => {
+                assert.equal(response.body,
+                    '<html><head></head><body>' +
+                    '<script data-pipe>p.placeholder(0)</script>' +
+                    '<script>p.loadCSS("http://link1")</script>' +
+                    '<script>p.loadCSS("http://link2")</script>' +
+                    '<script>p.loadCSS("http://link3")</script>' +
+                    '<script data-pipe>p.start(0, "http://link4", {"id":0})</script>' +
+                    'hello multiple styles async' +
+                    '<script data-pipe>p.end(0, "http://link4", {"id":0})</script>' +
+                    '</body></html>'
+                );
+            }).then(done, done);
+        });
+    });
 });

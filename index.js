@@ -25,7 +25,15 @@ module.exports = class Tailor extends EventEmitter {
 
     constructor (options) {
         super();
-        const { amdLoaderUrl = AMD_LOADER_URL, templatesPath, filterHeaders = filterHeadersFn } = options;
+        const {
+            amdLoaderUrl = AMD_LOADER_URL,
+            filterHeaders = filterHeadersFn,
+            maxAssetLinks,
+            templatesPath,
+        } = options;
+
+        options.maxAssetLinks = isNaN(maxAssetLinks) ? 1 : Math.max(1, maxAssetLinks);
+
         let memoizedDefinition;
         const pipeChunk = (amdLoaderUrl, pipeInstanceName) => {
             if (!memoizedDefinition) {
