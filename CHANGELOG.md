@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 2.3.0
+* write response headers once before flushing([#145](https://github.com/zalando/tailor/pull/145))
+
 ### 2.2.0
 * Fix issue with preloading primary fragment assets([#141](https://github.com/zalando/tailor/pull/141))
 
