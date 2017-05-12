@@ -131,6 +131,27 @@ describe('Tailor', () => {
         }).then(done, done);
     });
 
+    it('should return cookies from primary fragment', (done) => {
+        const cookie = 'zalando.guid=6cc4da81; path=/; httponly';
+
+        nock('https://fragment')
+            .get('/1').reply(200, 'hello', { 'Set-Cookie': 'wrong' })
+            .get('/2').reply(200, 'world', { 'Set-Cookie': cookie })
+            .get('/3').reply(201);
+
+        mockTemplate
+            .returns(
+                '<fragment src="https://fragment/1"></fragment>' +
+                '<fragment src="https://fragment/2" primary></fragment>' +
+                '<fragment src="https://fragment/3"></fragment>'
+            );
+
+        getResponse('http://localhost:8080/test').then((response) => {
+            assert.equal(response.statusCode, 200);
+            assert.deepEqual(response.headers['set-cookie'], [cookie]);
+        }).then(done, done);
+    });
+
     it('should forward headers to fragment', (done) => {
 
         const headers = {
