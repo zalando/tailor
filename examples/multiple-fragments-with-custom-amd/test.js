@@ -50,11 +50,15 @@ describe('Frontend test', function () {
             );
     }
 
+    function logForRange(range) {
+        return ('range-' + range +' hooks: onStart,onBeforeInit,onAfterInit;');
+    }
+
     before(() => {
         server = http.createServer(tailor.requestHandler);
-        fragment1 = http.createServer(fragment('hello', 'http://localhost:8081'));
-        fragment2 = http.createServer(fragment('world', 'http://localhost:8082'));
-        fragment3 = http.createServer(fragment('body-start', 'http://localhost:8083'));
+        fragment1 = http.createServer(fragment('fragment1', 'http://localhost:8081'));
+        fragment2 = http.createServer(fragment('fragment2', 'http://localhost:8082'));
+        fragment3 = http.createServer(fragment('fragment3', 'http://localhost:8083'));
         return Promise.all([
             server.listen(8080),
             fragment1.listen(8081),
@@ -81,12 +85,16 @@ describe('Frontend test', function () {
                     .then((title) => {
                         assert.equal(title, 'Test Page', 'Test page is not loaded');
                     })
-                    .waitForElementByCss('.fragment-hello-js1', asserters.textInclude('js1'), 2000)
-                    .waitForElementByCss('.fragment-hello-js2', asserters.textInclude('js2'), 2000)
-                    .waitForElementByCss('.fragment-world-js1', asserters.textInclude('js1'), 2000)
-                    .waitForElementByCss('.fragment-world-js2', asserters.textInclude('js2'), 2000)
-                    .waitForElementByCss('.fragment-body-start-js1', asserters.textInclude('js1'), 2000)
-                    .waitForElementByCss('.fragment-body-start-js2', asserters.textInclude('js2'), 2000);
+                    .waitForElementByCss('.fragment-fragment1-js1', asserters.textInclude('js1'), 2000)
+                    .waitForElementByCss('.fragment-fragment1-js2', asserters.textInclude('js2'), 2000)
+                    .waitForElementByCss('.fragment-fragment2-js1', asserters.textInclude('js1'), 2000)
+                    .waitForElementByCss('.fragment-fragment2-js2', asserters.textInclude('js2'), 2000)
+                    .waitForElementByCss('.fragment-fragment3-js1', asserters.textInclude('js1'), 2000)
+                    .waitForElementByCss('.fragment-fragment3-js2', asserters.textInclude('js2'), 2000)
+                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForRange('0-1')), 2000)
+                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForRange('2-3')), 2000)
+                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForRange('4-5')), 2000)
+                    .waitForElementByCss('.logs.all-done', asserters.textInclude('common hooks: onDone;'), 2000);
 
             });
         });

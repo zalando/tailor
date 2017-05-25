@@ -74,7 +74,7 @@ describe('Tailor', () => {
             mockTemplate.returns(false);
             getResponse('http://localhost:8080/missing-template').then((response) => {
                 assert.equal(response.statusCode, 500);
-                assert.equal(response.body, '<div>error template</div>');            
+                assert.equal(response.body, '<div>error template</div>');
             }).then(done, done);
         });
 
@@ -269,7 +269,7 @@ describe('Tailor', () => {
             }).then(done, done);
         });
     });
-    
+
     describe('Timeout::Tailor ', () => {
         it('should set timeout for a fragment request', (done) => {
             nock('https://fragment')
@@ -369,9 +369,9 @@ describe('Tailor', () => {
                     '<head></head>' +
                     '<body>' +
                     '<link rel="stylesheet" href="http://link">' +
-                    '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
+                    '<script data-pipe>p.start(0, "http://link2", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     'hello' +
-                    '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
+                    '<script data-pipe>p.end(0, "http://link2", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     '</body>' +
                     '</html>'
                 );
@@ -392,9 +392,9 @@ describe('Tailor', () => {
                     '<html><head></head><body>' +
                     '<script data-pipe>p.placeholder(0)</script>' +
                     '<script>p.loadCSS("http://link")</script>' +
-                    '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
+                    '<script data-pipe>p.start(0, "http://link2", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     'hello' +
-                    '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
+                    '<script data-pipe>p.end(0, "http://link2", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     '</body></html>'
                 );
             }).then(done, done);
@@ -415,16 +415,16 @@ describe('Tailor', () => {
                     '<head></head>' +
                     '<body>' +
                     '<link rel="stylesheet" href="http://link">' +
-                    '<script data-pipe>p.start(0, "http://link2", {"id":0})</script>' +
+                    '<script data-pipe>p.start(0, "http://link2", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     'hello' +
-                    '<script data-pipe>p.end(0, "http://link2", {"id":0})</script>' +
+                    '<script data-pipe>p.end(0, "http://link2", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     '</body>' +
                     '</html>'
                 );
             }).then(done, done);
         });
     });
-    
+
     describe('Attributes and Context::Tailor', () => {
         it('should call the pipe start and end with custom pipe attributes', (done) => {
             nock('https://fragment')
@@ -438,9 +438,9 @@ describe('Tailor', () => {
             getResponse('http://localhost:8080/test').then((response) => {
                 assert.equal(response.body,
                     '<html><head></head><body>' +
-                    '<script data-pipe>p.start(0, "http://link2", {"id":"foo"})</script>' +
+                    '<script data-pipe>p.start(0, "http://link2", {"id":"foo","range":[0,0],"fragmentID":0})</script>' +
                     'hello' +
-                    '<script data-pipe>p.end(0, "http://link2", {"id":"foo"})</script>' +
+                    '<script data-pipe>p.end(0, "http://link2", {"id":"foo","range":[0,0],"fragmentID":0})</script>' +
                     '</body></html>'
                 );
             }).then(done, done);
@@ -717,7 +717,7 @@ describe('Tailor', () => {
             });
         });
     });
-    
+
     describe('Zip::Tailor ', () => {
         it('should unzip the fragment response if it is compressed', (done) => {
             nock('https://fragment')
@@ -795,9 +795,9 @@ describe('Tailor', () => {
             getResponse('http://localhost:8080/test').then((response) => {
                 assert.equal(response.body,
                     '<html><head></head><body>' +
-                    '<script data-pipe>p.start(0, "http://link1", {"id":0})</script>' +
+                    '<script data-pipe>p.start(0, "http://link1", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     'hello maxAssetLinks default' +
-                    '<script data-pipe>p.end(0, "http://link1", {"id":0})</script>' +
+                    '<script data-pipe>p.end(0, "http://link1", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     '</body></html>'
                 );
             }).then(done, done);
@@ -855,13 +855,13 @@ describe('Tailor', () => {
             getResponse('http://localhost:8081/test').then((response) => {
                 assert.equal(response.body,
                     '<html><head></head><body>' +
-                    '<script data-pipe>p.start(0, "http://link1", {"id":0})</script>' +
-                    '<script data-pipe>p.start(1, "http://link2", {"id":1})</script>' +
-                    '<script data-pipe>p.start(2, "http://link3", {"id":2})</script>' +
+                    '<script data-pipe>p.start(0, "http://link1", {"id":0,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.start(1, "http://link2", {"id":1,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.start(2, "http://link3", {"id":2,"range":[0,2],"fragmentID":0})</script>' +
                     'hello multiple' +
-                    '<script data-pipe>p.end(2, "http://link3", {"id":2})</script>' +
-                    '<script data-pipe>p.end(1, "http://link2", {"id":1})</script>' +
-                    '<script data-pipe>p.end(0, "http://link1", {"id":0})</script>' +
+                    '<script data-pipe>p.end(2, "http://link3", {"id":2,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.end(1, "http://link2", {"id":1,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.end(0, "http://link1", {"id":0,"range":[0,2],"fragmentID":0})</script>' +
                     '</body></html>'
                 );
             }).then(done, done);
@@ -880,13 +880,13 @@ describe('Tailor', () => {
             getResponse('http://localhost:8081/test').then((response) => {
                 assert.equal(response.body,
                     '<html><head></head><body>' +
-                    '<script data-pipe>p.start(0, "http://link1", {"id":0})</script>' +
-                    '<script data-pipe>p.start(1, "http://link2", {"id":1})</script>' +
-                    '<script data-pipe>p.start(2, "http://link3", {"id":2})</script>' +
+                    '<script data-pipe>p.start(0, "http://link1", {"id":0,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.start(1, "http://link2", {"id":1,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.start(2, "http://link3", {"id":2,"range":[0,2],"fragmentID":0})</script>' +
                     'hello multiple' +
-                    '<script data-pipe>p.end(2, "http://link3", {"id":2})</script>' +
-                    '<script data-pipe>p.end(1, "http://link2", {"id":1})</script>' +
-                    '<script data-pipe>p.end(0, "http://link1", {"id":0})</script>' +
+                    '<script data-pipe>p.end(2, "http://link3", {"id":2,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.end(1, "http://link2", {"id":1,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.end(0, "http://link1", {"id":0,"range":[0,2],"fragmentID":0})</script>' +
                     '</body></html>'
                 );
             }).then(done, done);
@@ -919,37 +919,37 @@ describe('Tailor', () => {
             getResponse('http://localhost:8081/test').then((response) => {
                 assert.equal(response.body,
                     '<html><head></head><body>' +
-                    '<script data-pipe>p.start(0, "http://link-a1", {"id":0})</script>' +
-                    '<script data-pipe>p.start(1, "http://link-a2", {"id":1})</script>' +
-                    '<script data-pipe>p.start(2, "http://link-a3", {"id":2})</script>' +
+                    '<script data-pipe>p.start(0, "http://link-a1", {"id":0,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.start(1, "http://link-a2", {"id":1,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.start(2, "http://link-a3", {"id":2,"range":[0,2],"fragmentID":0})</script>' +
                     'hello many' +
-                    '<script data-pipe>p.end(2, "http://link-a3", {"id":2})</script>' +
-                    '<script data-pipe>p.end(1, "http://link-a2", {"id":1})</script>' +
-                    '<script data-pipe>p.end(0, "http://link-a1", {"id":0})</script>' +
+                    '<script data-pipe>p.end(2, "http://link-a3", {"id":2,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.end(1, "http://link-a2", {"id":1,"range":[0,2],"fragmentID":0})</script>' +
+                    '<script data-pipe>p.end(0, "http://link-a1", {"id":0,"range":[0,2],"fragmentID":0})</script>' +
 
                     '<script data-pipe>p.placeholder(3)</script>' +
 
                     '<script data-pipe>p.placeholder(6)</script>' +
 
-                    '<script data-pipe>p.start(9, "http://link-d1", {"id":9})</script>' +
-                    '<script data-pipe>p.start(10, "http://link-d2", {"id":10})</script>' +
-                    '<script data-pipe>p.start(11, "http://link-d3", {"id":11})</script>' +
+                    '<script data-pipe>p.start(9, "http://link-d1", {"id":9,"range":[9,11],"fragmentID":3})</script>' +
+                    '<script data-pipe>p.start(10, "http://link-d2", {"id":10,"range":[9,11],"fragmentID":3})</script>' +
+                    '<script data-pipe>p.start(11, "http://link-d3", {"id":11,"range":[9,11],"fragmentID":3})</script>' +
                     'hello exactly three' +
-                    '<script data-pipe>p.end(11, "http://link-d3", {"id":11})</script>' +
-                    '<script data-pipe>p.end(10, "http://link-d2", {"id":10})</script>' +
-                    '<script data-pipe>p.end(9, "http://link-d1", {"id":9})</script>' +
+                    '<script data-pipe>p.end(11, "http://link-d3", {"id":11,"range":[9,11],"fragmentID":3})</script>' +
+                    '<script data-pipe>p.end(10, "http://link-d2", {"id":10,"range":[9,11],"fragmentID":3})</script>' +
+                    '<script data-pipe>p.end(9, "http://link-d1", {"id":9,"range":[9,11],"fragmentID":3})</script>' +
 
-                    '<script data-pipe>p.start(3, "http://link-b1", {"id":3})</script>' +
+                    '<script data-pipe>p.start(3, "http://link-b1", {"id":3,"range":[3,3],"fragmentID":1})</script>' +
                     'hello single' +
-                    '<script data-pipe>p.end(3, "http://link-b1", {"id":3})</script>' +
+                    '<script data-pipe>p.end(3, "http://link-b1", {"id":3,"range":[3,3],"fragmentID":1})</script>' +
 
-                    '<script data-pipe>p.start(6, "http://link-c1", {"id":6})</script>' +
-                    '<script data-pipe>p.start(7, "http://link-c2", {"id":7})</script>' +
-                    '<script data-pipe>p.start(8, "http://link-c3", {"id":8})</script>' +
+                    '<script data-pipe>p.start(6, "http://link-c1", {"id":6,"range":[6,8],"fragmentID":2})</script>' +
+                    '<script data-pipe>p.start(7, "http://link-c2", {"id":7,"range":[6,8],"fragmentID":2})</script>' +
+                    '<script data-pipe>p.start(8, "http://link-c3", {"id":8,"range":[6,8],"fragmentID":2})</script>' +
                     'hello exactly three async' +
-                    '<script data-pipe>p.end(8, "http://link-c3", {"id":8})</script>' +
-                    '<script data-pipe>p.end(7, "http://link-c2", {"id":7})</script>' +
-                    '<script data-pipe>p.end(6, "http://link-c1", {"id":6})</script>' +
+                    '<script data-pipe>p.end(8, "http://link-c3", {"id":8,"range":[6,8],"fragmentID":2})</script>' +
+                    '<script data-pipe>p.end(7, "http://link-c2", {"id":7,"range":[6,8],"fragmentID":2})</script>' +
+                    '<script data-pipe>p.end(6, "http://link-c1", {"id":6,"range":[6,8],"fragmentID":2})</script>' +
 
                     '</body></html>'
                 );
@@ -972,9 +972,9 @@ describe('Tailor', () => {
                     '<link rel="stylesheet" href="http://css1">' +
                     '<link rel="stylesheet" href="http://css2">' +
                     '<link rel="stylesheet" href="http://css3">' +
-                    '<script data-pipe>p.start(0, "http://script-link", {"id":0})</script>' +
+                    '<script data-pipe>p.start(0, "http://script-link", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     'hello multiple styles ' +
-                    '<script data-pipe>p.end(0, "http://script-link", {"id":0})</script>' +
+                    '<script data-pipe>p.end(0, "http://script-link", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     '</body>' +
                     '</html>'
                 );
@@ -997,9 +997,9 @@ describe('Tailor', () => {
                     '<script>p.loadCSS("http://link1")</script>' +
                     '<script>p.loadCSS("http://link2")</script>' +
                     '<script>p.loadCSS("http://link3")</script>' +
-                    '<script data-pipe>p.start(0, "http://link4", {"id":0})</script>' +
+                    '<script data-pipe>p.start(0, "http://link4", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     'hello multiple styles async' +
-                    '<script data-pipe>p.end(0, "http://link4", {"id":0})</script>' +
+                    '<script data-pipe>p.end(0, "http://link4", {"id":0,"range":[0,0],"fragmentID":0})</script>' +
                     '</body></html>'
                 );
             }).then(done, done);

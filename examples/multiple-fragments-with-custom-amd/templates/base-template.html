@@ -11,7 +11,44 @@
             return 'js1';
         });
         define('js2', function () {
-            return '-js2';
+            return 'js2';
+        });
+
+        // Testing hook calls via logs
+        var log = {
+            'range-0-1' : [],
+            'range-2-3' : [],
+            'range-4-5' : [],
+            'common': [],
+        };
+        var ranges = [[0,1],[2,3],[4,5]];
+        var result = '';
+
+        function rangeKey(range) {
+            return('range-' + range.join('-'));
+        }
+
+        Pipe.onStart((attributes) => {
+          log[rangeKey(attributes.range)].push('onStart');
+        });
+        Pipe.onBeforeInit((attributes) => {
+          log[rangeKey(attributes.range)].push('onBeforeInit');
+        });
+        Pipe.onAfterInit((attributes) => {
+          log[rangeKey(attributes.range)].push('onAfterInit');
+        });
+
+        Pipe.onDone(() => {
+          log.common.push('onDone');
+
+          var logNode = document.getElementById('hook-logs');
+            ranges.forEach(function(range, index) {
+              var key = rangeKey(range);
+                result += key + ' hooks: ' + log[key].join(',') +';\n';
+            });
+            result += '   common hooks: ' + log.common.join(',') + ';';
+            logNode.innerText = result;
+            logNode.className += ' all-done';
         });
     </script>
 </head>
@@ -29,5 +66,6 @@
         <fragment async src="http://localhost:8082"></fragment>
         <div>All done!</div>
     </div>
+    <pre id="hook-logs" class="logs"></pre>
 </body>
 </html>
