@@ -8,6 +8,7 @@ const baseTemplateFn = () => 'base-template';
 const AMD_LOADER = 'file://' + require.resolve('iamdee');
 const tailor = new Tailor({
     amdLoaderUrl: AMD_LOADER,
+    maxAssetLinks: 2,
     fetchTemplate: fetchTemplateFs(path.join(__dirname, 'templates'), baseTemplateFn)
 });
 const server = http.createServer((req, res) => {

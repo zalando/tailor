@@ -6,9 +6,12 @@
     <script type="slot" name="head"></script>
     <script>
         require.config({onNodeCreated: function(node){node.crossOrigin="anonymous"}});
+        // Example dependencies for the fragments
         define('word', function () {
-            // Example dependency for the fragments
             return 'initialised';
+        });
+        define('leet', function () {
+            return 1337;
         });
     </script>
 </head>

@@ -75,7 +75,7 @@ describe('Frontend test', function () {
     });
 
     PLATFORMS.forEach((platform) => {
-        it('should open the page and initialise two fragments in ' + platform.browserName, () => {
+        it('should open the page and initialise two fragments, each requiring two scripts in ' + platform.browserName, () => {
             return testOnPlatform(platform, (browser) => {
                 return browser
                     .get('http://localhost:8080/index')
@@ -84,8 +84,12 @@ describe('Frontend test', function () {
                         assert.equal(title, 'Test Page', 'Test page is not loaded');
                     })
                     .waitForElementByCss('.fragment-hello-initialised', asserters.textInclude('initialised'), 2000)
+                    .waitForElementByCss('.fragment-hello-leet', asserters.textInclude('1337'), 2000)
                     .waitForElementByCss('.fragment-world-initialised', asserters.textInclude('initialised'), 2000)
-                    .waitForElementByCss('.fragment-body-start-initialised', asserters.textInclude('initialised'), 2000);
+                    .waitForElementByCss('.fragment-world-leet', asserters.textInclude('1337'), 2000)
+                    .waitForElementByCss('.fragment-body-start-initialised', asserters.textInclude('initialised'), 2000)
+                    .waitForElementByCss('.fragment-body-start-leet', asserters.textInclude('1337'), 2000);
+
             });
         });
     });
