@@ -1,38 +1,32 @@
 'use strict';
 const url = require('url');
 
+const jsHeaders = {
+    'Content-Type': 'application/javascript',
+    'Access-Control-Allow-Origin': '*'
+};
+
+const defineFn = (module, fragmentName) => {
+    return `define (['${module}'], function (module) {
+        return function initFragment (element) {
+            element.className += ' fragment-${fragmentName}-initialised';
+            element.innerHTML += module;
+        }
+    })`;
+};
+
 module.exports = (fragmentName, fragmentUrl) => (request, response) => {
     const pathname = url.parse(request.url).pathname;
     switch (pathname) {
         case '/fragment-1.js':
             // serve fragment's JavaScript
-            response.writeHead(200, {
-                'Content-Type': 'application/javascript',
-                'Access-Control-Allow-Origin': '*'
-            });
-            response.end(`
-                define (['word'], function (word) {
-                    return function initFragment (element) {
-                        element.className += ' fragment-${fragmentName}-initialised';
-                        element.innerHTML += word;
-                    };
-                });
-            `);
+            response.writeHead(200, jsHeaders);
+            response.end(defineFn('word', fragmentName));
             break;
         case '/fragment-2.js':
             // serve fragment's JavaScript
-            response.writeHead(200, {
-                'Content-Type': 'application/javascript',
-                'Access-Control-Allow-Origin': '*'
-            });
-            response.end(`
-                define (['leet'], function (leet) {
-                    return function initFragment (element) {
-                        element.className += ' fragment-${fragmentName}-leet';
-                        element.innerHTML += ' ' + leet;
-                    };
-                });
-            `);
+            response.writeHead(200, jsHeaders);
+            response.end(defineFn('leet', fragmentName));
             break;
         case '/fragment.css':
             // serve fragment's CSS
