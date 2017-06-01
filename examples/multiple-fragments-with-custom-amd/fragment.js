@@ -9,7 +9,7 @@ const jsHeaders = {
 const defineFn = (module, fragmentName) => {
     return `define (['${module}'], function (module) {
         return function initFragment (element) {
-            element.className += ' fragment-${fragmentName}-initialised';
+            element.className += ' fragment-${fragmentName}-${module}';
             element.innerHTML += module;
         }
     })`;
@@ -21,12 +21,12 @@ module.exports = (fragmentName, fragmentUrl) => (request, response) => {
         case '/fragment-1.js':
             // serve fragment's JavaScript
             response.writeHead(200, jsHeaders);
-            response.end(defineFn('word', fragmentName));
+            response.end(defineFn('js1', fragmentName));
             break;
         case '/fragment-2.js':
             // serve fragment's JavaScript
             response.writeHead(200, jsHeaders);
-            response.end(defineFn('leet', fragmentName));
+            response.end(defineFn('js2', fragmentName));
             break;
         case '/fragment.css':
             // serve fragment's CSS
@@ -37,8 +37,11 @@ module.exports = (fragmentName, fragmentUrl) => (request, response) => {
                     margin: 10px;
                     text-align: center;
                 }
-                .fragment-${fragmentName}-initialised {
+                .fragment-${fragmentName}-js1 {
                     background-color: lightgrey;
+                }
+                .fragment-${fragmentName}-js2 {
+                    color: blue;
                 }
             `);
             break;
