@@ -10,8 +10,8 @@ describe('ContentLengthStream', () => {
             assert(contentLength, 'foobar'.length);
             done();
         });
-        st.write(new Buffer('foo'));
-        st.end(new Buffer('bar'));
+        st.write(Buffer.from('foo'));
+        st.end(Buffer.from('bar'));
     });
 
     it('is a Transform stream', () => {
@@ -20,7 +20,7 @@ describe('ContentLengthStream', () => {
     });
 
     it('passes through data chunks', (done) => {
-        const chunk = new Buffer('foo');
+        const chunk = Buffer.from('foo');
         const st = new ContentLengthStream(() => {});
         st.on('data', (data) => {
             assert.equal(data, chunk);

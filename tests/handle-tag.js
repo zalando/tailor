@@ -23,7 +23,7 @@ describe('Handle tag', () => {
                     return Promise.reject('Error fetching template');
                 }
             },
-            pipeDefinition: () => new Buffer(''),
+            pipeDefinition: () => Buffer.from(''),
             handledTags: ['x-tag'],
             handleTag: mockHandleTag
         });
