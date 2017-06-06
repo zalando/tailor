@@ -45,7 +45,7 @@ module.exports = class Tailor extends EventEmitter {
                     memoizedDefinition = `<script src="${amdLoaderUrl}"></script>\n<script>`;
                 }
             }
-            return new Buffer(`${memoizedDefinition}var ${pipeInstanceName}=${PIPE_DEFINITION}</script>\n`);
+            return Buffer.from(`${memoizedDefinition}var ${pipeInstanceName}=${PIPE_DEFINITION}</script>\n`);
         };
 
         const requestOptions = Object.assign({

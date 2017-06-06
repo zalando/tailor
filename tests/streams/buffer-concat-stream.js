@@ -9,8 +9,8 @@ describe('BufferConcatStream', () => {
             assert(result.toString(), 'foobar');
             done();
         });
-        st.write(new Buffer('foo'));
-        st.end(new Buffer('bar'));
+        st.write(Buffer.from('foo'));
+        st.end(Buffer.from('bar'));
     });
 
 });
