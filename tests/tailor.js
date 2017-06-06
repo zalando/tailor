@@ -31,7 +31,7 @@ describe('Tailor', () => {
     const createTailorInstance = ({ maxAssetLinks = 1 } = {}) => new Tailor({
         fetchContext: mockContext,
         maxAssetLinks,
-        pipeDefinition: () => new Buffer(''),
+        pipeDefinition: () => Buffer.from(''),
         fetchTemplate: (request, parseTemplate) => {
             const template = mockTemplate(request);
             const childTemplate = mockChildTemplate(request);
