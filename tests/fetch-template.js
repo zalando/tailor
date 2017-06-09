@@ -60,7 +60,7 @@ describe('fetch-template', () => {
             url: 'http://localhost:8080/test'
         };
 
-        fetchTemplate('templates')(mockRequest, mockParseTemplate)
+        return fetchTemplate('templates')(mockRequest, mockParseTemplate)
             .catch(err => {
                 assert(err.code, 1);
                 assert(err.presentable, 'template not found');
