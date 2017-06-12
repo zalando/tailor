@@ -843,30 +843,6 @@ describe('Tailor', () => {
             serverCustomOptions.close(done);
         });
 
-        it('should handle all 3 fragment-script Link-rels', (done) => {
-            nock('https://fragment')
-                .get('/1').reply(200, 'hello multiple', {
-                    'Link': '<http://link1>; rel="fragment-script", <http://link2>; rel="fragment-script", <http://link3>; rel="fragment-script"'
-                });
-
-            mockTemplate
-                .returns('<fragment src="https://fragment/1"></fragment>');
-
-            getResponse('http://localhost:8081/test').then((response) => {
-                assert.equal(response.body,
-                    '<html><head></head><body>' +
-                    '<script data-pipe>p.start(0, "http://link1", {"id":0,"range":[0,2]})</script>' +
-                    '<script data-pipe>p.start(1, "http://link2", {"id":1,"range":[0,2]})</script>' +
-                    '<script data-pipe>p.start(2, "http://link3", {"id":2,"range":[0,2]})</script>' +
-                    'hello multiple' +
-                    '<script data-pipe>p.end(2, "http://link3", {"id":2,"range":[0,2]})</script>' +
-                    '<script data-pipe>p.end(1, "http://link2", {"id":1,"range":[0,2]})</script>' +
-                    '<script data-pipe>p.end(0, "http://link1", {"id":0,"range":[0,2]})</script>' +
-                    '</body></html>'
-                );
-            }).then(done, done);
-        });
-
         it('should handle only the first 3 fragment-script Link-rels', (done) => {
             nock('https://fragment')
                 .get('/1').reply(200, 'hello multiple', {
@@ -881,11 +857,11 @@ describe('Tailor', () => {
                 assert.equal(response.body,
                     '<html><head></head><body>' +
                     '<script data-pipe>p.start(0, "http://link1", {"id":0,"range":[0,2]})</script>' +
-                    '<script data-pipe>p.start(1, "http://link2", {"id":1,"range":[0,2]})</script>' +
-                    '<script data-pipe>p.start(2, "http://link3", {"id":2,"range":[0,2]})</script>' +
+                    '<script data-pipe>p.start(1, "http://link2", {"id":0,"range":[0,2]})</script>' +
+                    '<script data-pipe>p.start(2, "http://link3", {"id":0,"range":[0,2]})</script>' +
                     'hello multiple' +
-                    '<script data-pipe>p.end(2, "http://link3", {"id":2,"range":[0,2]})</script>' +
-                    '<script data-pipe>p.end(1, "http://link2", {"id":1,"range":[0,2]})</script>' +
+                    '<script data-pipe>p.end(2, "http://link3", {"id":0,"range":[0,2]})</script>' +
+                    '<script data-pipe>p.end(1, "http://link2", {"id":0,"range":[0,2]})</script>' +
                     '<script data-pipe>p.end(0, "http://link1", {"id":0,"range":[0,2]})</script>' +
                     '</body></html>'
                 );
@@ -920,11 +896,11 @@ describe('Tailor', () => {
                 assert.equal(response.body,
                     '<html><head></head><body>' +
                     '<script data-pipe>p.start(0, "http://link-a1", {"id":0,"range":[0,2]})</script>' +
-                    '<script data-pipe>p.start(1, "http://link-a2", {"id":1,"range":[0,2]})</script>' +
-                    '<script data-pipe>p.start(2, "http://link-a3", {"id":2,"range":[0,2]})</script>' +
+                    '<script data-pipe>p.start(1, "http://link-a2", {"id":0,"range":[0,2]})</script>' +
+                    '<script data-pipe>p.start(2, "http://link-a3", {"id":0,"range":[0,2]})</script>' +
                     'hello many' +
-                    '<script data-pipe>p.end(2, "http://link-a3", {"id":2,"range":[0,2]})</script>' +
-                    '<script data-pipe>p.end(1, "http://link-a2", {"id":1,"range":[0,2]})</script>' +
+                    '<script data-pipe>p.end(2, "http://link-a3", {"id":0,"range":[0,2]})</script>' +
+                    '<script data-pipe>p.end(1, "http://link-a2", {"id":0,"range":[0,2]})</script>' +
                     '<script data-pipe>p.end(0, "http://link-a1", {"id":0,"range":[0,2]})</script>' +
 
                     '<script data-pipe>p.placeholder(3)</script>' +
@@ -932,11 +908,11 @@ describe('Tailor', () => {
                     '<script data-pipe>p.placeholder(6)</script>' +
 
                     '<script data-pipe>p.start(9, "http://link-d1", {"id":9,"range":[9,11]})</script>' +
-                    '<script data-pipe>p.start(10, "http://link-d2", {"id":10,"range":[9,11]})</script>' +
-                    '<script data-pipe>p.start(11, "http://link-d3", {"id":11,"range":[9,11]})</script>' +
+                    '<script data-pipe>p.start(10, "http://link-d2", {"id":9,"range":[9,11]})</script>' +
+                    '<script data-pipe>p.start(11, "http://link-d3", {"id":9,"range":[9,11]})</script>' +
                     'hello exactly three' +
-                    '<script data-pipe>p.end(11, "http://link-d3", {"id":11,"range":[9,11]})</script>' +
-                    '<script data-pipe>p.end(10, "http://link-d2", {"id":10,"range":[9,11]})</script>' +
+                    '<script data-pipe>p.end(11, "http://link-d3", {"id":9,"range":[9,11]})</script>' +
+                    '<script data-pipe>p.end(10, "http://link-d2", {"id":9,"range":[9,11]})</script>' +
                     '<script data-pipe>p.end(9, "http://link-d1", {"id":9,"range":[9,11]})</script>' +
 
                     '<script data-pipe>p.start(3, "http://link-b1", {"id":"f-2","range":[3,3]})</script>' +
@@ -944,11 +920,11 @@ describe('Tailor', () => {
                     '<script data-pipe>p.end(3, "http://link-b1", {"id":"f-2","range":[3,3]})</script>' +
 
                     '<script data-pipe>p.start(6, "http://link-c1", {"id":6,"range":[6,8]})</script>' +
-                    '<script data-pipe>p.start(7, "http://link-c2", {"id":7,"range":[6,8]})</script>' +
-                    '<script data-pipe>p.start(8, "http://link-c3", {"id":8,"range":[6,8]})</script>' +
+                    '<script data-pipe>p.start(7, "http://link-c2", {"id":6,"range":[6,8]})</script>' +
+                    '<script data-pipe>p.start(8, "http://link-c3", {"id":6,"range":[6,8]})</script>' +
                     'hello exactly three async' +
-                    '<script data-pipe>p.end(8, "http://link-c3", {"id":8,"range":[6,8]})</script>' +
-                    '<script data-pipe>p.end(7, "http://link-c2", {"id":7,"range":[6,8]})</script>' +
+                    '<script data-pipe>p.end(8, "http://link-c3", {"id":6,"range":[6,8]})</script>' +
+                    '<script data-pipe>p.end(7, "http://link-c2", {"id":6,"range":[6,8]})</script>' +
                     '<script data-pipe>p.end(6, "http://link-c1", {"id":6,"range":[6,8]})</script>' +
 
                     '</body></html>'

@@ -15,7 +15,7 @@ const defineFn = (module, fragmentName) => {
     })`;
 };
 
-module.exports = (fragmentName, fragmentUrl, modules=2) => (request, response) => {
+module.exports = (fragmentName, fragmentUrl, modules = 1) => (request, response) => {
     const pathname = url.parse(request.url).pathname;
     const moduleLinks = [];
 
@@ -34,11 +34,6 @@ module.exports = (fragmentName, fragmentUrl, modules=2) => (request, response) =
             response.writeHead(200, jsHeaders);
             response.end(defineFn('js2', fragmentName));
             break;
-        case '/module-3.js':
-            // serve fragment's JavaScript
-            response.writeHead(200, jsHeaders);
-            response.end(defineFn('js3', fragmentName));
-            break;
         case '/fragment.css':
             // serve fragment's CSS
             response.writeHead(200, { 'Content-Type': 'text/css' });
@@ -53,9 +48,6 @@ module.exports = (fragmentName, fragmentUrl, modules=2) => (request, response) =
                 }
                 .fragment-${fragmentName}-js2 {
                     color: blue;
-                }
-                .fragment-${fragmentName}-js3 {
-                    text-decoration: underline;
                 }
             `);
             break;

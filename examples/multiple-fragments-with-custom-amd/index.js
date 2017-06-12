@@ -8,7 +8,7 @@ const baseTemplateFn = () => 'base-template';
 const AMD_LOADER = 'file://' + require.resolve('iamdee');
 const tailor = new Tailor({
     amdLoaderUrl: AMD_LOADER,
-    maxAssetLinks: 3,
+    maxAssetLinks: 2,
     fetchTemplate: fetchTemplateFs(path.join(__dirname, 'templates'), baseTemplateFn)
 });
 const server = http.createServer((req, res) => {
@@ -35,7 +35,7 @@ fragment2.listen(8082);
 console.log('Fragment2 started at port 8082');
 
 const fragment3 = http.createServer(
-    serveFragment('fragment3', 'http://localhost:8083', 3)
+    serveFragment('fragment3', 'http://localhost:8083', 2)
 );
 fragment3.listen(8083);
 console.log('Fragment3 started at port 8083');

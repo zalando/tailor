@@ -3,7 +3,7 @@
     var starts = {};
     var scripts = doc.getElementsByTagName('script');
     // State to maintain if all fragments on the page are initialized
-    var initState = {};
+    var initState = [];
     var noop = function() {};
     // Hooks that will be replaced later on the page
     var hooks = {
@@ -24,69 +24,6 @@
         }
     }
 
-    function arrayMath(array, mathFn) {
-        return Math[mathFn].apply(null, array);
-    }
-
-    function arrayFlatten(array) {
-        return [].concat.apply([], array);
-    }
-
-    function objectValues(obj) {
-        var keys = Object.keys(obj);
-        var result = [];
-        keys.forEach(function(key) {
-            result.push(obj[key]);
-        });
-        return result;
-    }
-
-    function arrayOf(val, size) {
-        var result = [];
-        for (var i = size; i--; i >= 0) {
-            result[i] = val;
-        }
-        return result;
-    }
-
-    function chunksCount(range) {
-        return (range[1] - range[0] + 1);
-    }
-
-    // setChunkInitPhase keeps track of initialization phases
-    function setChunkInitPhase(index, attributes, phase) {
-        var chunkIndex = index - attributes.range[0];
-        var fragmentId = typeof attributes.id === 'string' ? attributes.id : attributes.range[0];
-        initState[fragmentId][chunkIndex] = phase;
-    }
-
-    function chunkHook(attributes, hook) {
-        var fragmentId = typeof attributes.id === 'string' ? attributes.id : attributes.range[0];
-
-        switch (hook) {
-            case 'onStart':
-                if (!initState[fragmentId]) {
-                    initState[fragmentId] = arrayOf(0, chunksCount(attributes.range));
-                    hooks.onStart(attributes);
-                }
-                break;
-            case 'onBeforeInit':
-                var chunkMax = arrayMath(initState[fragmentId], 'max');
-                chunkMax < 2 && hooks.onBeforeInit(attributes);
-                break;
-            case 'onAfterInit':
-                var chunkMax = arrayMath(initState[fragmentId], 'max');
-                chunkMax < 3 && hooks.onAfterInit(attributes);
-                break;
-            case 'onDone':
-                var allInitStates = arrayFlatten(objectValues(initState));
-                var allChunksMin = arrayMath(allInitStates, 'min');
-                allChunksMin > 2 && hooks.onDone();
-                break;
-
-        }
-    }
-
     function placeholder(index) {
         placeholders[index] = currentScript();
     }
@@ -94,9 +31,19 @@
     function start(index, script, attributes) {
         starts[index] = currentScript();
         if (script) {
-            chunkHook(attributes, 'onStart');
-            setChunkInitPhase(index, attributes, 1);
+            initState.push(index);
+            hooks.onStart(attributes, index);
             require([script]);
+        }
+    }
+
+    // OnDone will be called once the document is completed parsed and there are no other fragments getting streamed.
+    function fireDone() {
+        if (initState.length === 0
+            && doc.readyState
+            && (doc.readyState === 'complete'
+            || doc.readyState === 'interactive') ) {
+            hooks.onDone();
         }
     }
 
@@ -126,10 +73,12 @@
         start.parentNode.removeChild(start);
         end.parentNode.removeChild(end);
         script && require([script], function (i) {
-            // Exposed fragment initialization Function/Promise
+            // Exported AMD fragment initialization Function/Promise
             var init = i && i.__esModule ? i.default : i;
             // early return
             if (typeof init !== 'function') {
+                initState.pop();
+                fireDone();
                 return;
             }
 
@@ -139,18 +88,12 @@
             }
 
             function doInit(init, node) {
+                hooks.onBeforeInit(attributes, index);
                 var fragmentRendering = init(node);
-                chunkHook(attributes, 'onBeforeInit');
-                setChunkInitPhase(index, attributes, 2);
                 var handlerFn = function() {
-                    chunkHook(attributes, 'onAfterInit');
-                    setChunkInitPhase(index, attributes, 3);
-                    // OnDone will be called once the document is completed parsed and there are no other fragments getting streamed.
-                    if (doc.readyState
-                        && (doc.readyState === 'complete'
-                        || doc.readyState === 'interactive')) {
-                        chunkHook(attributes, 'onDone');
-                    }
+                    initState.pop();
+                    hooks.onAfterInit(attributes, index);
+                    fireDone(attributes);
                 };
                 // Check if the response from fragment is a Promise to allow lazy rendering
                 if (isPromise(fragmentRendering)) {

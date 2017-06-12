@@ -13,29 +13,25 @@
         define('js2', function () {
             return 'js2';
         });
-        define('js3', function () {
-            return 'js3';
-        });
         // Testing hook calls via logs
         var log = {
             'fragment-0' : [],
             'fragment-custom-id' : [],
-            'fragment-6' : [],
+            'fragment-4' : [],
             'common': [],
         };
-        var fragmentIds = [0, 'custom-id', 6];
+        var fragmentIds = [0, 'custom-id', 4];
         var result = '';
 
-        Pipe.onStart((attributes) => {
-          log['fragment-' + attributes.id].push('onStart');
+        Pipe.onStart((attributes, index) => {
+          log['fragment-' + attributes.id].push('onStart-' + index);
         });
-        Pipe.onBeforeInit((attributes) => {
-          log['fragment-' + attributes.id].push('onBeforeInit');
+        Pipe.onBeforeInit((attributes, index) => {
+          log['fragment-' + attributes.id].push('onBeforeInit-' + index);
         });
-        Pipe.onAfterInit((attributes) => {
-          log['fragment-' + attributes.id].push('onAfterInit');
+        Pipe.onAfterInit((attributes, index) => {
+          log['fragment-' + attributes.id].push('onAfterInit-' + index);
         });
-
         Pipe.onDone(() => {
           log.common.push('onDone');
 
@@ -44,7 +40,7 @@
               var key = 'fragment-' + id;
                 result += 'fragment-' + index + ' hooks: ' + log[key].join(',') +';\n';
             });
-            result += '    common hooks: ' + log.common.join(',') + ';';
+            result += '    common hooks: ' + log.common.join(',') +';';
             logNode.innerText = result;
             logNode.className += ' all-done';
         });

@@ -51,7 +51,15 @@ describe('Frontend test', function () {
     }
 
     function logForFragment(id) {
-        return ('fragment-' + id +' hooks: onStart,onBeforeInit,onAfterInit;');
+        const result = 'fragment-' + id +' hooks: ';
+        switch (id) {
+            case '0':
+                return result + 'onStart-0,onStart-1,onBeforeInit-0,onAfterInit-0,onBeforeInit-1,onAfterInit-1;';
+            case '1':
+                return result + 'onStart-2,onBeforeInit-2,onAfterInit-2;';
+            case '2':
+                return result + 'onStart-4,onBeforeInit-4,onAfterInit-4;';
+        }
     }
 
     before(() => {
@@ -86,15 +94,12 @@ describe('Frontend test', function () {
                         assert.equal(title, 'Test Page', 'Test page is not loaded');
                     })
                     .waitForElementByCss('.fragment-fragment1-js1', asserters.textInclude('js1'), 2000)
-                    .waitForElementByCss('.fragment-fragment1-js2', asserters.textInclude('js2'), 2000)
                     .waitForElementByCss('.fragment-fragment2-js1', asserters.textInclude('js1'), 2000)
-                    .waitForElementByCss('.fragment-fragment2-js2', asserters.textInclude('js2'), 2000)
                     .waitForElementByCss('.fragment-fragment3-js1', asserters.textInclude('js1'), 2000)
                     .waitForElementByCss('.fragment-fragment3-js2', asserters.textInclude('js2'), 2000)
-                    .waitForElementByCss('.fragment-fragment3-js3', asserters.textInclude('js3'), 2000)
-                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForFragment(0)), 2000)
-                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForFragment(1)), 2000)
-                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForFragment(2)), 2000)
+                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForFragment('0')), 2000)
+                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForFragment('1')), 2000)
+                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForFragment('2')), 2000)
                     .waitForElementByCss('.logs.all-done', asserters.textInclude('common hooks: onDone;'), 2000);
 
             });
