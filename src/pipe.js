@@ -32,8 +32,18 @@
         starts[index] = currentScript();
         if (script) {
             initState.push(index);
-            hooks.onStart(attributes);
+            hooks.onStart(attributes, index);
             require([script]);
+        }
+    }
+
+    // OnDone will be called once the document is completed parsed and there are no other fragments getting streamed.
+    function fireDone() {
+        if (initState.length === 0
+            && doc.readyState
+            && (doc.readyState === 'complete'
+            || doc.readyState === 'interactive') ) {
+            hooks.onDone();
         }
     }
 
@@ -63,10 +73,12 @@
         start.parentNode.removeChild(start);
         end.parentNode.removeChild(end);
         script && require([script], function (i) {
-            // Exposed fragment initialization Function/Promise
+            // Exported AMD fragment initialization Function/Promise
             var init = i && i.__esModule ? i.default : i;
             // early return
             if (typeof init !== 'function') {
+                initState.pop();
+                fireDone();
                 return;
             }
 
@@ -76,18 +88,12 @@
             }
 
             function doInit(init, node) {
-                hooks.onBeforeInit(attributes);
+                hooks.onBeforeInit(attributes, index);
                 var fragmentRendering = init(node);
                 var handlerFn = function() {
                     initState.pop();
-                    hooks.onAfterInit(attributes);
-                    // OnDone will be called once the document is completed parsed and there are no other fragments getting streamed.
-                    if (initState.length === 0
-                        && doc.readyState
-                        && (doc.readyState === 'complete'
-                        || doc.readyState === 'interactive') ) {
-                        hooks.onDone();
-                    }
+                    hooks.onAfterInit(attributes, index);
+                    fireDone(attributes);
                 };
                 // Check if the response from fragment is a Promise to allow lazy rendering
                 if (isPromise(fragmentRendering)) {
