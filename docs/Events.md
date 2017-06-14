@@ -15,7 +15,7 @@ Events may be used for logging and monitoring. Check [perf/benchmark.js](https:/
 ## Fragment events
 
 * Request start: `fragment:start(request, fragment.attributes)`
-* Response Start when headers received: `fragment:response(request, fragment.attributes, status, headers)`
+* Response Start when headers received: `fragment:response(request, fragment.attributes, status, headers, response)`
 * Response End (with response size): `fragment:end(request, fragment.attributes, contentSize)`
 * Error: `fragment:error(request, fragment.attributes, error)` in case of socket error, timeout, 50x
 * Fallback: `fragment:fallback(request, fragment.attributes, error)` in case of timeout/error from the fragment if the *fallback-src* is specified

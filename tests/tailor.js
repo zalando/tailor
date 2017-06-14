@@ -161,9 +161,9 @@ describe('Tailor', () => {
 
             mockTemplate
                 .returns(
-                '<fragment src="https://fragment/1"></fragment>' +
-                '<fragment src="https://fragment/2" primary></fragment>' +
-                '<fragment src="https://fragment/3" primary></fragment>'
+                    '<fragment src="https://fragment/1"></fragment>' +
+                    '<fragment src="https://fragment/2" primary></fragment>' +
+                    '<fragment src="https://fragment/3" primary></fragment>'
                 );
 
             getResponse('http://localhost:8080/test').then((response) => {
@@ -182,9 +182,9 @@ describe('Tailor', () => {
 
             mockTemplate
                 .returns(
-                '<fragment src="https://fragment/1"></fragment>' +
-                '<fragment src="https://fragment/2" primary></fragment>' +
-                '<fragment src="https://fragment/3"></fragment>'
+                    '<fragment src="https://fragment/1"></fragment>' +
+                    '<fragment src="https://fragment/2" primary></fragment>' +
+                    '<fragment src="https://fragment/3"></fragment>'
                 );
 
             getResponse('http://localhost:8080/test').then((response) => {
@@ -313,9 +313,7 @@ describe('Tailor', () => {
                 .get('/1').socketDelay(101).reply(200, 'hello');
 
             mockTemplate
-                .returns(
-                    '<fragment src="https://fragment/1" primary timeout="100"></fragment>'
-                );
+                .returns('<fragment src="https://fragment/1" primary timeout="100"></fragment>');
 
             getResponse('http://localhost:8080/test').then((response) => {
                 assert.equal(response.statusCode, 500);
@@ -329,9 +327,7 @@ describe('Tailor', () => {
                 .get('/1').replyWithError('panic!');
 
             mockTemplate
-                .returns(
-                    '<fragment src="https://fragment/1" primary></fragment>'
-                );
+                .returns('<fragment src="https://fragment/1" primary></fragment>');
 
             getResponse('http://localhost:8080/test').then((response) => {
                 assert.equal(response.statusCode, 500);

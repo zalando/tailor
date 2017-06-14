@@ -51,7 +51,8 @@ Default implementation [`lib/fetch-template.js`](https://github.com/zalando/tail
 * `fragmentTag` - Name of the fragment tag, defaults to `fragment`
 * `handledTags` - An array of custom tags, check [`tests/handle-tag`](https://github.com/zalando/tailor/blob/master/tests/handle-tag.js) for more info
 * `handleTag(request, tag)` - Receives a tag or closing tag and serializes it to a string or returns a stream
-* `filterHeaders(attributes, request)` - Function that filters the request headers that are passed to fragment request, check default implementation in [`lib/filter-headers`](https://github.com/zalando/tailor/blob/master/lib/filter-headers.js)
+* `filterRequestHeaders(attributes, request)` - Function that filters the request headers that are passed to fragment request, check default implementation in [`lib/filter-headers`](https://github.com/zalando/tailor/blob/master/lib/filter-headers.js)
+* `filterResponseHeaders(attributes, response)` - Function that maps the response headers from the primary fragment request to the final response, check default implementation in [`lib/filter-headers`](https://github.com/zalando/tailor/blob/master/lib/filter-headers.js)
 * `maxAssetLinks` - Number of `Link` Header directives for CSS and JS respected per fragment - defaults to `1`
 * `requestFragment(filterHeaders)(url, attributes, request)` - Function that returns a promise of request to a fragment server, check the default implementation in [`lib/request-fragment`](https://github.com/zalando/tailor/blob/master/lib/request-fragment.js)
 * `amdLoaderUrl` - URL to AMD loader. We use [RequireJS from cdnjs](https://cdnjs.com/libraries/require.js) as deafult
