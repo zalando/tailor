@@ -11,7 +11,6 @@ const filterHeadersFn = require('./lib/filter-headers');
 const PIPE_DEFINITION = fs.readFileSync(path.resolve(__dirname, 'src/pipe.min.js'));
 const AMD_LOADER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js';
 
-
 const stripUrl = (fileUrl) => path.normalize(fileUrl.replace('file://', ''));
 const getPipeAttributes = (attributes) => {
     const { primary, id } = attributes;
@@ -25,7 +24,15 @@ module.exports = class Tailor extends EventEmitter {
 
     constructor (options) {
         super();
-        const { amdLoaderUrl = AMD_LOADER_URL, templatesPath, filterHeaders = filterHeadersFn } = options;
+        const {
+            amdLoaderUrl = AMD_LOADER_URL,
+            filterHeaders = filterHeadersFn,
+            maxAssetLinks,
+            templatesPath,
+        } = options;
+
+        options.maxAssetLinks = isNaN(maxAssetLinks) ? 1 : Math.max(1, maxAssetLinks);
+
         let memoizedDefinition;
         const pipeChunk = (amdLoaderUrl, pipeInstanceName) => {
             if (!memoizedDefinition) {
@@ -37,7 +44,7 @@ module.exports = class Tailor extends EventEmitter {
                     memoizedDefinition = `<script src="${amdLoaderUrl}"></script>\n<script>`;
                 }
             }
-            return new Buffer(`${memoizedDefinition}var ${pipeInstanceName}=${PIPE_DEFINITION}</script>\n`);
+            return Buffer.from(`${memoizedDefinition}var ${pipeInstanceName}=${PIPE_DEFINITION}</script>\n`);
         };
 
         const requestOptions = Object.assign({

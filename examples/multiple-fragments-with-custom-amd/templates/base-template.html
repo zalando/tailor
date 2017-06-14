@@ -6,9 +6,43 @@
     <script type="slot" name="head"></script>
     <script>
         require.config({onNodeCreated: function(node){node.crossOrigin="anonymous"}});
-        define('word', function () {
-            // Example dependency for the fragments
-            return 'initialised';
+        // Example dependencies for the fragments
+        define('js1', function () {
+            return 'js1';
+        });
+        define('js2', function () {
+            return 'js2';
+        });
+        // Testing hook calls via logs
+        var log = {
+            'fragment-0' : [],
+            'fragment-custom-id' : [],
+            'fragment-4' : [],
+            'common': [],
+        };
+        var fragmentIds = [0, 'custom-id', 4];
+        var result = '';
+
+        Pipe.onStart((attributes, index) => {
+          log['fragment-' + attributes.id].push('onStart-' + index);
+        });
+        Pipe.onBeforeInit((attributes, index) => {
+          log['fragment-' + attributes.id].push('onBeforeInit-' + index);
+        });
+        Pipe.onAfterInit((attributes, index) => {
+          log['fragment-' + attributes.id].push('onAfterInit-' + index);
+        });
+        Pipe.onDone(() => {
+          log.common.push('onDone');
+
+          var logNode = document.getElementById('hook-logs');
+            fragmentIds.forEach(function(id, index) {
+              var key = 'fragment-' + id;
+                result += 'fragment-' + index + ' hooks: ' + log[key].join(',') +';\n';
+            });
+            result += '    common hooks: ' + log.common.join(',') +';';
+            logNode.innerText = result;
+            logNode.className += ' all-done';
         });
     </script>
 </head>
@@ -21,10 +55,11 @@
             document.body.appendChild(document.createElement('script'));
         </script>
         <h2>Fragment 1:</h2>
-        <fragment src="http://localhost:8081" primary></fragment>
+        <fragment src="http://localhost:8081" primary id="custom-id"></fragment>
         <h2>Fragment 2:</h2>
         <fragment async src="http://localhost:8082"></fragment>
         <div>All done!</div>
     </div>
+    <pre id="hook-logs" class="logs"></pre>
 </body>
 </html>

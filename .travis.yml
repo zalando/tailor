@@ -1,26 +1,27 @@
 sudo: false
 language: node_js
 node_js:
-  - 6.1.0
-  - 7.1.0
+- 6.1.0
+- 7.1.0
+- 8.0.0
 cache:
-  yarn: true
   directories:
-    - node_modules
+  - node_modules
 before_script:
-  - npm run lint
+- yarn run lint
 script:
-  - npm run test-frontend
-  - npm run coverage
+- yarn run coverage
+- if [ -n "${FRONTEND-}" ]; then yarn run test-frontend ; fi
 after_script:
-  - npm run codecov
+- yarn run codecov
 matrix:
   fast_finish: true
+  include:
+    node_js: node
+    env: FRONTEND=true
 addons:
   sauce_connect:
     username: _vigneshh
-    access_key:
-      secure: x2k2Hxs/Q3M4JsJ38IFPSm18M8oS93S4RwAiMbPYexJt7ar2eAexSRvMd11jWMRgbzgqA4jfyJ5cVKXlYgCZxdieb7xImmjn/szvRMe93F2jIe2I8kZo4FQiK7L2oBYCD75wDNR3wVTRI/Vv8Ag8IxiI/drldynxV0OC7t6zes9Adaoo9eiUm+LGmZ8G64wWSdY1JerbClMIUQCBU05m7wo5C9QfRdEj1jhVFCaBfhFGUvilSbJ3XwU8yjxtry2E+xSO4ISjow2q6XBY5SE8lwqu8r+ihHCpu2HkdWvtKpR5QcjcAAsWamuh2MrZdUCseb957NgxL4x6DFsPeMT6dA9nvD66wpYIJbJVd67HkaWioHpHzw9bH/6sNNZg4sG9F0d6WpcqgUq4xobDVcU9Fugz9IE9VEt1J+Tt28Go/aLIwYcTiM76egOJYu2x6JRMIE3kQNFMPgdXlHO4keknPUZIzL/Sq3iRD4eEvZnX9Z7x0ZX+6MgaXU3PfGT3nSTFwbw0pslBMi5EWNzrfqojRaI61eLJcfrplVDC0CojUKg/4JIVeCpoPjPgOIYaG8OFeM8glJt3BochozfYkY2YURPd/SN4nRYPxdq3F4ndeMGgyB856y3dugApCYdX7ydKO+Iq20Qzw6T06LppOjh9YiFTwrs3OTinsJDBZN0d8vs=
 deploy:
   provider: npm
   email: vignesh.shanmugam22@gmail.com
@@ -30,3 +31,6 @@ deploy:
     tags: true
     repo: zalando/tailor
     branch: master
+env:
+  global:
+    secure: sTKr9tup3z0WP0GKYgxYVExHyVr0ktKFDBqzKzeTJggckWtxXoqnJmckC3EY/7+FYg8JlqAYjSvu2r1JVFVZYMQ7dJ+RojyhjZuUHsB8ULyNtlJnUhjdF7sp4/lY12uzDgielVrVq5tujndiR/2qX6FYD6XiGuGuevR5bqjfrfYbykqCNtdKPiCH7HU95vBq7Qoz+Z2GC7vm9jSN4YSaGk2SjjCcgqNH/xGlXLq6BsRcSSjMKecpQPjq+B1vseEqDMq785AP4r3POJ1g87sscquimtQykloGS7DDJ65YmbxKIrprbTt4aZto3jqp2v6g4gnLVC2mtFv3sEa3M63SaZDQimcamZSJuyKLEXqCVcj35j4lv28pV9RPbyvoEby7kKheKY6wvXQyknastf06mT/SP4nXDsZKIIvwlpNbURd2KQT5X1WZmIqjrfJ0Zm/BnED7pALMATfEsHzk/aoDRFUZhAJCz//5umMDcpSxOEtBkyxz07XzW47Z2NTIOhjf2mzJt2yxxOiU71Gv6DPCC25dBZDi3p/gPm/JYEX4XD5U4hwbnAbk60VntZomGY7+hshkknwSdzg4q+7g3CamG1Dfi+WDOzDm3/PzYOTQfXP26T2KEtRVcbkA5lGi+4E5bRGunxNUdnY3mFE9Oehjb6e+4ko9z5HJXEH381bGB5Q=
