@@ -47,11 +47,8 @@ describe('Tailor', () => {
             }
         },
         pipeInstanceName: 'p',
-        pipeAttributes: (attributes) => {
-            return {
-                id: attributes.id
-            };
-        }
+        pipeAttributes: (attributes) => ({ id: attributes.id }),
+        filterResponseHeaders: (attributes, headers) => headers
     });
 
     beforeEach((done) => {
@@ -172,7 +169,7 @@ describe('Tailor', () => {
             }).then(done, done);
         });
 
-        it('should return cookies from primary fragment', (done) => {
+        it('should return headers from primary fragment', (done) => {
             const cookie = 'zalando.guid=6cc4da81; path=/; httponly';
 
             nock('https://fragment')
