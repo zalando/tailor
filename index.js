@@ -7,7 +7,7 @@ const requestHandler = require('./lib/request-handler');
 const fetchTemplate = require('./lib/fetch-template');
 const parseTemplate = require('./lib/parse-template');
 const requestFragment = require('./lib/request-fragment');
-const { request: filterReqHeadersFn, response: filterResHeadersFn } = require('./lib/filter-headers');
+const filterHeadersFn = require('./lib/filter-headers');
 const PIPE_DEFINITION = fs.readFileSync(path.resolve(__dirname, 'src/pipe.min.js'));
 const AMD_LOADER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js';
 
@@ -26,7 +26,7 @@ module.exports = class Tailor extends EventEmitter {
         super();
         const {
             amdLoaderUrl = AMD_LOADER_URL,
-            filterRequestHeaders = filterReqHeadersFn,
+            filterHeaders = filterHeadersFn,
             maxAssetLinks,
             templatesPath,
         } = options;
