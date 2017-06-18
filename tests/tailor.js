@@ -47,11 +47,8 @@ describe('Tailor', () => {
             }
         },
         pipeInstanceName: 'p',
-        pipeAttributes: (attributes) => {
-            return {
-                id: attributes.id
-            };
-        }
+        pipeAttributes: (attributes) => ({ id: attributes.id }),
+        filterResponseHeaders: (attributes, headers) => headers
     });
 
     beforeEach((done) => {
@@ -169,6 +166,27 @@ describe('Tailor', () => {
             getResponse('http://localhost:8080/test').then((response) => {
                 assert.equal(response.statusCode, 300);
                 assert.equal(response.headers.location, 'https://redirect');
+            }).then(done, done);
+        });
+
+        it('should return headers from primary fragment', (done) => {
+            const cookie = 'zalando.guid=6cc4da81; path=/; httponly';
+
+            nock('https://fragment')
+                .get('/1').reply(200, 'hello', { 'Set-Cookie': 'wrong' })
+                .get('/2').reply(200, 'world', { 'Set-Cookie': cookie })
+                .get('/3').reply(201);
+
+            mockTemplate
+                .returns(
+                    '<fragment src="https://fragment/1"></fragment>' +
+                    '<fragment src="https://fragment/2" primary></fragment>' +
+                    '<fragment src="https://fragment/3"></fragment>'
+                );
+
+            getResponse('http://localhost:8080/test').then((response) => {
+                assert.equal(response.statusCode, 200);
+                assert.deepEqual(response.headers['set-cookie'], [cookie]);
             }).then(done, done);
         });
 
@@ -292,9 +310,7 @@ describe('Tailor', () => {
                 .get('/1').socketDelay(101).reply(200, 'hello');
 
             mockTemplate
-                .returns(
-                    '<fragment src="https://fragment/1" primary timeout="100"></fragment>'
-                );
+                .returns('<fragment src="https://fragment/1" primary timeout="100"></fragment>');
 
             getResponse('http://localhost:8080/test').then((response) => {
                 assert.equal(response.statusCode, 500);
@@ -308,9 +324,7 @@ describe('Tailor', () => {
                 .get('/1').replyWithError('panic!');
 
             mockTemplate
-                .returns(
-                    '<fragment src="https://fragment/1" primary></fragment>'
-                );
+                .returns('<fragment src="https://fragment/1" primary></fragment>');
 
             getResponse('http://localhost:8080/test').then((response) => {
                 assert.equal(response.statusCode, 500);
