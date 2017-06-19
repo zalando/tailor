@@ -1,5 +1,16 @@
 # Tailor Changelog
 
+### 3.0.0
+* Support for multiple link headers from fragments ([#140](https://github.com/zalando/tailor/pull/140))
+* Update Buffer to Node 8 Syntax ([#154](https://github.com/zalando/tailor/pull/154))
+* Update fragment performance hooks to support multiple link headers ([#159](https://github.com/zalando/tailor/pull/159))
+* Support to forward headers from primary fragment via filterResponseHeaders ([#148](https://github.com/zalando/tailor/pull/148))
+
+##### Contributors
+- Aditya Pratap Singh ([addityasingh](https://github.com/addityasingh))
+- Ramiro Rikkert ([rikkert](https://github.com/rikkert))
+- Iilei ([iilei](https://github.com/iilei))
+
 ### 2.3.0
 * write response headers once before flushing([#145](https://github.com/zalando/tailor/pull/145))
 
