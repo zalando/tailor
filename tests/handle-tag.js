@@ -59,6 +59,7 @@ describe('Handle tag', () => {
         const st = new PassThrough();
         mockTemplate.returns('<x-tag foo="bar"></x-tag>');
         mockHandleTag.onCall(0).returns(st);
+        mockHandleTag.onCall(1).returns('');
         http.get('http://localhost:8080/template', (response) => {
             let data = '';
             response.on('data', (chunk) => data += chunk);
