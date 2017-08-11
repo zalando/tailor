@@ -47,6 +47,27 @@
         }
     }
 
+    function isPromise(obj) {
+        return typeof obj === 'object'
+            && typeof obj.then === 'function';
+    }
+
+    function doInit(init, node, attributes, index) {
+        hooks.onBeforeInit(attributes, index);
+        var fragmentRendering = init(node);
+        var handlerFn = function() {
+            initState.pop();
+            hooks.onAfterInit(attributes, index);
+            fireDone(attributes);
+        };
+        // Check if the response from fragment is a Promise to allow lazy rendering
+        if (isPromise(fragmentRendering)) {
+            fragmentRendering.then(handlerFn).catch(handlerFn);
+        } else {
+            handlerFn();
+        }
+    }
+
     function end(index, script, attributes) {
         var placeholder = placeholders[index];
         var start = starts[index];
@@ -75,35 +96,16 @@
         script && require([script], function (i) {
             // Exported AMD fragment initialization Function/Promise
             var init = i && i.__esModule ? i.default : i;
-            // early return
+            // early return & calling hooks for performance measurements
             if (typeof init !== 'function') {
                 initState.pop();
+                hooks.onBeforeInit(attributes, index);
+                hooks.onAfterInit(attributes, index);
                 fireDone();
                 return;
             }
-
-            function isPromise(obj) {
-                return typeof obj === 'object'
-                    && typeof obj.then === 'function';
-            }
-
-            function doInit(init, node) {
-                hooks.onBeforeInit(attributes, index);
-                var fragmentRendering = init(node);
-                var handlerFn = function() {
-                    initState.pop();
-                    hooks.onAfterInit(attributes, index);
-                    fireDone(attributes);
-                };
-                // Check if the response from fragment is a Promise to allow lazy rendering
-                if (isPromise(fragmentRendering)) {
-                    fragmentRendering.then(handlerFn).catch(handlerFn);
-                } else {
-                    handlerFn();
-                }
-            }
             // Initialize the fragment on the DOM node
-            doInit(init, node);
+            doInit(init, node, attributes, index);
         });
     }
     /* @preserve - loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
