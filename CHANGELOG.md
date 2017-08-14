@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 3.0.1
+* Custom performance hooks should be called for all fragments([#168](https://github.com/zalando/tailor/pull/168))
+
 ### 3.0.0
 * Support for multiple link headers from fragments ([#140](https://github.com/zalando/tailor/pull/140))
 * Update Buffer to Node 8 Syntax ([#154](https://github.com/zalando/tailor/pull/154))
