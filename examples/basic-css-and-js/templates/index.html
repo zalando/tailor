@@ -1,3 +1,6 @@
 <!-- Tailor needs an index.html -->
 <h1>Basic css and js</h1>
-<fragment src="http://localhost:8081"></fragment>
+<fragment  src="http://localhost:8081"></fragment>
+<smart-fragment level="1"></smart-fragment>
+<fragment primary src="http://localhost:8081/broken" fallback-src="http://localhost:8081/nested-tag?index=fallback"></fragment>
+<fragment src="http://localhost:8081/nested-tag?index=-1"></fragment>

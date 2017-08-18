@@ -9,6 +9,7 @@ describe('Serializer', () => {
     const serializerOptions = {
         treeAdapter: adapter,
         slotMap: new Map(),
+        addPlaceholders: true,
         pipeTags: ['script', 'fragment'],
         handleTags: ['x-tag', 'fragment', 'text/template']
     };

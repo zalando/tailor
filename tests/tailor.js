@@ -51,7 +51,7 @@ describe('Tailor', () => {
         pipeInstanceName: 'p',
         pipeAttributes: (attributes) => ({ id: attributes.id }),
         filterResponseHeaders: (attributes, headers) => headers,
-        dynamicAttribute: 'dynamic'
+        dynamicContextAttribute: 'dynamic'
     });
 
     beforeEach((done) => {
