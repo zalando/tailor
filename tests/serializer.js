@@ -10,6 +10,7 @@ describe('Serializer', () => {
         treeAdapter: adapter,
         slotMap: new Map(),
         addPlaceholders: true,
+        fullRendering: true,
         pipeTags: ['script', 'fragment'],
         handleTags: ['x-tag', 'fragment', 'text/template']
     };
