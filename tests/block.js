@@ -56,15 +56,13 @@ describe('Tailor::Block', () => {
                 });
                 stream.end();
             }, 10);
-            return [stream];
+            return stream;
 
         };
 
         context = {
             index: 0,
             maxAssetLinks: 3,
-            dynamicContextAttribute: 'dynamic',
-            fetchDynamicContext: sinon.spy(() => Promise.resolve({ gotDynamic: true })),
             pipeDefinition: (name) => Buffer.from(`<pipe id="${name}" />`),
             pipeAttributes: (attributes) => ({ id: attributes.id }),
             pipeInstanceName: 'TailorPipe',
@@ -92,34 +90,12 @@ describe('Tailor::Block', () => {
             });
             block.write({ placeholder: 'pipe' });
             block.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
-            block.write({ name: 'fragment', attributes: { id: 'f1', dynamic: true, src: 'http://fragment/f1' } });
+            block.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
             // block.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
             block.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/primary' } });
             block.write({ name: 'content-broker' });
             block.write({ placeholder: 'async' });
             block.end();
-        });
-
-        // Parsing is kinda debatable...
-        it('parses the template');
-
-        it('requests dynamic fragment context when needed', (done) => {
-            block.on('end', () => {
-                done();
-            });
-            block.on('primary:found', () => {
-                context.asyncStream.end();
-            });
-            block.resume();
-            block.write({ placeholder: 'pipe' });
-            block.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
-            block.write({ name: 'fragment', attributes: { id: 'f1', dynamic: true, src: 'http://fragment/f1' } });
-            block.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/f2' } });
-            block.write({ placeholder: 'async' });
-            block.end();
-
-
-            assert.equal(context.fetchDynamicContext.callCount, 1);
         });
 
         it('notifies when its found in the template', (done) => {

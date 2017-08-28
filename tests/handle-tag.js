@@ -39,7 +39,7 @@ describe('Handle tag', () => {
 
     it('calls handleTag for a tag in handledTags', (done) => {
         mockTemplate.returns('<x-tag foo="bar"><strong>test</strong></x-tag>');
-        mockHandleTag.returns(['']);
+        mockHandleTag.returns('');
         http.get('http://localhost:8080/template', (response) => {
             const request = mockHandleTag.args[0][0];
             const tag = mockHandleTag.args[0][2];
@@ -58,8 +58,8 @@ describe('Handle tag', () => {
     it('replaces the original tag with stream or string content', (done) => {
         const st = new PassThrough();
         mockTemplate.returns('<x-tag foo="bar"></x-tag>');
-        mockHandleTag.onCall(0).returns([st]);
-        mockHandleTag.onCall(1).returns(['']);
+        mockHandleTag.onCall(0).returns(st);
+        mockHandleTag.onCall(1).returns('');
         http.get('http://localhost:8080/template', (response) => {
             let data = '';
             response.on('data', (chunk) => data += chunk);
@@ -74,8 +74,8 @@ describe('Handle tag', () => {
 
     it('should let us inject arbitrary html inside the tags', (done) => {
         mockTemplate.returns('<x-tag foo="bar"><div>test</div></x-tag>');
-        mockHandleTag.onCall(0).returns(['<hello>']);
-        mockHandleTag.onCall(1).returns(['</hello>']);
+        mockHandleTag.onCall(0).returns('<hello>');
+        mockHandleTag.onCall(1).returns('</hello>');
         http.get('http://localhost:8080/template', (response) => {
             let data = '';
             response.on('data', (chunk) => data += chunk);

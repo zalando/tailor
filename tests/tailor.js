@@ -13,7 +13,6 @@ describe('Tailor', () => {
     const mockTemplate = sinon.stub();
     const mockChildTemplate = sinon.stub();
     const mockContext = sinon.stub();
-    const mockDynamicContext = sinon.stub();
     const cacheTemplate = sinon.spy();
 
     function getResponse (url) {
@@ -31,7 +30,6 @@ describe('Tailor', () => {
 
     const createTailorInstance = ({ maxAssetLinks = 1 } = {}) => new Tailor({
         fetchContext: mockContext,
-        fetchDynamicContext: mockDynamicContext,
         maxAssetLinks,
         pipeDefinition: () => Buffer.from(''),
         fetchTemplate: (request, parseTemplate) => {
@@ -51,7 +49,6 @@ describe('Tailor', () => {
         pipeInstanceName: 'p',
         pipeAttributes: (attributes) => ({ id: attributes.id }),
         filterResponseHeaders: (attributes, headers) => headers,
-        dynamicContextAttribute: 'dynamic'
     });
 
     beforeEach((done) => {
@@ -496,60 +493,6 @@ describe('Tailor', () => {
 
                 // Second request
                 mockContext.returns(Promise.resolve({}));
-                mockTemplate.returns(cacheTemplate.args[0][0]);
-
-                getResponse('http://localhost:8080/test').then((response) => {
-                    assert.equal(response.statusCode, 200);
-                    assert.equal(response.body,
-                        '<html>' +
-                        '<head></head>' +
-                        '<body>' +
-                        '<script data-pipe>p.placeholder(0)</script>' +
-                        '<script data-pipe>p.start(0)</script>' +
-                        'no' +
-                        '<script data-pipe>p.end(0)</script>' +
-                        '</body>' +
-                        '</html>'
-                    );
-                }).then(done, done);
-            });
-        });
-
-        it('should get attributes from dynamic context and not mutate the template with the context', (done) => {
-            nock('https://fragment')
-                .get('/yes').reply(200, 'yes')
-                .get('/no').reply(200, 'no');
-
-            mockTemplate
-                .returns('<fragment dynamic async=false primary id="f-1" src="https://fragment/no"></frgament>');
-
-            const contextObj = {
-                'f-1' : {
-                    src : 'https://fragment/yes',
-                    primary: false,
-                    async: true
-                }
-            };
-
-            mockContext.returns(Promise.resolve({}));
-            mockDynamicContext.returns(Promise.resolve(contextObj));
-
-            getResponse('http://localhost:8080/test').then((response) => {
-                assert.equal(response.statusCode, 200);
-                assert.equal(response.body,
-                    '<html>' +
-                    '<head></head>' +
-                    '<body>' +
-                    '<script data-pipe>p.placeholder(0)</script>' +
-                    '<script data-pipe>p.start(0)</script>' +
-                    'yes' +
-                    '<script data-pipe>p.end(0)</script>' +
-                    '</body>' +
-                    '</html>'
-                );
-
-                // Second request
-                mockDynamicContext.returns(Promise.resolve({}));
                 mockTemplate.returns(cacheTemplate.args[0][0]);
 
                 getResponse('http://localhost:8080/test').then((response) => {
