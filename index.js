@@ -64,7 +64,7 @@ module.exports = class Tailor extends EventEmitter {
 
         requestOptions.parseTemplate = parseTemplate(
             [requestOptions.fragmentTag].concat(requestOptions.handledTags),
-            ['script', requestOptions.fragmentTag].concat(requestOptions.handledTags)
+            ['script', requestOptions.fragmentTag]
         );
 
         this.requestHandler = requestHandler.bind(this, requestOptions);

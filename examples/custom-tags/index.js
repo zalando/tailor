@@ -1,6 +1,7 @@
 'use strict';
 
 const http = require('http');
+const url = require('url');
 const buildBlock = require('../../lib/block').buildBlock;
 
 const Tailor = require('../../');
@@ -49,7 +50,7 @@ http.createServer((req, res) => {
 
 // Fragment server - Any http server that can serve fragments
 http.createServer((req, res) => {
-    const urlObj = require('url').parse(req.url, true);
+    const urlObj = url.parse(req.url, true);
 
     if (urlObj.pathname === '/switcher') {
         res.setHeader('Content-Type', 'text/html');
