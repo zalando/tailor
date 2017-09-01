@@ -7,12 +7,12 @@ const sinon = require('sinon');
 
 const stream = require('stream');
 
-const buildBlock = require('../lib/block').buildBlock;
+const processTemplate = require('../lib/process-template');
 const requestFragment = require('../lib/request-fragment')(require('../lib/filter-headers'));
 const AsyncStream = require('../lib/streams/async-stream');
 
-describe('Tailor::Block', () => {
-    let block;
+describe('processTemplate', () => {
+    let resultStream;
     let context;
     let handleNestedTag;
 
@@ -45,7 +45,7 @@ describe('Tailor::Block', () => {
         handleNestedTag = (request, context) => {
             // Simulate fetching of some remote resource here
             // TODO: who does the parsing???
-            const stream = buildBlock(mockedRequest, context);
+            const stream = processTemplate(mockedRequest, context);
             setTimeout(() => {
                 // For now ignored :)
                 const remoteEndpointResponse = '<a/><b/><c/>';
@@ -70,48 +70,48 @@ describe('Tailor::Block', () => {
             handleTag: handleNestedTag,
             requestFragment: requestFragment
         };
-        block = buildBlock(mockedRequest, context);
+        resultStream = processTemplate(mockedRequest, context);
     });
 
     it('returns a stream', () => {
-        assert(block instanceof stream);
+        assert(resultStream instanceof stream);
     });
 
     describe('result stream', () => {
         it('produces buffers as result', (done) => {
-            block.on('data', chunk => {
+            resultStream.on('data', chunk => {
                 assert(chunk instanceof Buffer);
             });
-            block.on('end', () => {
+            resultStream.on('end', () => {
                 done();
             });
-            block.on('primary:found', () => {
+            resultStream.on('primary:found', () => {
                 context.asyncStream.end();
             });
-            block.write({ placeholder: 'pipe' });
-            block.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
-            block.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
-            // block.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
-            block.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/primary' } });
-            block.write({ name: 'content-broker' });
-            block.write({ placeholder: 'async' });
-            block.end();
+            resultStream.write({ placeholder: 'pipe' });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
+            // resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/primary' } });
+            resultStream.write({ name: 'content-broker' });
+            resultStream.write({ placeholder: 'async' });
+            resultStream.end();
         });
 
         it('notifies when its found in the template', (done) => {
             const onPrimary = sinon.spy();
 
-            block.on('primary:found', onPrimary);
-            block.on('end', () => {
+            resultStream.on('primary:found', onPrimary);
+            resultStream.on('end', () => {
                 assert.equal(onPrimary.callCount, 1);
                 done();
             });
-            block.resume();
+            resultStream.resume();
             context.asyncStream.end();
-            block.write({ placeholder: 'pipe' });
-            block.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/f2' } });
-            block.write({ placeholder: 'async' });
-            block.end();
+            resultStream.write({ placeholder: 'pipe' });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/f2' } });
+            resultStream.write({ placeholder: 'async' });
+            resultStream.end();
         });
         it('insert pipe definition in the beginning');
         it('insert async results at the end');

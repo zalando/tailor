@@ -2,7 +2,7 @@
 
 const http = require('http');
 const url = require('url');
-const buildBlock = require('../../lib/block').buildBlock;
+const processTemplate = require('../../lib/process-template');
 
 const Tailor = require('../../');
 
@@ -11,7 +11,7 @@ const tailor = new Tailor({
     handledTags: ['switcher'],
     handleTag: (request, context, tag) => {
         if (tag && tag.name === 'switcher') {
-            const st = buildBlock(request, context);
+            const st = processTemplate(request, context);
 
             const finalSrc = tag.attributes['final-src'];
             http.get(`http://localhost:8081/switcher?nesting=${tag.attributes.nesting}&final_src=${finalSrc}`, (res) => {

@@ -23,11 +23,11 @@ const parseTemplate = require('../lib/parse-template')(['fragment'], []);
 const requests = new WeakMap();
 const fragments = new WeakMap();
 const Tailor = require('../');
-const buildBlock = require('../lib/block');
+const processTemplate = require('../lib/process-template');
 
 const handleTag = (request, context, tag) => {
     if (tag && tag.name === 'switcher') {
-        const stream = buildBlock(request, context);
+        const stream = processTemplate(request, context);
         process.nextTick(() => {
             stream.end({ name: 'fragment', attributes: { src: 'http://localhost:8081' } });
         });
