@@ -32,8 +32,39 @@
         starts[index] = currentScript();
         if (script) {
             initState.push(index);
-            hooks.onStart(attributes);
+            hooks.onStart(attributes, index);
             require([script]);
+        }
+    }
+
+    // OnDone will be called once the document is completed parsed and there are no other fragments getting streamed.
+    function fireDone() {
+        if (initState.length === 0
+            && doc.readyState
+            && (doc.readyState === 'complete'
+            || doc.readyState === 'interactive') ) {
+            hooks.onDone();
+        }
+    }
+
+    function isPromise(obj) {
+        return typeof obj === 'object'
+            && typeof obj.then === 'function';
+    }
+
+    function doInit(init, node, attributes, index) {
+        hooks.onBeforeInit(attributes, index);
+        var fragmentRendering = init(node);
+        var handlerFn = function() {
+            initState.pop();
+            hooks.onAfterInit(attributes, index);
+            fireDone(attributes);
+        };
+        // Check if the response from fragment is a Promise to allow lazy rendering
+        if (isPromise(fragmentRendering)) {
+            fragmentRendering.then(handlerFn).catch(handlerFn);
+        } else {
+            handlerFn();
         }
     }
 
@@ -63,41 +94,18 @@
         start.parentNode.removeChild(start);
         end.parentNode.removeChild(end);
         script && require([script], function (i) {
-            // Exposed fragment initialization Function/Promise
+            // Exported AMD fragment initialization Function/Promise
             var init = i && i.__esModule ? i.default : i;
-            // early return
+            // early return & calling hooks for performance measurements
             if (typeof init !== 'function') {
+                initState.pop();
+                hooks.onBeforeInit(attributes, index);
+                hooks.onAfterInit(attributes, index);
+                fireDone();
                 return;
             }
-
-            function isPromise(obj) {
-                return typeof obj === 'object'
-                    && typeof obj.then === 'function';
-            }
-
-            function doInit(init, node) {
-                hooks.onBeforeInit(attributes);
-                var fragmentRendering = init(node);
-                var handlerFn = function() {
-                    initState.pop();
-                    hooks.onAfterInit(attributes);
-                    // OnDone will be called once the document is completed parsed and there are no other fragments getting streamed.
-                    if (initState.length === 0
-                        && doc.readyState
-                        && (doc.readyState === 'complete'
-                        || doc.readyState === 'interactive') ) {
-                        hooks.onDone();
-                    }
-                };
-                // Check if the response from fragment is a Promise to allow lazy rendering
-                if (isPromise(fragmentRendering)) {
-                    fragmentRendering.then(handlerFn).catch(handlerFn);
-                } else {
-                    handlerFn();
-                }
-            }
             // Initialize the fragment on the DOM node
-            doInit(init, node);
+            doInit(init, node, attributes, index);
         });
     }
     /* @preserve - loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
