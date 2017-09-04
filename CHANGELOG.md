@@ -1,5 +1,10 @@
 # Tailor Changelog
 
+### 3.1.1
+
+* Allow file to be used a template instead of directory([#171](https://github.com/zalando/tailor/pull/171))
+* Use `promisify` module to simpify the code([#174](https://github.com/zalando/tailor/pull/174))
+
 ### 3.0.1
 * Custom performance hooks should be called for all fragments([#168](https://github.com/zalando/tailor/pull/168))
 
