@@ -9,9 +9,9 @@ const Tailor = require('../../');
 const tailor = new Tailor({
     templatesPath: __dirname + '/templates',
     handledTags: ['switcher'],
-    handleTag: (request, context, tag) => {
+    handleTag: (request, options, context, tag) => {
         if (tag && tag.name === 'switcher') {
-            const st = processTemplate(request, context);
+            const st = processTemplate(request, options, context);
 
             const finalSrc = tag.attributes['final-src'];
             http.get(`http://localhost:8081/switcher?nesting=${tag.attributes.nesting}&final_src=${finalSrc}`, (res) => {
@@ -20,7 +20,7 @@ const tailor = new Tailor({
                     data += chunk;
                 });
                 res.on('end', () => {
-                    context.parseTemplate(data, null, false).then(parsedTemplate => {
+                    options.parseTemplate(data, null, false).then(parsedTemplate => {
                         parsedTemplate.forEach((item) => {
                             st.write(item);
                         });

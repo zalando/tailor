@@ -25,9 +25,9 @@ const fragments = new WeakMap();
 const Tailor = require('../');
 const processTemplate = require('../lib/process-template');
 
-const handleTag = (request, context, tag) => {
+const handleTag = (request, options, context, tag) => {
     if (tag && tag.name === 'switcher') {
-        const stream = processTemplate(request, context);
+        const stream = processTemplate(request, options, context);
         process.nextTick(() => {
             stream.end({ name: 'fragment', attributes: { src: 'http://localhost:8081' } });
         });

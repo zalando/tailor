@@ -42,7 +42,7 @@ describe('Handle tag', () => {
         mockHandleTag.returns('');
         http.get('http://localhost:8080/template', (response) => {
             const request = mockHandleTag.args[0][0];
-            const tag = mockHandleTag.args[0][2];
+            const tag = mockHandleTag.args[0][3];
             assert.equal(request.url, '/template');
             assert.deepEqual(tag, {
                 name: 'x-tag',

@@ -42,10 +42,10 @@ describe('processTemplate', () => {
             ];
         };
 
-        handleNestedTag = (request, context) => {
+        handleNestedTag = (request, options, context) => {
             // Simulate fetching of some remote resource here
             // TODO: who does the parsing???
-            const stream = processTemplate(mockedRequest, context);
+            const stream = processTemplate(request, options, context);
             setTimeout(() => {
                 // For now ignored :)
                 const remoteEndpointResponse = '<a/><b/><c/>';
