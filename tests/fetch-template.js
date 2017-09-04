@@ -50,8 +50,9 @@ describe('fetch-template', () => {
     });
 
     describe('templatePath - Dir', () => {
-        it('should fetch the static template with absolute path', () => {
-            return fetchTemplate(templatePath)(mockRequest, mockParseTemplate)
+        it('should fetch the template with absolute path when baseTemplateFn is falsy', () => {
+            const baseTemplateFn = () => null;
+            return fetchTemplate(templatePath, baseTemplateFn)(mockRequest, mockParseTemplate)
                 .then(() => {
                     assert(mockParseTemplate.calledOnce);
                     assert(mockParseTemplate.calledWith('<div>test</div>'));
