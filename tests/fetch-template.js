@@ -6,64 +6,79 @@ const path = require('path');
 const fs = require('fs');
 
 describe('fetch-template', () => {
-    const mockParseTemplate = sinon.spy();
-    let mockRequest;
+    let mockParseTemplate;
+    const mockRequest = { url: 'http://localhost:8080/test' };
     const templatePath = path.join(__dirname);
-    const testTemplatePath = `${templatePath}/test.html`;
-    const baseTemplatePath = `${templatePath}/base-template.html`;
+    const baseTemplatePath = path.join(templatePath, 'base-template.html');
+    const testTemplatePath = path.join(templatePath, 'test.html');
 
-    beforeEach(() => {
-        fs.writeFileSync(testTemplatePath, '<div>test</div>');
+    before(() => {
         fs.writeFileSync(baseTemplatePath, '<div>base-template</div>');
+        fs.writeFileSync(testTemplatePath, '<div>test</div>');
     });
 
-    afterEach(() => {
-        if (fs.existsSync(testTemplatePath)) {
-            fs.unlinkSync(testTemplatePath);
-        }
+    beforeEach(() => mockParseTemplate = sinon.spy());
 
+    after(() => {
         if (fs.existsSync(baseTemplatePath)) {
             fs.unlinkSync(baseTemplatePath);
         }
+        if (fs.existsSync(testTemplatePath)) {
+            fs.unlinkSync(testTemplatePath);
+        }
     });
 
-    it('should be able to fetch the static template with absolute path', () => {
-        mockRequest = {
-            url: 'http://localhost:8080/test'
-        };
+    afterEach(() => mockParseTemplate.reset());
 
-        return fetchTemplate(templatePath)(mockRequest, mockParseTemplate)
-            .then(() => {
-                assert(mockParseTemplate.calledOnce);
-                return assert(mockParseTemplate.calledWith('<div>test</div>'));
-            });
+    describe('templatePath - File', () => {
+        it('should fetch template from file path', () => {
+            return fetchTemplate(testTemplatePath)(mockRequest, mockParseTemplate)
+                .then(() => {
+                    assert(mockParseTemplate.calledOnce);
+                    assert(mockParseTemplate.calledWith('<div>test</div>'));
+                });
+        });
+
+        it('should throw error on wrong file path', () => {
+            const wrongTemplatePath = path.join(templatePath, 'wrong-template.html');
+            return fetchTemplate(wrongTemplatePath)(mockRequest, mockParseTemplate)
+                .catch(err => {
+                    assert(err.code, 1);
+                    assert(err.presentable, 'template not found');
+                });
+        });
     });
 
-    it('should be able to fetch template with relative path and baseTemplateFn', () => {
-        mockRequest = {
-            url: 'http://localhost:8080/test'
-        };
-        const baseTemplateFn = () => 'base-template';
+    describe('templatePath - Dir', () => {
+        it('should fetch the template with absolute path when baseTemplateFn is falsy', () => {
+            const baseTemplateFn = () => null;
+            return fetchTemplate(templatePath, baseTemplateFn)(mockRequest, mockParseTemplate)
+                .then(() => {
+                    assert(mockParseTemplate.calledOnce);
+                    assert(mockParseTemplate.calledWith('<div>test</div>'));
+                });
+        });
 
-        return fetchTemplate(templatePath, baseTemplateFn)(mockRequest, mockParseTemplate)
-            .then(() => {
-                assert(mockParseTemplate.called);
-                return assert(mockParseTemplate.calledWith(
-                    '<div>base-template</div>',
-                    '<div>test</div>'
-                ));
-            });
-    });
+        it('should fetch template with relative path and baseTemplateFn', () => {
+            const baseTemplateFn = () => 'base-template';
 
-    it('should throw TEMPLATE_NOT_FOUND error for not present template', () => {
-        mockRequest = {
-            url: 'http://localhost:8080/test'
-        };
+            return fetchTemplate(templatePath, baseTemplateFn)(mockRequest, mockParseTemplate)
+                .then(() => {
+                    assert(mockParseTemplate.calledOnce);
+                    assert(mockParseTemplate.calledWith(
+                        '<div>base-template</div>',
+                        '<div>test</div>'
+                    ));
+                });
+        });
 
-        return fetchTemplate('templates')(mockRequest, mockParseTemplate)
-            .catch(err => {
-                assert(err.code, 1);
-                assert(err.presentable, 'template not found');
-            });
+        it('should throw TEMPLATE_NOT_FOUND error for not present template', () => {
+
+            return fetchTemplate('templates')(mockRequest, mockParseTemplate)
+                .catch(err => {
+                    assert(err.code, 1);
+                    assert(err.presentable, 'template not found');
+                });
+        });
     });
 });
