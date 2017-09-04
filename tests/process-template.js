@@ -63,6 +63,7 @@ describe('processTemplate', () => {
         context = {
             index: 0,
             maxAssetLinks: 3,
+            fragmentTag: 'fragment',
             pipeDefinition: (name) => Buffer.from(`<pipe id="${name}" />`),
             pipeAttributes: (attributes) => ({ id: attributes.id }),
             pipeInstanceName: 'TailorPipe',
