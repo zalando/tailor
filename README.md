@@ -31,7 +31,7 @@ What if we could have microservices on the frontend? This would allow frontend d
 Begin using Tailor with:
 
 ```sh
-npm i node-tailor --save
+yarn add node-tailor
 ```
 
 ```javascript
@@ -83,7 +83,7 @@ Tailor uses [parse5](https://github.com/inikulin/parse5/) to parse the template,
 * `primary` - denotes a fragment that sets the response code of the page
 * `timeout` - optional timeout of fragment in milliseconds (default is 3000)
 * `async` - postpones the fragment until the end of body tag
-* `public` - by default, Tailor forwards the headers it gets from upstream to the fragments. To prevent this from happening, use the public attribute.
+* `public` - to prevent tailor from forwarding filtered request headers from upstream to the fragments.
 * `fallback-src` - URL of the fallback fragment in case of timeout/error on the current fragment
 
 ### Fragment server
@@ -113,7 +113,7 @@ git clone https://github.com/zalando/tailor.git
 cd tailor
 
 # Install dependencies
-npm install
+yarn
 ```
 
 * Basic - `node examples/basic`
