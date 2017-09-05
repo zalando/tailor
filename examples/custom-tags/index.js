@@ -9,7 +9,7 @@ const Tailor = require('../../');
 const tailor = new Tailor({
     templatesPath: __dirname + '/templates',
     handledTags: ['switcher'],
-    handleTag: (request, options, context, tag) => {
+    handleTag: (request, tag, options, context) => {
         if (tag && tag.name === 'switcher') {
             const st = processTemplate(request, options, context);
 

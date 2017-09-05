@@ -10,10 +10,11 @@ const stream = require('stream');
 const processTemplate = require('../lib/process-template');
 const requestFragment = require('../lib/request-fragment')(require('../lib/filter-headers'));
 const AsyncStream = require('../lib/streams/async-stream');
+const parseTemplate = require('../lib/parse-template');
 
 describe('processTemplate', () => {
     let resultStream;
-    let context;
+    let options;
     let handleNestedTag;
 
     beforeEach(() => {
@@ -35,35 +36,36 @@ describe('processTemplate', () => {
             .get('/bad').reply(500, 'Internal Error')
             .get('/fallback').reply(200, '<FallbackFragment 2/>');
 
-        const parseTemplate = () => {
-            return [
-                { name: 'fragment', attributes: { id: 'r1', src: 'http://fragment/r1' } },
-                { name: 'fragment', attributes: { id: 'r2', src: 'http://fragment/r2' } }
-            ];
+
+        handleNestedTag = (request, tag, options, context) => {
+            if (tag && tag.name === 'nested-fragments') {
+                // Simulate fetching of some remote resource here
+                // TODO: who does the parsing???
+                const stream = processTemplate(request, options, context);
+                setTimeout(() => {
+                    const remoteEndpointResponse = `
+                    <fragment id="r1" src="http://fragment/r1" />
+                    <fragment id="r2" src="http://fragment/r2" />
+                    `;
+
+                    options.parseTemplate(remoteEndpointResponse, null, false).then(template => {
+                        template.forEach(parsedTag => {
+                            stream.write(parsedTag);
+                        });
+                        stream.end();
+                    });
+                }, 10);
+                return stream;
+            }
+
+            return Buffer.of('');
         };
 
-        handleNestedTag = (request, options, context) => {
-            // Simulate fetching of some remote resource here
-            // TODO: who does the parsing???
-            const stream = processTemplate(request, options, context);
-            setTimeout(() => {
-                // For now ignored :)
-                const remoteEndpointResponse = '<a/><b/><c/>';
-                // options are to control the flow — we don't need placeholders in nested templates
-                const template = parseTemplate(remoteEndpointResponse, { async: false, pipe: false });
-                template.forEach(parsedTag => {
-                    stream.write(parsedTag);
-                });
-                stream.end();
-            }, 10);
-            return stream;
-
-        };
-
-        context = {
+        options = {
             index: 0,
             maxAssetLinks: 3,
             fragmentTag: 'fragment',
+            parseTemplate: parseTemplate(['fragment', 'nested-fragments'], ['script']),
             pipeDefinition: (name) => Buffer.from(`<pipe id="${name}" />`),
             pipeAttributes: (attributes) => ({ id: attributes.id }),
             pipeInstanceName: 'TailorPipe',
@@ -71,7 +73,7 @@ describe('processTemplate', () => {
             handleTag: handleNestedTag,
             requestFragment: requestFragment
         };
-        resultStream = processTemplate(mockedRequest, context);
+        resultStream = processTemplate(mockedRequest, options, {});
     });
 
     it('returns a stream', () => {
@@ -87,14 +89,14 @@ describe('processTemplate', () => {
                 done();
             });
             resultStream.on('primary:found', () => {
-                context.asyncStream.end();
+                options.asyncStream.end();
             });
             resultStream.write({ placeholder: 'pipe' });
             resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
             resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
             // resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
             resultStream.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/primary' } });
-            resultStream.write({ name: 'content-broker' });
+            resultStream.write({ name: 'nested-fragments' });
             resultStream.write({ placeholder: 'async' });
             resultStream.end();
         });
@@ -108,7 +110,7 @@ describe('processTemplate', () => {
                 done();
             });
             resultStream.resume();
-            context.asyncStream.end();
+            options.asyncStream.end();
             resultStream.write({ placeholder: 'pipe' });
             resultStream.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/f2' } });
             resultStream.write({ placeholder: 'async' });
