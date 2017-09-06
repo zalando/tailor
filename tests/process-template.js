@@ -58,7 +58,7 @@ describe('processTemplate', () => {
                 return stream;
             }
 
-            return Buffer.of('');
+            return Buffer.from('');
         };
 
         let index = 0;
