@@ -140,10 +140,7 @@ describe('processTemplate', () => {
                 const r = new RegExp(`TailorPipe[.]start[(]${index}[,)].+${fragmentText}.+TailorPipe[.]end[(]${index}[,)]`, 'g');
                 const doesMatch = r.test(data);
                 let message = `No match for the fragmend(index: ${index}, text: ${fragmentText})`;
-                if (!doesMatch) {
-                    console.log(r, data);
-                }
-                return assert.equal(doesMatch, true, message);
+                assert.equal(doesMatch, true, message);
             }
 
             resultStream.on('data', (chunk) => {
