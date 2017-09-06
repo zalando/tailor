@@ -61,9 +61,11 @@ describe('processTemplate', () => {
             return Buffer.of('');
         };
 
+        let index = 0;
+
         options = {
-            index: 0,
             maxAssetLinks: 3,
+            nextIndex: () => ++index,
             fragmentTag: 'fragment',
             parseTemplate: parseTemplate(['fragment', 'nested-fragments'], ['script']),
             pipeDefinition: (name) => Buffer.from(`<pipe id="${name}" />`),
