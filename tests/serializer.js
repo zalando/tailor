@@ -6,15 +6,16 @@ const adapter = parse5.treeAdapters.htmlparser2;
 const CustomSerializer = require('../lib/serializer');
 
 describe('Serializer', () => {
-    const serializerOptions = {
+    const defaultOpts = {
         treeAdapter: adapter,
         slotMap: new Map(),
         pipeTags: ['script', 'fragment'],
         handleTags: ['x-tag', 'fragment', 'text/template']
     };
-    const getSerializer = (template) => {
+    const getSerializer = (template, fullRendering = true) => {
         const rootNode = parse5.parse(template, { treeAdapter: adapter });
-        return new CustomSerializer(rootNode, serializerOptions);
+        const serializerOpts = Object.assign({}, defaultOpts, { fullRendering });
+        return new CustomSerializer(rootNode, serializerOpts);
     };
 
     it('should output serialized buffer array', () => {
@@ -58,6 +59,15 @@ describe('Serializer', () => {
         assert.equal(serializedList[0].toString().trim(), '<html><head></head><body>');
         assert.deepEqual(serializedList[3], { placeholder: 'async' });
         assert.equal(serializedList[4].toString().trim(), '</body></html>');
+    });
+
+    it('should not insert palceholders for partial rendering', () => {
+        const template = '<script></script><x-tag></x-tag>';
+        const serializedList = getSerializer(template, false).serialize();
+        assert.equal(serializedList[0].toString(), '<html><head><script></script></head><body>');
+        assert.deepEqual(serializedList[1], { name: 'x-tag', attributes: {} });
+        assert.deepEqual(serializedList[2], { closingTag: 'x-tag' });
+        assert.equal(serializedList[3].toString(), '</body></html>');
     });
 
     it('should support script based custom tags for inserting in head', () => {

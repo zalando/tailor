@@ -13,6 +13,7 @@ const html = `
     <body>
         <h2>Fragment 1:</h2>
         <fragment primary src="http://localhost:8081"></fragment>
+        <switcher></switcher>
         <h2>Fragment 2:</h2>
         <fragment async src="http://localhost:8081"/></fragment>
     </body>
@@ -22,8 +23,24 @@ const parseTemplate = require('../lib/parse-template')(['fragment'], []);
 const requests = new WeakMap();
 const fragments = new WeakMap();
 const Tailor = require('../');
+const processTemplate = require('../lib/process-template');
+
+const handleTag = (request, tag, options, context) => {
+    if (tag && tag.name === 'switcher') {
+        const stream = processTemplate(request, options, context);
+        process.nextTick(() => {
+            stream.end({ name: 'fragment', attributes: { src: 'http://localhost:8081' } });
+        });
+        return stream;
+    }
+
+    return '';
+};
+
 const tailor = new Tailor({
-    fetchTemplate : () => Promise.resolve(html).then(parseTemplate)
+    fetchTemplate : () => Promise.resolve(html).then(parseTemplate),
+    handleTag,
+    handledTags: ['switcher']
 });
 
 const getMillisecs = (hrTime) => {

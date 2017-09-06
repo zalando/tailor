@@ -48,7 +48,7 @@ describe('Tailor', () => {
         },
         pipeInstanceName: 'p',
         pipeAttributes: (attributes) => ({ id: attributes.id }),
-        filterResponseHeaders: (attributes, headers) => headers
+        filterResponseHeaders: (attributes, headers) => headers,
     });
 
     beforeEach((done) => {
