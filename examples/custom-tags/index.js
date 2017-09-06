@@ -1,13 +1,14 @@
 'use strict';
 
 const http = require('http');
+const path = require('path');
 const url = require('url');
 const processTemplate = require('../../lib/process-template');
 
 const Tailor = require('../../');
 
 const tailor = new Tailor({
-    templatesPath: __dirname + '/templates',
+    templatesPath: path.join(__dirname, 'templates'),
     handledTags: ['switcher'],
     handleTag: (request, tag, options, context) => {
         if (tag && tag.name === 'switcher') {
@@ -28,10 +29,8 @@ const tailor = new Tailor({
                     });
                 });
             });
-
             return st;
         }
-
 
         return '';
     }
@@ -54,21 +53,22 @@ http.createServer((req, res) => {
 
     if (urlObj.pathname === '/switcher') {
         res.setHeader('Content-Type', 'text/html');
-        const currentNesting = parseInt(urlObj.query.nesting);
-        const finalSrc = urlObj.query.final_src;
+        const { nesting , final_src } = urlObj.query;
+        const currentNesting = parseInt(nesting);
 
         console.log('Request to switcher with nesting "%s"', currentNesting);
 
         if (currentNesting === 0) {
-            return res.end(`<fragment src="${finalSrc}"/>`);
+            return res.end(`<fragment src="${final_src}"/>`);
         } else {
-            return res.end(`<switcher nesting=${currentNesting - 1} final-src=${finalSrc} ></switcher>`);
+            return res.end(`
+                <div>Switcher ${currentNesting}</div>
+                <switcher nesting=${currentNesting - 1} final-src=${final_src} ></switcher>
+            `);
         }
     }
 
-    res.writeHead(200, {
-        'Content-Type': 'text/html',
-    });
+    res.writeHead(200, { 'Content-Type': 'text/html' });
 
     // fragment content
     const name = urlObj.query.name;
