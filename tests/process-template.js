@@ -118,10 +118,55 @@ describe('processTemplate', () => {
             resultStream.write({ placeholder: 'async' });
             resultStream.end();
         });
-        it('insert pipe definition in the beginning');
-        it('insert async results at the end');
-        it('uses updated context everytime custom tag handling is performed');
-        it('emits new context once done processing');
-        it('handles indexes correctly');
+        it('write async fragments to a separate stream', (done) => {
+            let data = '';
+            options.asyncStream.on('data', (chunk) => {
+                data += chunk.toString();
+            });
+
+            options.asyncStream.on('end', () => {
+                assert.equal(data, '<script data-pipe>TailorPipe.start(2)</script><NormalFragment 3/><script data-pipe>TailorPipe.end(2)</script>');
+                done();
+            });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: false, src: 'http://fragment/f2' } });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
+            resultStream.end();
+            options.asyncStream.end();
+        });
+        it('handles indexes correctly', (done) => {
+            let data = '';
+
+            function assertIndex(index, fragmentText) {
+                const r = new RegExp(`TailorPipe[.]start[(]${index}[,)].+${fragmentText}.+TailorPipe[.]end[(]${index}[,)]`, 'g');
+                const doesMatch = r.test(data);
+                let message = `No match for the fragmend(index: ${index}, text: ${fragmentText})`;
+                if (!doesMatch) {
+                    console.log(r, data);
+                }
+                return assert.equal(doesMatch, true, message);
+            }
+
+            resultStream.on('data', (chunk) => {
+                data += chunk.toString();
+            });
+            resultStream.on('end', () => {
+                assertIndex(1, 'NormalFragment\\s3');
+                assertIndex(2, 'NormalFragment\\s1');
+                assertIndex(3, 'Primary'); // nested fragments are handled with delay
+                assertIndex(4, 'RemoteFragment\\s1');
+                assertIndex(5, 'RemoteFragment\\s2');
+                done();
+            });
+            resultStream.on('primary:found', () => {
+                options.asyncStream.end();
+            });
+            resultStream.write({ placeholder: 'pipe' });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
+            resultStream.write({ name: 'nested-fragments' });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/primary' } });
+            resultStream.write({ placeholder: 'async' });
+            resultStream.end();
+        });
     });
 });
