@@ -90,32 +90,29 @@ describe('processTemplate', () => {
             resultStream.on('end', () => {
                 done();
             });
-            resultStream.on('primary:found', () => {
-                options.asyncStream.end();
+            resultStream.on('fragment:found', ({ attributes: { primary } }) => {
+                primary && options.asyncStream.end();
             });
             resultStream.write({ placeholder: 'pipe' });
             resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
             resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
-            // resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
             resultStream.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/primary' } });
             resultStream.write({ name: 'nested-fragments' });
             resultStream.write({ placeholder: 'async' });
             resultStream.end();
         });
 
-        it('notifies when its found in the template', (done) => {
-            const onPrimary = sinon.spy();
-
-            resultStream.on('primary:found', onPrimary);
+        it('notifies for every fragment found in the template', (done) => {
+            const onFragment = sinon.spy();
+            resultStream.on('fragment:found', onFragment);
             resultStream.on('end', () => {
-                assert.equal(onPrimary.callCount, 1);
+                assert.equal(onFragment.callCount, 3);
                 done();
             });
             resultStream.resume();
-            options.asyncStream.end();
-            resultStream.write({ placeholder: 'pipe' });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
+            resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
             resultStream.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/f2' } });
-            resultStream.write({ placeholder: 'async' });
             resultStream.end();
         });
         it('write async fragments to a separate stream', (done) => {
@@ -154,8 +151,8 @@ describe('processTemplate', () => {
                 assertIndex(5, 'RemoteFragment\\s2');
                 done();
             });
-            resultStream.on('primary:found', () => {
-                options.asyncStream.end();
+            resultStream.on('fragment:found', ({ attributes: { primary } }) => {
+                primary && options.asyncStream.end();
             });
             resultStream.write({ placeholder: 'pipe' });
             resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
