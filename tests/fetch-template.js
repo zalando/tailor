@@ -39,7 +39,7 @@ describe('fetch-template', () => {
                 });
         });
 
-        it('should throw error on wrong file path', () => {
+        it('should throw TEMPLATE_NOT_FOUND error on wrong file path', () => {
             const wrongTemplatePath = path.join(templatePath, 'wrong-template.html');
             return fetchTemplate(wrongTemplatePath)(mockRequest, mockParseTemplate)
                 .catch(err => {
@@ -72,9 +72,9 @@ describe('fetch-template', () => {
                 });
         });
 
-        it('should throw TEMPLATE_NOT_FOUND error for not present template', () => {
-
-            return fetchTemplate('templates')(mockRequest, mockParseTemplate)
+        it('should throw TEMPLATE_NOT_FOUND error for wrong template path', () => {
+            const request = { url : 'http://localhost:8080/unknown' };
+            return fetchTemplate(templatePath)(request, mockParseTemplate)
                 .catch(err => {
                     assert(err.code, 1);
                     assert(err.presentable, 'template not found');
