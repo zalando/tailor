@@ -11,24 +11,28 @@ function getTemplate(template, specialTags, pipeBeforeTags) {
 }
 
 describe('Stringifier Stream', () => {
-
     it('should stream the content from a fragment tag', () => {
         let st = new PassThrough();
-        const templatePromise = getTemplate('<fragment title="mock"></fragment>');
+        const templatePromise = getTemplate(
+            '<fragment title="mock"></fragment>'
+        );
         templatePromise.then(nodes => {
             let data = '';
-            const stream = new StringifierStream((tag) => {
+            const stream = new StringifierStream(tag => {
                 if (tag && tag.name) {
                     assert.deepEqual(tag.attributes, { title: 'mock' });
                     return st;
                 }
                 return '';
             });
-            stream.on('data', (chunk) => {
+            stream.on('data', chunk => {
                 data += chunk;
             });
             stream.on('end', () => {
-                assert.equal(data, '<html><head></head><body>mock</body></html>');
+                assert.equal(
+                    data,
+                    '<html><head></head><body>mock</body></html>'
+                );
                 done();
             });
             nodes.forEach(node => stream.write(node));
@@ -37,18 +41,20 @@ describe('Stringifier Stream', () => {
         });
     });
 
-    it('should consume stream asynchronously', (done) => {
-        const templatePromise = getTemplate('<fragment id="1"></fragment><fragment id="2"></fragment>');
-        templatePromise.then((nodes) => {
+    it('should consume stream asynchronously', done => {
+        const templatePromise = getTemplate(
+            '<fragment id="1"></fragment><fragment id="2"></fragment>'
+        );
+        templatePromise.then(nodes => {
             let data = '';
             let streams = [new PassThrough(), new PassThrough()];
-            const stream = new StringifierStream((tag) => {
+            const stream = new StringifierStream(tag => {
                 if (tag && tag.name) {
                     return streams[tag.attributes.id - 1];
                 }
                 return '';
             });
-            stream.on('data', (chunk) => {
+            stream.on('data', chunk => {
                 data += chunk;
             });
             stream.on('end', () => {
@@ -64,10 +70,10 @@ describe('Stringifier Stream', () => {
         });
     });
 
-    it('should emit an error if a fragment is not handled', (done) => {
-        getTemplate('<fragment>').then((nodes) => {
+    it('should emit an error if a fragment is not handled', done => {
+        getTemplate('<fragment>').then(nodes => {
             let stream = new StringifierStream();
-            stream.on('error', (error) => {
+            stream.on('error', error => {
                 assert(error instanceof Error);
                 done();
             });
@@ -76,15 +82,15 @@ describe('Stringifier Stream', () => {
         });
     });
 
-    it('should re-emit errors from fragment streams', (done) => {
-        getTemplate('<fragment>').then((nodes) => {
+    it('should re-emit errors from fragment streams', done => {
+        getTemplate('<fragment>').then(nodes => {
             let st = new PassThrough();
-            let stream = new StringifierStream((tag) => {
+            let stream = new StringifierStream(tag => {
                 if (tag) {
                     return st;
                 }
             });
-            stream.on('error', (error) => {
+            stream.on('error', error => {
                 assert.equal(error.message, 'sorry!');
                 done();
             });
@@ -94,5 +100,4 @@ describe('Stringifier Stream', () => {
             st.end('data');
         });
     });
-
 });

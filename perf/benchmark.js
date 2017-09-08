@@ -29,7 +29,10 @@ const handleTag = (request, tag, options, context) => {
     if (tag && tag.name === 'switcher') {
         const stream = processTemplate(request, options, context);
         process.nextTick(() => {
-            stream.end({ name: 'fragment', attributes: { src: 'http://localhost:8081' } });
+            stream.end({
+                name: 'fragment',
+                attributes: { src: 'http://localhost:8081' }
+            });
         });
         return stream;
     }
@@ -38,12 +41,12 @@ const handleTag = (request, tag, options, context) => {
 };
 
 const tailor = new Tailor({
-    fetchTemplate : () => Promise.resolve(html).then(parseTemplate),
+    fetchTemplate: () => Promise.resolve(html).then(parseTemplate),
     handleTag,
     handledTags: ['switcher']
 });
 
-const getMillisecs = (hrTime) => {
+const getMillisecs = hrTime => {
     // [seconds, nanoseconds]
     return hrTime && hrTime[0] * 1e3 + hrTime[1] / 1e6;
 };
@@ -55,11 +58,11 @@ const updateTailorOverhead = (headersTime, primaryOverhead) => {
 
 let primaryOverhead = 0;
 // Tailor Events to collect Metrics
-tailor.on('start', (request) => {
+tailor.on('start', request => {
     requests.set(request, process.hrtime());
 });
 
-tailor.on('response', (request) => {
+tailor.on('response', request => {
     if (primaryOverhead > 0 && requests.has(request)) {
         const startTime = requests.get(request);
         const timeToHeaders = getMillisecs(process.hrtime(startTime));
@@ -92,13 +95,16 @@ const server = http.createServer(tailor.requestHandler);
 server.listen(8080);
 
 //Mock fragment server
-const fragment = spawn('node' ,['perf/fragment-server.js']);
+const fragment = spawn('node', ['perf/fragment-server.js']);
 // Load testing
-const worker = spawn('node' ,['perf/loadtest.js']);
+const worker = spawn('node', ['perf/loadtest.js']);
 worker.stdout.pipe(process.stdout);
 
 worker.on('close', () => {
-    console.log('Tailor Overhead Metrics', JSON.stringify(histogram.printObj(), null, 2));
+    console.log(
+        'Tailor Overhead Metrics',
+        JSON.stringify(histogram.printObj(), null, 2)
+    );
     fragment.kill();
     worker.kill();
     process.exit(0);

@@ -4,9 +4,8 @@ const ContentLengthStream = require('../../lib/streams/content-length-stream');
 const Transform = require('stream').Transform;
 
 describe('ContentLengthStream', () => {
-
-    it('calculates content length and calls callback with the result', (done) => {
-        const st = new ContentLengthStream((contentLength) => {
+    it('calculates content length and calls callback with the result', done => {
+        const st = new ContentLengthStream(contentLength => {
             assert(contentLength, 'foobar'.length);
             done();
         });
@@ -19,14 +18,13 @@ describe('ContentLengthStream', () => {
         assert(st instanceof Transform);
     });
 
-    it('passes through data chunks', (done) => {
+    it('passes through data chunks', done => {
         const chunk = Buffer.from('foo');
         const st = new ContentLengthStream(() => {});
-        st.on('data', (data) => {
+        st.on('data', data => {
             assert.equal(data, chunk);
             done();
         });
         st.write(chunk);
     });
-
 });

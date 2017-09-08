@@ -15,12 +15,16 @@ const defineFn = (module, fragmentName) => {
     })`;
 };
 
-module.exports = (fragmentName, fragmentUrl, modules = 1) => (request, response) => {
+module.exports = (fragmentName, fragmentUrl, modules = 1) => (
+    request,
+    response
+) => {
     const pathname = url.parse(request.url).pathname;
     const moduleLinks = [];
 
-    for (var i=0; i<modules; i++) {
-        moduleLinks[i] = `<${fragmentUrl}/module-${i+1}.js>; rel="fragment-script"`;
+    for (var i = 0; i < modules; i++) {
+        moduleLinks[i] = `<${fragmentUrl}/module-${i +
+            1}.js>; rel="fragment-script"`;
     }
 
     switch (pathname) {
@@ -54,7 +58,9 @@ module.exports = (fragmentName, fragmentUrl, modules = 1) => (request, response)
         default:
             // serve fragment's body
             response.writeHead(200, {
-                'Link': `<${fragmentUrl}/fragment.css>; rel="stylesheet",${moduleLinks.join(',')}`,
+                Link: `<${fragmentUrl}/fragment.css>; rel="stylesheet",${moduleLinks.join(
+                    ','
+                )}`,
                 'Content-Type': 'text/html'
             });
             response.end(`
@@ -62,6 +68,5 @@ module.exports = (fragmentName, fragmentUrl, modules = 1) => (request, response)
                     Fragment ${fragmentName}
                 </div>
             `);
-
     }
 };

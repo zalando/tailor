@@ -1,4 +1,4 @@
-(function (doc, perf) { //eslint-disable-line no-unused-vars, strict
+(function(doc, perf) { //eslint-disable-line no-unused-vars, strict, prettier/prettier
     var placeholders = {};
     var starts = {};
     var scripts = doc.getElementsByTagName('script');
@@ -13,7 +13,7 @@
         onDone: noop
     };
 
-    function currentScript () {
+    function currentScript() {
         var script;
         for (var s = scripts.length - 1; s >= 0; s--) {
             script = scripts[s];
@@ -39,17 +39,17 @@
 
     // OnDone will be called once the document is completed parsed and there are no other fragments getting streamed.
     function fireDone() {
-        if (initState.length === 0
-            && doc.readyState
-            && (doc.readyState === 'complete'
-            || doc.readyState === 'interactive') ) {
+        if (
+            initState.length === 0 &&
+            doc.readyState &&
+            (doc.readyState === 'complete' || doc.readyState === 'interactive')
+        ) {
             hooks.onDone();
         }
     }
 
     function isPromise(obj) {
-        return typeof obj === 'object'
-            && typeof obj.then === 'function';
+        return typeof obj === 'object' && typeof obj.then === 'function';
     }
 
     function doInit(init, node, attributes, index) {
@@ -93,20 +93,21 @@
         }
         start.parentNode.removeChild(start);
         end.parentNode.removeChild(end);
-        script && require([script], function (i) {
-            // Exported AMD fragment initialization Function/Promise
-            var init = i && i.__esModule ? i.default : i;
-            // early return & calling hooks for performance measurements
-            if (typeof init !== 'function') {
-                initState.pop();
-                hooks.onBeforeInit(attributes, index);
-                hooks.onAfterInit(attributes, index);
-                fireDone();
-                return;
-            }
-            // Initialize the fragment on the DOM node
-            doInit(init, node, attributes, index);
-        });
+        script &&
+            require([script], function(i) {
+                // Exported AMD fragment initialization Function/Promise
+                var init = i && i.__esModule ? i.default : i;
+                // early return & calling hooks for performance measurements
+                if (typeof init !== 'function') {
+                    initState.pop();
+                    hooks.onBeforeInit(attributes, index);
+                    hooks.onAfterInit(attributes, index);
+                    fireDone();
+                    return;
+                }
+                // Initialize the fragment on the DOM node
+                doInit(init, node, attributes, index);
+            });
     }
     /* @preserve - loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
     function loadCSS(href) {
@@ -122,12 +123,12 @@
         ss.media = 'only x';
 
         // wait until body is defined before injecting link. This ensures a non-blocking load in IE11.
-        function ready (cb) {
+        function ready(cb) {
             if (doc.body) {
                 return cb();
             }
             setTimeout(function() {
-                ready( cb );
+                ready(cb);
             });
         }
         // Inject link
@@ -136,7 +137,7 @@
             ref.parentNode.insertBefore(ss, ref.nextSibling);
         });
         // A method (exposed on return object for external use) that mimics onload by polling until document.styleSheets until it includes the new sheet.
-        var onloadcssdefined = function (cb) {
+        var onloadcssdefined = function(cb) {
             var resolvedHref = ss.href;
             var i = sheets.length;
             while (i--) {
@@ -150,7 +151,7 @@
         };
         function loadCB() {
             if (ss.addEventListener) {
-                ss.removeEventListener('load', loadCB );
+                ss.removeEventListener('load', loadCB);
             }
             ss.media = 'all';
         }
@@ -163,7 +164,7 @@
         return ss;
     }
 
-    function assignHook (hookName) {
+    function assignHook(hookName) {
         return function(cb) {
             hooks[hookName] = cb;
         };

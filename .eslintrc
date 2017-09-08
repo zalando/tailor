@@ -4,11 +4,11 @@
         "es6": true,
         "node": true
     },
+    "plugins": [
+        "prettier"
+    ],
     "rules": {
-        "brace-style": [2, "1tbs"],
-        "comma-style": [2, "last"],
         "curly": 2,
-        "indent": [2, 4, { "SwitchCase": 1 }],
         "no-underscore-dangle": 0,
         "no-constant-condition": 2,
         "no-dupe-args": 2,
@@ -17,15 +17,14 @@
         "no-empty": 2,
         "no-empty-character-class": 2,
         "no-eval": 2,
-        "no-multi-spaces": 2,
         "no-unused-vars": 2,
         "no-lonely-if": 2,
-        "object-curly-spacing": [2, "always"],
         "quotes": [2, "single"],
-        "semi": [2, "always"],
-        "keyword-spacing": [2],
-        "space-before-blocks": [2, "always"],
-        "strict": [2, "global"]
+        "strict": [2, "global"],
+        "prettier/prettier": [2, {
+            "singleQuote": true,
+            "tabWidth": 4
+        }]
     },
     "globals": {
         "require": false,

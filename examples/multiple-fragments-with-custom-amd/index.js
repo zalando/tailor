@@ -9,11 +9,14 @@ const AMD_LOADER = 'file://' + require.resolve('iamdee');
 const tailor = new Tailor({
     amdLoaderUrl: AMD_LOADER,
     maxAssetLinks: 2,
-    fetchTemplate: fetchTemplateFs(path.join(__dirname, 'templates'), baseTemplateFn)
+    fetchTemplate: fetchTemplateFs(
+        path.join(__dirname, 'templates'),
+        baseTemplateFn
+    )
 });
 const server = http.createServer((req, res) => {
     if (req.url === '/favicon.ico') {
-        res.writeHead(200, { 'Content-Type': 'image/x-icon' } );
+        res.writeHead(200, { 'Content-Type': 'image/x-icon' });
         return res.end('');
     }
     return tailor.requestHandler(req, res);
