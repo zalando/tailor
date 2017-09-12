@@ -18,20 +18,22 @@ const tailor = new Tailor({
 const assert = require('assert');
 const asserters = wd.asserters;
 
-const PLATFORMS = [{
-    browserName: 'internet explorer',
-    version: '10.0'
-},{
-    browserName: 'chrome'
-}];
+const PLATFORMS = [
+    {
+        browserName: 'internet explorer',
+        version: '10.0'
+    },
+    {
+        browserName: 'chrome'
+    }
+];
 
-describe('Frontend test', function () {
-
+describe('Frontend test', function() {
     this.timeout(100000);
 
     let server, fragment1, fragment2, fragment3;
 
-    function testOnPlatform (platform, callback) {
+    function testOnPlatform(platform, callback) {
         const browser = wd.promiseChainRemote(
             'ondemand.saucelabs.com',
             80,
@@ -39,9 +41,14 @@ describe('Frontend test', function () {
             SAUCE_ACCESS_KEY
         );
         return callback(
-            browser.init(Object.assign({
-                'tunnel-identifier': TUNNEL_ID
-            }, platform))
+            browser.init(
+                Object.assign(
+                    {
+                        'tunnel-identifier': TUNNEL_ID
+                    },
+                    platform
+                )
+            )
         )
             .then(() => browser.quit())
             .then(
@@ -51,10 +58,13 @@ describe('Frontend test', function () {
     }
 
     function logForFragment(id) {
-        const result = 'fragment-' + id +' hooks: ';
+        const result = 'fragment-' + id + ' hooks: ';
         switch (id) {
             case '0':
-                return result + 'onStart-0,onStart-1,onBeforeInit-0,onAfterInit-0,onBeforeInit-1,onAfterInit-1;';
+                return (
+                    result +
+                    'onStart-0,onStart-1,onBeforeInit-0,onAfterInit-0,onBeforeInit-1,onAfterInit-1;'
+                );
             case '1':
                 return result + 'onStart-2,onBeforeInit-2,onAfterInit-2;';
             case '2':
@@ -64,9 +74,15 @@ describe('Frontend test', function () {
 
     before(() => {
         server = http.createServer(tailor.requestHandler);
-        fragment1 = http.createServer(fragment('fragment1', 'http://localhost:8081'));
-        fragment2 = http.createServer(fragment('fragment2', 'http://localhost:8082'));
-        fragment3 = http.createServer(fragment('fragment3', 'http://localhost:8083'));
+        fragment1 = http.createServer(
+            fragment('fragment1', 'http://localhost:8081')
+        );
+        fragment2 = http.createServer(
+            fragment('fragment2', 'http://localhost:8082')
+        );
+        fragment3 = http.createServer(
+            fragment('fragment3', 'http://localhost:8083')
+        );
         return Promise.all([
             server.listen(8080),
             fragment1.listen(8081),
@@ -84,26 +100,64 @@ describe('Frontend test', function () {
         ]);
     });
 
-    PLATFORMS.forEach((platform) => {
-        it('should open the page and initialise three fragments, each requiring two scripts in ' + platform.browserName, () => {
-            return testOnPlatform(platform, (browser) => {
-                return browser
-                    .get('http://localhost:8080/index')
-                    .title()
-                    .then((title) => {
-                        assert.equal(title, 'Test Page', 'Test page is not loaded');
-                    })
-                    .waitForElementByCss('.fragment-fragment1-js1', asserters.textInclude('js1'), 2000)
-                    .waitForElementByCss('.fragment-fragment2-js1', asserters.textInclude('js1'), 2000)
-                    .waitForElementByCss('.fragment-fragment3-js1', asserters.textInclude('js1'), 2000)
-                    .waitForElementByCss('.fragment-fragment3-js2', asserters.textInclude('js2'), 2000)
-                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForFragment('0')), 2000)
-                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForFragment('1')), 2000)
-                    .waitForElementByCss('.logs.all-done', asserters.textInclude(logForFragment('2')), 2000)
-                    .waitForElementByCss('.logs.all-done', asserters.textInclude('common hooks: onDone;'), 2000);
-
-            });
-        });
+    PLATFORMS.forEach(platform => {
+        it(
+            'should open the page and initialise three fragments, each requiring two scripts in ' +
+                platform.browserName,
+            () => {
+                return testOnPlatform(platform, browser => {
+                    return browser
+                        .get('http://localhost:8080/index')
+                        .title()
+                        .then(title => {
+                            assert.equal(
+                                title,
+                                'Test Page',
+                                'Test page is not loaded'
+                            );
+                        })
+                        .waitForElementByCss(
+                            '.fragment-fragment1-js1',
+                            asserters.textInclude('js1'),
+                            2000
+                        )
+                        .waitForElementByCss(
+                            '.fragment-fragment2-js1',
+                            asserters.textInclude('js1'),
+                            2000
+                        )
+                        .waitForElementByCss(
+                            '.fragment-fragment3-js1',
+                            asserters.textInclude('js1'),
+                            2000
+                        )
+                        .waitForElementByCss(
+                            '.fragment-fragment3-js2',
+                            asserters.textInclude('js2'),
+                            2000
+                        )
+                        .waitForElementByCss(
+                            '.logs.all-done',
+                            asserters.textInclude(logForFragment('0')),
+                            2000
+                        )
+                        .waitForElementByCss(
+                            '.logs.all-done',
+                            asserters.textInclude(logForFragment('1')),
+                            2000
+                        )
+                        .waitForElementByCss(
+                            '.logs.all-done',
+                            asserters.textInclude(logForFragment('2')),
+                            2000
+                        )
+                        .waitForElementByCss(
+                            '.logs.all-done',
+                            asserters.textInclude('common hooks: onDone;'),
+                            2000
+                        );
+                });
+            }
+        );
     });
-
 });

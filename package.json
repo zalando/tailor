@@ -40,6 +40,7 @@
   "devDependencies": {
     "codecov": "^2.2.0",
     "eslint": "^4.0.0",
+    "eslint-plugin-prettier": "^2.2.0",
     "iamdee": "^0.4.0",
     "istanbul": "^0.4.1",
     "lazypipe": "^1.0.1",
@@ -48,6 +49,7 @@
     "mocha": "^3.4.2",
     "nock": "^9.0.13",
     "pre-commit": "^1.2.2",
+    "prettier": "^1.6.1",
     "proxyquire": "^1.8.0",
     "sinon": "^2.3.4",
     "uglify-js": "^3.0.18",

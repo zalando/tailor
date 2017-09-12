@@ -8,11 +8,14 @@ const fetchTemplate = require('./lib/fetch-template');
 const parseTemplate = require('./lib/parse-template');
 const requestFragment = require('./lib/request-fragment');
 const filterReqHeadersFn = require('./lib/filter-headers');
-const PIPE_DEFINITION = fs.readFileSync(path.resolve(__dirname, 'src/pipe.min.js'));
-const AMD_LOADER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js';
+const PIPE_DEFINITION = fs.readFileSync(
+    path.resolve(__dirname, 'src/pipe.min.js')
+);
+const AMD_LOADER_URL =
+    'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js';
 
-const stripUrl = (fileUrl) => path.normalize(fileUrl.replace('file://', ''));
-const getPipeAttributes = (attributes) => {
+const stripUrl = fileUrl => path.normalize(fileUrl.replace('file://', ''));
+const getPipeAttributes = attributes => {
     const { primary, id } = attributes;
     return {
         primary: !!(primary || primary === ''),
@@ -21,46 +24,54 @@ const getPipeAttributes = (attributes) => {
 };
 
 module.exports = class Tailor extends EventEmitter {
-
-    constructor (options) {
+    constructor(options) {
         super();
         const {
             amdLoaderUrl = AMD_LOADER_URL,
             filterRequestHeaders = options.filterHeaders || filterReqHeadersFn,
             maxAssetLinks,
-            templatesPath,
+            templatesPath
         } = options;
 
-        options.maxAssetLinks = isNaN(maxAssetLinks) ? 1 : Math.max(1, maxAssetLinks);
+        options.maxAssetLinks = isNaN(maxAssetLinks)
+            ? 1
+            : Math.max(1, maxAssetLinks);
 
         let memoizedDefinition;
         const pipeChunk = (amdLoaderUrl, pipeInstanceName) => {
             if (!memoizedDefinition) {
                 // Allow reading from fs for inlining AMD
                 if (amdLoaderUrl.startsWith('file://')) {
-                    let fileData = fs.readFileSync(stripUrl(amdLoaderUrl), 'utf-8');
+                    let fileData = fs.readFileSync(
+                        stripUrl(amdLoaderUrl),
+                        'utf-8'
+                    );
                     memoizedDefinition = `<script>${fileData}\n`;
                 } else {
                     memoizedDefinition = `<script src="${amdLoaderUrl}"></script>\n<script>`;
                 }
             }
-            return Buffer.from(`${memoizedDefinition}var ${pipeInstanceName}=${PIPE_DEFINITION}</script>\n`);
+            return Buffer.from(
+                `${memoizedDefinition}var ${pipeInstanceName}=${PIPE_DEFINITION}</script>\n`
+            );
         };
 
-        const requestOptions = Object.assign({
-            fetchContext: () => Promise.resolve({}),
-            fetchTemplate: fetchTemplate(
-                templatesPath ||
-                path.join(process.cwd(), 'templates')
-            ),
-            fragmentTag: 'fragment',
-            handledTags: [],
-            handleTag: () => '',
-            requestFragment: requestFragment(filterRequestHeaders),
-            pipeInstanceName: 'Pipe',
-            pipeDefinition: pipeChunk.bind(null, amdLoaderUrl),
-            pipeAttributes: getPipeAttributes
-        }, options);
+        const requestOptions = Object.assign(
+            {
+                fetchContext: () => Promise.resolve({}),
+                fetchTemplate: fetchTemplate(
+                    templatesPath || path.join(process.cwd(), 'templates')
+                ),
+                fragmentTag: 'fragment',
+                handledTags: [],
+                handleTag: () => '',
+                requestFragment: requestFragment(filterRequestHeaders),
+                pipeInstanceName: 'Pipe',
+                pipeDefinition: pipeChunk.bind(null, amdLoaderUrl),
+                pipeAttributes: getPipeAttributes
+            },
+            options
+        );
 
         requestOptions.parseTemplate = parseTemplate(
             [requestOptions.fragmentTag].concat(requestOptions.handledTags),
@@ -71,5 +82,4 @@ module.exports = class Tailor extends EventEmitter {
         // To Prevent from exiting the process - https://nodejs.org/api/events.html#events_error_events
         this.on('error', () => {});
     }
-
 };

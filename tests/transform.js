@@ -81,5 +81,4 @@ describe('Transform', () => {
         assert.equal(options.pipeTags, pipeTags);
         assert.equal(options.handleTags, handleTags);
     });
-
 });

@@ -8,7 +8,9 @@ const sinon = require('sinon');
 const stream = require('stream');
 
 const processTemplate = require('../lib/process-template');
-const requestFragment = require('../lib/request-fragment')(require('../lib/filter-headers'));
+const requestFragment = require('../lib/request-fragment')(
+    require('../lib/filter-headers')
+);
 const AsyncStream = require('../lib/streams/async-stream');
 const parseTemplate = require('../lib/parse-template');
 
@@ -24,18 +26,26 @@ describe('processTemplate', () => {
         };
 
         nock('http://fragment')
-            .get('/f1').reply(200, '<NormalFragment 1/>', {
-                'Link': '<http://link1>; rel="fragment-script", <http://link2>; rel="fragment-script", <http://link3>; rel="fragment-script",' +
-                '<http://link4>; rel="fragment-script", <http://link5>; rel="fragment-script", <http://link6>; rel="fragment-script"'
+            .get('/f1')
+            .reply(200, '<NormalFragment 1/>', {
+                Link:
+                    '<http://link1>; rel="fragment-script", <http://link2>; rel="fragment-script", <http://link3>; rel="fragment-script",' +
+                    '<http://link4>; rel="fragment-script", <http://link5>; rel="fragment-script", <http://link6>; rel="fragment-script"'
             })
-            .get('/f2').reply(200, '<NormalFragment 2/>')
-            .get('/f3').reply(200, '<NormalFragment 3/>')
-            .get('/r1').reply(200, '<RemoteFragment 1/>')
-            .get('/r2').reply(200, '<RemoteFragment 2/>')
-            .get('/primary').reply(200, '<Primary/>')
-            .get('/bad').reply(500, 'Internal Error')
-            .get('/fallback').reply(200, '<FallbackFragment 2/>');
-
+            .get('/f2')
+            .reply(200, '<NormalFragment 2/>')
+            .get('/f3')
+            .reply(200, '<NormalFragment 3/>')
+            .get('/r1')
+            .reply(200, '<RemoteFragment 1/>')
+            .get('/r2')
+            .reply(200, '<RemoteFragment 2/>')
+            .get('/primary')
+            .reply(200, '<Primary/>')
+            .get('/bad')
+            .reply(500, 'Internal Error')
+            .get('/fallback')
+            .reply(200, '<FallbackFragment 2/>');
 
         handleNestedTag = (request, tag, options, context) => {
             if (tag && tag.name === 'nested-fragments') {
@@ -48,12 +58,14 @@ describe('processTemplate', () => {
                     <fragment id="r2" src="http://fragment/r2" />
                     `;
 
-                    options.parseTemplate(remoteEndpointResponse, null, false).then(template => {
-                        template.forEach(parsedTag => {
-                            stream.write(parsedTag);
+                    options
+                        .parseTemplate(remoteEndpointResponse, null, false)
+                        .then(template => {
+                            template.forEach(parsedTag => {
+                                stream.write(parsedTag);
+                            });
+                            stream.end();
                         });
-                        stream.end();
-                    });
                 }, 10);
                 return stream;
             }
@@ -67,9 +79,12 @@ describe('processTemplate', () => {
             maxAssetLinks: 3,
             nextIndex: () => ++index,
             fragmentTag: 'fragment',
-            parseTemplate: parseTemplate(['fragment', 'nested-fragments'], ['script']),
-            pipeDefinition: (name) => Buffer.from(`<pipe id="${name}" />`),
-            pipeAttributes: (attributes) => ({ id: attributes.id }),
+            parseTemplate: parseTemplate(
+                ['fragment', 'nested-fragments'],
+                ['script']
+            ),
+            pipeDefinition: name => Buffer.from(`<pipe id="${name}" />`),
+            pipeAttributes: attributes => ({ id: attributes.id }),
             pipeInstanceName: 'TailorPipe',
             asyncStream: new AsyncStream(),
             handleTag: handleNestedTag,
@@ -83,7 +98,7 @@ describe('processTemplate', () => {
     });
 
     describe('result stream', () => {
-        it('produces buffers as result', (done) => {
+        it('produces buffers as result', done => {
             resultStream.on('data', chunk => {
                 assert(chunk instanceof Buffer);
             });
@@ -94,15 +109,28 @@ describe('processTemplate', () => {
                 primary && options.asyncStream.end();
             });
             resultStream.write({ placeholder: 'pipe' });
-            resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
-            resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
-            resultStream.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/primary' } });
+            resultStream.write({
+                name: 'fragment',
+                attributes: { id: 'f3', async: true, src: 'http://fragment/f3' }
+            });
+            resultStream.write({
+                name: 'fragment',
+                attributes: { id: 'f1', src: 'http://fragment/f1' }
+            });
+            resultStream.write({
+                name: 'fragment',
+                attributes: {
+                    id: 'f2',
+                    primary: true,
+                    src: 'http://fragment/primary'
+                }
+            });
             resultStream.write({ name: 'nested-fragments' });
             resultStream.write({ placeholder: 'async' });
             resultStream.end();
         });
 
-        it('notifies for every fragment found in the template', (done) => {
+        it('notifies for every fragment found in the template', done => {
             const onFragment = sinon.spy();
             resultStream.on('fragment:found', onFragment);
             resultStream.on('end', () => {
@@ -110,37 +138,66 @@ describe('processTemplate', () => {
                 done();
             });
             resultStream.resume();
-            resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
-            resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
-            resultStream.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/f2' } });
+            resultStream.write({
+                name: 'fragment',
+                attributes: { id: 'f3', async: true, src: 'http://fragment/f3' }
+            });
+            resultStream.write({
+                name: 'fragment',
+                attributes: { id: 'f1', src: 'http://fragment/f1' }
+            });
+            resultStream.write({
+                name: 'fragment',
+                attributes: {
+                    id: 'f2',
+                    primary: true,
+                    src: 'http://fragment/f2'
+                }
+            });
             resultStream.end();
         });
-        it('write async fragments to a separate stream', (done) => {
+        it('write async fragments to a separate stream', done => {
             let data = '';
-            options.asyncStream.on('data', (chunk) => {
+            options.asyncStream.on('data', chunk => {
                 data += chunk.toString();
             });
 
             options.asyncStream.on('end', () => {
-                assert.equal(data, '<script data-pipe>TailorPipe.start(2)</script><NormalFragment 3/><script data-pipe>TailorPipe.end(2)</script>');
+                assert.equal(
+                    data,
+                    '<script data-pipe>TailorPipe.start(2)</script><NormalFragment 3/><script data-pipe>TailorPipe.end(2)</script>'
+                );
                 done();
             });
-            resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: false, src: 'http://fragment/f2' } });
-            resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
+            resultStream.write({
+                name: 'fragment',
+                attributes: {
+                    id: 'f3',
+                    async: false,
+                    src: 'http://fragment/f2'
+                }
+            });
+            resultStream.write({
+                name: 'fragment',
+                attributes: { id: 'f3', async: true, src: 'http://fragment/f3' }
+            });
             resultStream.end();
             options.asyncStream.end();
         });
-        it('handles indexes correctly', (done) => {
+        it('handles indexes correctly', done => {
             let data = '';
 
             function assertIndex(index, fragmentText) {
-                const r = new RegExp(`TailorPipe[.]start[(]${index}[,)].+${fragmentText}.+TailorPipe[.]end[(]${index}[,)]`, 'g');
+                const r = new RegExp(
+                    `TailorPipe[.]start[(]${index}[,)].+${fragmentText}.+TailorPipe[.]end[(]${index}[,)]`,
+                    'g'
+                );
                 const doesMatch = r.test(data);
                 let message = `No match for the fragmend(index: ${index}, text: ${fragmentText})`;
                 assert.equal(doesMatch, true, message);
             }
 
-            resultStream.on('data', (chunk) => {
+            resultStream.on('data', chunk => {
                 data += chunk.toString();
             });
             resultStream.on('end', () => {
@@ -155,10 +212,23 @@ describe('processTemplate', () => {
                 primary && options.asyncStream.end();
             });
             resultStream.write({ placeholder: 'pipe' });
-            resultStream.write({ name: 'fragment', attributes: { id: 'f3', async: true, src: 'http://fragment/f3' } });
-            resultStream.write({ name: 'fragment', attributes: { id: 'f1', src: 'http://fragment/f1' } });
+            resultStream.write({
+                name: 'fragment',
+                attributes: { id: 'f3', async: true, src: 'http://fragment/f3' }
+            });
+            resultStream.write({
+                name: 'fragment',
+                attributes: { id: 'f1', src: 'http://fragment/f1' }
+            });
             resultStream.write({ name: 'nested-fragments' });
-            resultStream.write({ name: 'fragment', attributes: { id: 'f2', primary: true, src: 'http://fragment/primary' } });
+            resultStream.write({
+                name: 'fragment',
+                attributes: {
+                    id: 'f2',
+                    primary: true,
+                    src: 'http://fragment/primary'
+                }
+            });
             resultStream.write({ placeholder: 'async' });
             resultStream.end();
         });
