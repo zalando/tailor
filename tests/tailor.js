@@ -196,7 +196,10 @@ describe('Tailor', () => {
                 .get('/1')
                 .reply(200, 'hello', { 'Set-Cookie': 'wrong' })
                 .get('/2')
-                .reply(200, 'world', { 'Set-Cookie': cookie })
+                .reply(200, 'world', {
+                    'Set-Cookie': cookie,
+                    link: 'http://link'
+                })
                 .get('/3')
                 .reply(201);
 
@@ -210,6 +213,7 @@ describe('Tailor', () => {
                 .then(response => {
                     assert.equal(response.statusCode, 200);
                     assert.deepEqual(response.headers['set-cookie'], [cookie]);
+                    assert.equal(response.headers.link, 'http://link');
                 })
                 .then(done, done);
         });

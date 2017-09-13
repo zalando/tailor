@@ -28,6 +28,8 @@ describe('Serializer', () => {
 
     it('should insert pipe placeholder before first tag from pipeBefore tags', () => {
         const template = `
+            <!DOCTYPE html>
+            <!--comment-->
             <html>
                 <head>
                     <script></script>
@@ -36,7 +38,10 @@ describe('Serializer', () => {
             </html>
         `;
         const serializedList = getSerializer(template).serialize();
-        assert.equal(serializedList[0].toString().trim(), '<html><head>');
+        assert.equal(
+            serializedList[0].toString().trim(),
+            '<!DOCTYPE html><!--comment--><html><head>'
+        );
         assert.deepEqual(serializedList[1], { placeholder: 'pipe' });
     });
 
