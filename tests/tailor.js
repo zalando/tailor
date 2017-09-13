@@ -4,6 +4,7 @@ const http = require('http');
 const nock = require('nock');
 const sinon = require('sinon');
 const zlib = require('zlib');
+const { TEMPLATE_NOT_FOUND } = require('../lib/fetch-template');
 const Tailor = require('../index');
 
 describe('Tailor', () => {
@@ -36,6 +37,12 @@ describe('Tailor', () => {
                 const template = mockTemplate(request);
                 const childTemplate = mockChildTemplate(request);
                 if (template) {
+                    if (template === '404') {
+                        const error = new Error();
+                        error.code = TEMPLATE_NOT_FOUND;
+                        error.presentable = 'template not found';
+                        return Promise.reject(error);
+                    }
                     return parseTemplate(
                         template,
                         childTemplate
@@ -45,7 +52,7 @@ describe('Tailor', () => {
                     });
                 } else {
                     const error = new Error();
-                    error.presentable = '<div>error template</div>';
+                    error.presentable = 'error template';
                     return Promise.reject(error);
                 }
             },
@@ -75,7 +82,17 @@ describe('Tailor', () => {
             getResponse('http://localhost:8080/missing-template')
                 .then(response => {
                     assert.equal(response.statusCode, 500);
-                    assert.equal(response.body, '<div>error template</div>');
+                    assert.equal(response.body, 'error template');
+                })
+                .then(done, done);
+        });
+
+        it('"should return 404 if template was not found', done => {
+            mockTemplate.returns('404');
+            getResponse('http://localhost:8080/404-template')
+                .then(response => {
+                    assert.equal(response.statusCode, 404);
+                    assert.equal(response.body, 'template not found');
                 })
                 .then(done, done);
         });
@@ -196,7 +213,10 @@ describe('Tailor', () => {
                 .get('/1')
                 .reply(200, 'hello', { 'Set-Cookie': 'wrong' })
                 .get('/2')
-                .reply(200, 'world', { 'Set-Cookie': cookie })
+                .reply(200, 'world', {
+                    'Set-Cookie': cookie,
+                    link: 'http://link'
+                })
                 .get('/3')
                 .reply(201);
 
@@ -210,6 +230,7 @@ describe('Tailor', () => {
                 .then(response => {
                     assert.equal(response.statusCode, 200);
                     assert.deepEqual(response.headers['set-cookie'], [cookie]);
+                    assert.equal(response.headers.link, 'http://link');
                 })
                 .then(done, done);
         });
