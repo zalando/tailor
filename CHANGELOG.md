@@ -1,5 +1,11 @@
 # Tailor Changelog
 
+### 3.2.0
+* Extract tag handling logic from request handler([#173](https://github.com/zalando/tailor/pull/173))
+* Prettier Integration([#181](https://github.com/zalando/tailor/pull/181))
+* Proper error propagation on template error([#179](https://github.com/zalando/tailor/pull/179))
+* Code coverage improvements([#182](https://github.com/zalando/tailor/pull/182), [#183](https://github.com/zalando/tailor/pull/183))
+
 ### 3.1.1
 
 * Allow file to be used a template instead of directory([#171](https://github.com/zalando/tailor/pull/171))
