@@ -6,6 +6,7 @@ const sinon = require('sinon');
 const zlib = require('zlib');
 const { TEMPLATE_NOT_FOUND } = require('../lib/fetch-template');
 const Tailor = require('../index');
+const processTemplate = require('../lib/process-template');
 
 describe('Tailor', () => {
     let server;
@@ -55,6 +56,24 @@ describe('Tailor', () => {
                     error.presentable = 'error template';
                     return Promise.reject(error);
                 }
+            },
+            handledTags: ['delayed-fragment'],
+            handleTag: (request, tag, options, context) => {
+                if (tag.name === 'delayed-fragment') {
+                    const st = processTemplate(request, options, context);
+                    setTimeout(() => {
+                        st.end({
+                            name: 'fragment',
+                            attributes: {
+                                async: true,
+                                src: 'https://fragment/1'
+                            }
+                        });
+                    }, 10);
+                    return st;
+                }
+
+                return '';
             },
             pipeInstanceName: 'p',
             pipeAttributes: attributes => ({ id: attributes.id }),
@@ -642,6 +661,26 @@ describe('Tailor', () => {
                     })
                     .then(done, done);
             });
+        });
+    });
+
+    describe('Custom async fragments', () => {
+        it('should add async fragments from handleTag', done => {
+            nock('https://fragment')
+                .get('/1')
+                .reply(200, 'hello');
+
+            mockTemplate.returns('<delayed-fragment></delayed-fragment>');
+            mockChildTemplate.returns('');
+
+            getResponse('http://localhost:8080/test')
+                .then(response => {
+                    assert.equal(
+                        response.body,
+                        '<html><head></head><body><script data-pipe>p.placeholder(0)</script><script data-pipe>p.start(0)</script>hello<script data-pipe>p.end(0)</script></body></html>'
+                    );
+                })
+                .then(done, done);
         });
     });
 
