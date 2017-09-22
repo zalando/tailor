@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 3.2.1
+* End asyncStream later in the process (before piping) ([#185](https://github.com/zalando/tailor/pull/185))
+
 ### 3.2.0
 * Extract tag handling logic from request handler([#173](https://github.com/zalando/tailor/pull/173))
 * Prettier Integration([#181](https://github.com/zalando/tailor/pull/181))
