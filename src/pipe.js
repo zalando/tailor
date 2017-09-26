@@ -4,6 +4,8 @@
     var scripts = doc.getElementsByTagName('script');
     // State to maintain if all fragments on the page are initialized
     var initState = [];
+    // custom performance entries that are reported from fragments
+    var entries = [];
     var noop = function() {};
     // Hooks that will be replaced later on the page
     var hooks = {
@@ -163,6 +165,27 @@
         onloadcssdefined(loadCB);
         return ss;
     }
+    /*
+    * Custom Performance entries that can be added from fragments
+    * Its need because Browsers currently does not allow expose any API to add
+    * custom timing information to performance entries
+    */
+    function addPerfEntry(name, duration) {
+        // Should not add to entries when Navigation timing is not supported.
+        if (!'timing' in perf) {
+            return;
+        }
+        entries.push({
+            name: name,
+            duration: Number(duration),
+            entryType: 'tailor',
+            startTime: perf.now() || Date.now() - perf.timing.navigationStart
+        });
+    }
+    // Retrive the added entries from fragments for monitoring
+    function getEntries() {
+        return entries;
+    }
 
     function assignHook(hookName) {
         return function(cb) {
@@ -178,6 +201,8 @@
         onStart: assignHook('onStart'),
         onBeforeInit: assignHook('onBeforeInit'),
         onAfterInit: assignHook('onAfterInit'),
-        onDone: assignHook('onDone')
+        onDone: assignHook('onDone'),
+        addPerfEntry: addPerfEntry,
+        getEntries: getEntries
     };
 })(window.document, window.performance);
