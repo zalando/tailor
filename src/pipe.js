@@ -173,12 +173,12 @@
     function addPerfEntry(name, duration) {
         entries.push({
             name: name,
-            duration: duration,
+            duration: Number(duration),
             entryType: 'tailor',
             startTime: perf.now() || Date.now() - perf.timing.navigationStart
         });
     }
-    // Retrive the added entries from fragments for monitoring purposes
+    // Retrive the added entries from fragments for monitoring
     function getEntries() {
         return entries;
     }
