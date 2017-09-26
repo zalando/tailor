@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 3.3.0
+* Add API support for custom performance entries([#187](https://github.com/zalando/tailor/pull/187))
+
 ### 3.2.1
 * End asyncStream later in the process (before piping) ([#185](https://github.com/zalando/tailor/pull/185))
 
