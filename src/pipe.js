@@ -171,6 +171,10 @@
     * custom timing information to performance entries
     */
     function addPerfEntry(name, duration) {
+        // Should not add to entries when Navigation timing is not supported.
+        if (!'timing' in perf) {
+            return;
+        }
         entries.push({
             name: name,
             duration: Number(duration),
