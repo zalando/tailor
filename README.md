@@ -94,6 +94,29 @@ A JavaScript of the fragment is an AMD module, that exports an `init` function, 
 
 **Note: For compatability with AWS the `Link` header can also be passed as `x-amz-meta-link`**
 
+### Passing information to fragments
+
+By default, the incoming request will be used to selecting the template.
+
+So to get the `index.html` template you go to `/index`.
+
+If you want to listen to `/product/my-product-123` to go to `product.html` template, you can change the `req.url` to `/product`.
+
+Every header is filtered by default to avoid leaking information, but you can give the original URI and host by adding it to the headers, `x-request-host` and `x-request-uri`, then reading in the fragment the headers to know what product to fetch and display.
+
+```javascript
+http
+    .createServer((req, res) => {
+        req.headers['x-request-uri'] = req.url
+        req.url = '/index'
+
+        tailor.requestHandler(req, res);
+    })
+    .listen(8080, function() {
+        console.log('Tailor server listening on port 8080');
+    });
+```
+
 ### Concepts
 
 Some of the concepts in Tailor are described in detail on the specific docs.
