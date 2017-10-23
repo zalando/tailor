@@ -1,6 +1,7 @@
 # Tailor Changelog
 
 ### 3.4.0
+* Fix for handling comment nodes in child tempaltes ([#191](https://github.com/zalando/tailor/pull/191))
 * Two headers (`x-request-uri` & `x-request-host`) are added to the whitelist along with documentation on how to use them ([#192](https://github.com/zalando/tailor/pull/192))
 
 ### 3.3.0
