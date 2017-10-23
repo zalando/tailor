@@ -7,14 +7,18 @@ describe('filter-headers', () => {
         'please-kill-me': '0',
         'accept-language': '1',
         referer: '2',
-        'user-agent': '3'
+        'user-agent': '3',
+        'x-request-uri': '/example',
+        'x-request-host': 'localhost'
     };
 
     it('keeps only certain headers', () => {
         const after = {
             'accept-language': '1',
             referer: '2',
-            'user-agent': '3'
+            'user-agent': '3',
+            'x-request-uri': '/example',
+            'x-request-host': 'localhost'
         };
         assert.deepEqual(filterHeaders({}, { headers }), after);
     });
