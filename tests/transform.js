@@ -46,6 +46,13 @@ describe('Transform', () => {
         assert(slotMap.has('default'));
     });
 
+    it('should put comment tags in default slot', () => {
+        const childTemplate = '<!-- nice comment -->';
+        transformInstance.applyTransforms('', childTemplate);
+        const slotMap = mockSerializer.args[0][1].slotMap;
+        assert(slotMap.has('default'));
+    });
+
     it('should group slots based on slot types for child Templates', () => {
         const childTemplate = `
             <meta slot="head">
