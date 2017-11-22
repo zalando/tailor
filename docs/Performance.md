@@ -3,12 +3,18 @@
 **Table of Contents**
 
 - [Performance](#performance)
-	- [Measuring fragment Initialization cost](#measuring-fragment-initialization-cost)
-	- [Measuring Time to interactive of critical content](#measuring-time-to-interactive-of-critical-content)
-		- [How its measured](#how-its-measured)
-		- [Clustering fragments](#clustering-fragments)
-	- [Caveats](#caveats)
-		- [Is the main thread available to handle the user input](#is-the-main-thread-available-to-handle-the-user-input)
+  - [Introduction](#introduction)
+  - [Measuring fragment Initialization cost](#measuring-fragment-initialization-cost)
+  - [Measuring Time to interactive of critical content](#measuring-time-to-interactive-of-critical-content)
+    - [How its measured](#how-its-measured)
+    - [Clustering fragments](#clustering-fragments)
+  - [Custom metrics](#custom-metrics)
+    - [Why?](#why)
+      - [why not `perfomance.measure`(User Timing)?](#why-not-perfomancemeasureuser-timing)
+      - [why not extend PerformanceEntry?](#why-not-extend-performanceentry)
+    - [Future](#future)
+  - [Caveats](#caveats)
+      - [Is the main thread available to handle the user input](#is-the-main-thread-available-to-handle-the-user-input)
 
 ## Introduction
 
