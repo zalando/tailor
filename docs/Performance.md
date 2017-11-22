@@ -129,6 +129,54 @@ Now to measure the time, We are going to use the [hooks](https://github.com/zala
 
 Please use the drop in replacement script [here](https://github.com/zalando/tailor/blob/master/examples/fragment-performance/templates/index.html#L7) which measures both the fragment initialization as well the timing groups.
 
+## Custom metrics
+
+Fragment development teams can add custom metrics that looks similar to [PerformanceEntry](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry) that can be retrieved via tailor in addition to the [hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md#front-end-hooks) it supports. 
+
+```js
+Pipe.addPerfEntry("time-to-meaningful-paint", 2000.00) // done from some fragment on some page
+
+Pipe.getEntries()
+[{
+   name: "time-to-meaningful-paint",
+   duration: 2000.00,
+   entryType: "tailor",
+   startTime: // start time relative to navigation start
+}]
+```
+
+### Why? 
+
+Browsers right now does not expose an API for creating custom PerformanceEntry and make them available on PerformanceTimeline.
+
+#### why not `perfomance.measure`(User Timing)?
+
++ User Timing - `mark` and `measure` does not allow a way for pushing custom timing information. If you already have a metric and want to pass that information to PerformanceEntry you cannot do that right now with User Timing API. 
+
+#### why not extend PerformanceEntry? 
+
+Even if we hack and extend the PerformanceEntry object, there is no way to retrive the custom entries that are added. 
+
+```js
+var customEntry = {};
+customEntry.prototype = PerformanceEntry;
+customEntry.name = "ttfmp";
+customEntry.duration = Number(paint); // custom paint timing
+customEntry.entryType = "tailor";
+customEntry.startTime = performance.now();
+
+
+// retrive entries
+performance.getEntries(); 
+// returns []
+```
+
+### Future
+
+There is a existing issue and proposal in w3c web perf group on exposing the API. So once its landed, we can fallback to that or continue to use them for older browsers. 
+Issue - https://github.com/w3c/charter-webperf/issues/28
+Proposal - https://docs.google.com/document/d/1_zm9JB-Ul_fOtAMnF6yBcmvNL3m4-k4ram4pdMIcIug/
+
 ## Caveats
 
 #### Is the main thread available to handle the user input
