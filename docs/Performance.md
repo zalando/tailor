@@ -143,7 +143,7 @@ Fragment development teams can add custom metrics that looks similar to [Perform
 Pipe.addPerfEntry("time-to-meaningful-paint", 2000.00) // done from some fragment on some page
 
 Pipe.getEntries()
-[{
+// returns [{
    name: "time-to-meaningful-paint",
    duration: 2000.00,
    entryType: "tailor",
@@ -157,7 +157,7 @@ Browsers right now does not expose an API for creating custom PerformanceEntry a
 
 #### why not `perfomance.measure`(User Timing)?
 
-+ User Timing - `mark` and `measure` does not allow a way for pushing custom timing information. If you already have a metric and want to pass that information to PerformanceEntry you cannot do that right now with User Timing API. 
++ User Timing - with `mark` and `measure` there is no way to pass custom timing information and have the information as part of the PerformanceEntry object.
 
 #### why not extend PerformanceEntry? 
 
