@@ -148,6 +148,13 @@ Go to [http://localhost:8080/index](http://localhost:8080/index) after running t
 
 **Note: Please run the examples with node versions > 6.0.0**
 
+***
+
+Single-page application examples are also available:
+
+* https://github.com/vigneshshanmugam/tailor-spa
+* https://github.com/tsnolan23/tailor-react-spa
+
 ## Benchmark
 
 To start running benchmark execute `npm run benchmark` and wait for couple of seconds to see the results.
