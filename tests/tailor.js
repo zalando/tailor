@@ -4,9 +4,12 @@ const http = require('http');
 const nock = require('nock');
 const sinon = require('sinon');
 const zlib = require('zlib');
+const { readFileSync } = require('fs');
+const { resolve } = require('path');
 const { TEMPLATE_NOT_FOUND } = require('../lib/fetch-template');
 const Tailor = require('../index');
 const processTemplate = require('../lib/process-template');
+const PIPE_DEFINITION = readFileSync(resolve(__dirname, '../src/pipe.min.js'));
 
 describe('Tailor', () => {
     let server;
@@ -14,6 +17,7 @@ describe('Tailor', () => {
     const mockChildTemplate = sinon.stub();
     const mockContext = sinon.stub();
     const cacheTemplate = sinon.spy();
+    const pipeInstanceName = 'p';
 
     function getResponse(url) {
         return new Promise(resolve => {
@@ -28,62 +32,71 @@ describe('Tailor', () => {
         });
     }
 
-    const createTailorInstance = (
-        { maxAssetLinks = 1, amdLoaderUrl = 'https://loader' } = {}
-    ) =>
-        new Tailor({
-            amdLoaderUrl: amdLoaderUrl,
-            fetchContext: mockContext,
-            maxAssetLinks,
-            pipeDefinition: () => Buffer.from(''),
-            fetchTemplate: (request, parseTemplate) => {
-                const template = mockTemplate(request);
-                const childTemplate = mockChildTemplate(request);
-                if (template) {
-                    if (template === '404') {
+    const createTailorInstance = ({
+        maxAssetLinks = 1,
+        amdLoaderUrl = 'https://loader',
+        pipeDefinition
+    }) => {
+        const options = Object.assign(
+            {
+                amdLoaderUrl,
+                maxAssetLinks,
+                fetchContext: mockContext,
+                fetchTemplate: (request, parseTemplate) => {
+                    const template = mockTemplate(request);
+                    const childTemplate = mockChildTemplate(request);
+                    if (template) {
+                        if (template === '404') {
+                            const error = new Error();
+                            error.code = TEMPLATE_NOT_FOUND;
+                            error.presentable = 'template not found';
+                            return Promise.reject(error);
+                        }
+                        return parseTemplate(
+                            template,
+                            childTemplate
+                        ).then(parsedTemplate => {
+                            cacheTemplate(template);
+                            return parsedTemplate;
+                        });
+                    } else {
                         const error = new Error();
-                        error.code = TEMPLATE_NOT_FOUND;
-                        error.presentable = 'template not found';
+                        error.presentable = 'error template';
                         return Promise.reject(error);
                     }
-                    return parseTemplate(
-                        template,
-                        childTemplate
-                    ).then(parsedTemplate => {
-                        cacheTemplate(template);
-                        return parsedTemplate;
-                    });
-                } else {
-                    const error = new Error();
-                    error.presentable = 'error template';
-                    return Promise.reject(error);
-                }
-            },
-            handledTags: ['delayed-fragment'],
-            handleTag: (request, tag, options, context) => {
-                if (tag.name === 'delayed-fragment') {
-                    const st = processTemplate(request, options, context);
-                    setTimeout(() => {
-                        st.end({
-                            name: 'fragment',
-                            attributes: {
-                                async: true,
-                                src: 'https://fragment/1'
-                            }
-                        });
-                    }, 10);
-                    return st;
-                }
+                },
+                handledTags: ['delayed-fragment'],
+                handleTag: (request, tag, options, context) => {
+                    if (tag.name === 'delayed-fragment') {
+                        const st = processTemplate(request, options, context);
+                        setTimeout(() => {
+                            st.end({
+                                name: 'fragment',
+                                attributes: {
+                                    async: true,
+                                    src: 'https://fragment/1'
+                                }
+                            });
+                        }, 10);
+                        return st;
+                    }
 
-                return '';
+                    return '';
+                },
+                pipeInstanceName,
+                pipeAttributes: attributes => ({ id: attributes.id }),
+                filterResponseHeaders: (attributes, headers) => headers
             },
-            pipeInstanceName: 'p',
-            pipeAttributes: attributes => ({ id: attributes.id }),
-            filterResponseHeaders: (attributes, headers) => headers
-        });
+            pipeDefinition !== undefined ? { pipeDefinition } : {}
+        );
+
+        return new Tailor(options);
+    };
 
     beforeEach(done => {
-        const tailor = createTailorInstance();
+        const tailor = createTailorInstance({
+            pipeDefinition: () => Buffer.from('')
+        });
         mockContext.returns(Promise.resolve({}));
         server = http.createServer(tailor.requestHandler);
         server.listen(8080, 'localhost', done);
@@ -197,6 +210,40 @@ describe('Tailor', () => {
                             '</head>' +
                             '<body></body>' +
                             '</html>'
+                    );
+                })
+                .then(done, done);
+        });
+    });
+
+    describe('Piping:: Tailor', () => {
+        let withPipe;
+        before(done => {
+            const tailor4 = createTailorInstance({});
+            withPipe = http.createServer(tailor4.requestHandler);
+            withPipe.listen(8083, 'localhost', done);
+            // To simulate the preloading & piping mechanism
+            mockTemplate.returns('<script type="fragment"></script>');
+        });
+
+        after(done => {
+            mockTemplate.reset();
+            withPipe.close(done);
+        });
+
+        it('should stream pipe definition with loader in the head', done => {
+            getResponse('http://localhost:8083/test')
+                .then(response => {
+                    assert.equal(
+                        response.headers.link,
+                        '<https://loader>; rel="preload"; as="script"; nopush; crossorigin'
+                    );
+                    assert.equal(
+                        response.body,
+                        '<html><head>' +
+                            '<script src="https://loader" crossorigin></script>\n' +
+                            `<script>var ${pipeInstanceName}=${PIPE_DEFINITION}</script>\n` +
+                            '</head><body></body></html>'
                     );
                 })
                 .then(done, done);
@@ -321,7 +368,8 @@ describe('Tailor', () => {
             let withFile;
             before(done => {
                 const tailor3 = createTailorInstance({
-                    amdLoaderUrl: 'file://blah'
+                    amdLoaderUrl: 'file://blah',
+                    pipeDefinition: () => Buffer.from('')
                 });
                 withFile = http.createServer(tailor3.requestHandler);
                 withFile.listen(8082, 'localhost', done);
@@ -1075,7 +1123,10 @@ describe('Tailor', () => {
     describe('with `maxAssetLinks` set to `3`', () => {
         let serverCustomOptions;
         beforeEach(done => {
-            const tailor2 = createTailorInstance({ maxAssetLinks: 3 });
+            const tailor2 = createTailorInstance({
+                maxAssetLinks: 3,
+                pipeDefinition: () => Buffer.from('')
+            });
             serverCustomOptions = http.createServer(tailor2.requestHandler);
             serverCustomOptions.listen(8081, 'localhost', done);
         });
