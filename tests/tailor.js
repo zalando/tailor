@@ -219,10 +219,11 @@ describe('Tailor', () => {
     describe('Piping:: Tailor', () => {
         let withPipe;
         before(done => {
-            mockTemplate.returns('<script></script>');
             const tailor4 = createTailorInstance({});
             withPipe = http.createServer(tailor4.requestHandler);
             withPipe.listen(8083, 'localhost', done);
+            // To simulate the preloading & piping mechanism
+            mockTemplate.returns('<script type="fragment"></script>');
         });
 
         after(done => {
@@ -234,11 +235,14 @@ describe('Tailor', () => {
             getResponse('http://localhost:8083/test')
                 .then(response => {
                     assert.equal(
+                        response.headers.link,
+                        '<https://loader>; rel="preload"; as="script"; nopush; crossorigin'
+                    );
+                    assert.equal(
                         response.body,
                         '<html><head>' +
                             '<script src="https://loader" crossorigin></script>\n' +
                             `<script>var ${pipeInstanceName}=${PIPE_DEFINITION}</script>\n` +
-                            '<script></script>' +
                             '</head><body></body></html>'
                     );
                 })
