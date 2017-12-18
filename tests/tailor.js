@@ -10,7 +10,6 @@ const processTemplate = require('../lib/process-template');
 
 describe('Tailor', () => {
     let server;
-    let serverCustomOptions;
     const mockTemplate = sinon.stub();
     const mockChildTemplate = sinon.stub();
     const mockContext = sinon.stub();
@@ -29,9 +28,11 @@ describe('Tailor', () => {
         });
     }
 
-    const createTailorInstance = ({ maxAssetLinks = 1 } = {}) =>
+    const createTailorInstance = (
+        { maxAssetLinks = 1, amdLoaderUrl = 'https://loader' } = {}
+    ) =>
         new Tailor({
-            amdLoaderUrl: 'http://loader',
+            amdLoaderUrl: amdLoaderUrl,
             fetchContext: mockContext,
             maxAssetLinks,
             pipeDefinition: () => Buffer.from(''),
@@ -202,7 +203,7 @@ describe('Tailor', () => {
         });
     });
 
-    describe('Headers::Tailor ', () => {
+    describe('Headers::Tailor', () => {
         it('should return response code and location header of the 1st primary fragment', done => {
             nock('https://fragment')
                 .get('/1')
@@ -316,76 +317,111 @@ describe('Tailor', () => {
                 .then(done, done);
         });
 
-        it('should preload module loader if fragment is present', done => {
-            nock('https://fragment')
-                .get('/1')
-                .reply(200, 'non-primary', {
-                    Link:
-                        '<http://non-primary>; rel="stylesheet",<http://non-primary>; rel="fragment-script"'
+        describe('Preloading', () => {
+            let withFile;
+            before(done => {
+                const tailor3 = createTailorInstance({
+                    amdLoaderUrl: 'file://blah'
                 });
+                withFile = http.createServer(tailor3.requestHandler);
+                withFile.listen(8082, 'localhost', done);
+            });
 
-            mockTemplate.returns(
-                '<fragment src="https://fragment/1"></fragment>'
-            );
+            after(done => {
+                mockTemplate.reset();
+                withFile.close(done);
+            });
 
-            getResponse('http://localhost:8080/test')
-                .then(response => {
-                    assert.equal(
-                        response.headers.link,
-                        '<http://loader>; rel="preload"; as="script"; nopush; crossorigin'
-                    );
-                })
-                .then(done, done);
-        });
+            it('should preload external module loader if fragment is present', done => {
+                nock('https://fragment')
+                    .get('/1')
+                    .reply(200, 'non-primary', {
+                        Link:
+                            '<http://non-primary>; rel="stylesheet",<http://non-primary>; rel="fragment-script"'
+                    });
 
-        it('should send Link headers for preloading if primary fragment exists', done => {
-            nock('https://fragment')
-                .get('/1')
-                .reply(200, 'non-primary', {
-                    Link:
-                        '<http://non-primary>; rel="stylesheet",<http://non-primary>; rel="fragment-script"'
-                })
-                .get('/2')
-                .reply(200, 'primary', {
-                    Link:
-                        '<http://primary>; rel="stylesheet",<http://primary>; rel="fragment-script"'
-                });
+                mockTemplate.returns(
+                    '<fragment src="https://fragment/1"></fragment>'
+                );
 
-            mockTemplate.returns(
-                '<fragment src="https://fragment/1"></fragment>' +
-                    '<fragment primary src="https://fragment/2"></fragment>'
-            );
+                getResponse('http://localhost:8080/test')
+                    .then(response => {
+                        assert.equal(
+                            response.headers.link,
+                            '<https://loader>; rel="preload"; as="script"; nopush; crossorigin'
+                        );
+                    })
+                    .then(done, done);
+            });
 
-            getResponse('http://localhost:8080/test')
-                .then(response => {
-                    assert.equal(
-                        response.headers.link,
-                        '<http://loader>; rel="preload"; as="script"; nopush; crossorigin,<http://primary>; rel="preload"; as="style"; nopush;,<http://primary>; rel="preload"; as="script"; nopush; crossorigin'
-                    );
-                })
-                .then(done, done);
-        });
+            it('should not preload inlined module loader', done => {
+                nock('https://fragment')
+                    .get('/1')
+                    .reply(200, 'non-primary', {
+                        Link:
+                            '<http://non-primary>; rel="stylesheet",<http://non-primary>; rel="fragment-script"'
+                    });
 
-        it('should not send crossorigin in Link headers for same origin scripts', done => {
-            nock('http://fragment')
-                .get('/')
-                .reply(200, 'primary', {
-                    Link:
-                        '<http://localhost:8080>; rel="stylesheet",<http://localhost:8080>; rel="fragment-script"'
-                });
+                mockTemplate.returns(
+                    '<fragment src="https://fragment/1"></fragment>'
+                );
 
-            mockTemplate.returns(
-                '<fragment primary src="http://fragment/"></fragment>'
-            );
+                getResponse('http://localhost:8082/test')
+                    .then(response => {
+                        assert.equal(response.headers.link, undefined);
+                    })
+                    .then(done, done);
+            });
 
-            getResponse('http://localhost:8080/test')
-                .then(response => {
-                    assert.equal(
-                        response.headers.link,
-                        '<http://loader>; rel="preload"; as="script"; nopush; crossorigin,<http://localhost:8080>; rel="preload"; as="style"; nopush;,<http://localhost:8080>; rel="preload"; as="script"; nopush;'
-                    );
-                })
-                .then(done, done);
+            it('should preload only primary fragment assets', done => {
+                nock('https://fragment')
+                    .get('/1')
+                    .reply(200, 'non-primary', {
+                        Link:
+                            '<http://non-primary>; rel="stylesheet",<http://non-primary>; rel="fragment-script"'
+                    })
+                    .get('/2')
+                    .reply(200, 'primary', {
+                        Link:
+                            '<http://primary>; rel="stylesheet",<http://primary>; rel="fragment-script"'
+                    });
+
+                mockTemplate.returns(
+                    '<fragment src="https://fragment/1"></fragment>' +
+                        '<fragment primary src="https://fragment/2"></fragment>'
+                );
+
+                getResponse('http://localhost:8080/test')
+                    .then(response => {
+                        assert.equal(
+                            response.headers.link,
+                            '<https://loader>; rel="preload"; as="script"; nopush; crossorigin,<http://primary>; rel="preload"; as="style"; nopush;,<http://primary>; rel="preload"; as="script"; nopush; crossorigin'
+                        );
+                    })
+                    .then(done, done);
+            });
+
+            it('should not send crossorigin in Link headers for same origin scripts', done => {
+                nock('http://fragment')
+                    .get('/')
+                    .reply(200, 'primary', {
+                        Link:
+                            '<http://localhost:8080>; rel="stylesheet",<http://localhost:8080>; rel="fragment-script"'
+                    });
+
+                mockTemplate.returns(
+                    '<fragment primary src="http://fragment/"></fragment>'
+                );
+
+                getResponse('http://localhost:8080/test')
+                    .then(response => {
+                        assert.equal(
+                            response.headers.link,
+                            '<https://loader>; rel="preload"; as="script"; nopush; crossorigin,<http://localhost:8080>; rel="preload"; as="style"; nopush;,<http://localhost:8080>; rel="preload"; as="script"; nopush;'
+                        );
+                    })
+                    .then(done, done);
+            });
         });
     });
 
@@ -1037,18 +1073,15 @@ describe('Tailor', () => {
     });
 
     describe('with `maxAssetLinks` set to `3`', () => {
+        let serverCustomOptions;
         beforeEach(done => {
             const tailor2 = createTailorInstance({ maxAssetLinks: 3 });
-            mockContext.returns(Promise.resolve({}));
             serverCustomOptions = http.createServer(tailor2.requestHandler);
             serverCustomOptions.listen(8081, 'localhost', done);
         });
 
         afterEach(done => {
-            mockContext.reset();
             mockTemplate.reset();
-            mockChildTemplate.reset();
-            cacheTemplate.reset();
             serverCustomOptions.close(done);
         });
 
