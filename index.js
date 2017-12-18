@@ -49,7 +49,7 @@ module.exports = class Tailor extends EventEmitter {
                     );
                     memoizedDefinition = `<script>${fileData}\n`;
                 } else {
-                    memoizedDefinition = `<script src="${AMD_LOADER_URL}" ${getCrossOrigin(
+                    memoizedDefinition = `<script src="${amdLoaderUrl}" ${getCrossOrigin(
                         amdLoaderUrl,
                         host
                     )}></script>\n<script>`;
