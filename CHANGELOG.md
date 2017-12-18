@@ -1,5 +1,9 @@
 # Tailor Changelog
 
+### 3.5.0
+* Parse comment tags without error in child templates ([#195](https://github.com/zalando/tailor/pull/195))
+* Preload the module loader script with HTTP link headers ([#203](https://github.com/zalando/tailor/pull/203))
+
 ### 3.4.0
 * Fix for handling comment nodes in child tempaltes ([#191](https://github.com/zalando/tailor/pull/191))
 * Two headers (`x-request-uri` & `x-request-host`) are added to the whitelist along with documentation on how to use them ([#192](https://github.com/zalando/tailor/pull/192))
