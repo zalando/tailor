@@ -11,6 +11,7 @@ const filterReqHeadersFn = require('./lib/filter-headers');
 const PIPE_DEFINITION = fs.readFileSync(
     path.resolve(__dirname, 'src/pipe.min.js')
 );
+const { getCrossOrigin } = require('./lib/utils');
 const AMD_LOADER_URL =
     'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js';
 
@@ -38,7 +39,7 @@ module.exports = class Tailor extends EventEmitter {
             : Math.max(1, maxAssetLinks);
 
         let memoizedDefinition;
-        const pipeChunk = (amdLoaderUrl, pipeInstanceName) => {
+        const pipeChunk = (pipeInstanceName, { host } = {}) => {
             if (!memoizedDefinition) {
                 // Allow reading from fs for inlining AMD
                 if (amdLoaderUrl.startsWith('file://')) {
@@ -48,7 +49,10 @@ module.exports = class Tailor extends EventEmitter {
                     );
                     memoizedDefinition = `<script>${fileData}\n`;
                 } else {
-                    memoizedDefinition = `<script src="${amdLoaderUrl}"></script>\n<script>`;
+                    memoizedDefinition = `<script src="${AMD_LOADER_URL}" ${getCrossOrigin(
+                        amdLoaderUrl,
+                        host
+                    )}></script>\n<script>`;
                 }
             }
             return Buffer.from(
@@ -58,6 +62,7 @@ module.exports = class Tailor extends EventEmitter {
 
         const requestOptions = Object.assign(
             {
+                amdLoaderUrl,
                 fetchContext: () => Promise.resolve({}),
                 fetchTemplate: fetchTemplate(
                     templatesPath || path.join(process.cwd(), 'templates')
@@ -67,7 +72,7 @@ module.exports = class Tailor extends EventEmitter {
                 handleTag: () => '',
                 requestFragment: requestFragment(filterRequestHeaders),
                 pipeInstanceName: 'Pipe',
-                pipeDefinition: pipeChunk.bind(null, amdLoaderUrl),
+                pipeDefinition: pipeChunk,
                 pipeAttributes: getPipeAttributes
             },
             options
