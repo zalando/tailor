@@ -1,5 +1,9 @@
 # Tailor Changelog
 
+### 3.5.1
+
+* (fix) - Pipe the AMD loader script from extended options ([#205](https://github.com/zalando/tailor/pull/205))
+
 ### 3.5.0
 * Parse comment tags without error in child templates ([#195](https://github.com/zalando/tailor/pull/195))
 * Preload the module loader script with HTTP link headers ([#203](https://github.com/zalando/tailor/pull/203))
