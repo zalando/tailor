@@ -86,6 +86,8 @@ Tailor uses [parse5](https://github.com/inikulin/parse5/) to parse the template,
 * `public` - to prevent tailor from forwarding filtered request headers from upstream to the fragments.
 * `fallback-src` - URL of the fallback fragment in case of timeout/error on the current fragment
 
+> Other attributes are allowed and will be passed as well to relevant functions (eg. `filterRequestHeaders`, `filterResponseHeaders`, etc.)
+
 ### Fragment server
 
 A fragment is an http(s) server that renders only the part of the page and sets `Link` header to provide urls to CSS and JavaScript resources. Check `example/fragment.js` for the draft implementation.
