@@ -167,7 +167,7 @@
     }
     /*
     * Custom Performance entries that can be added from fragments
-    * Its need because Browsers currently does not allow expose any API to add
+    * It's needed because browsers currently do not expose an API to add
     * custom timing information to performance entries
     */
     function addPerfEntry(name, duration) {
@@ -175,12 +175,20 @@
         if (!'timing' in perf) {
             return;
         }
+        // duplicate entries are not handled to keep the API
+        // similar to PerformanceEntry Object
+        // https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry
         entries.push({
             name: name,
             duration: Number(duration),
             entryType: 'tailor',
             startTime: perf.now() || Date.now() - perf.timing.navigationStart
         });
+    }
+    // Unique API that allows fragments to specify the
+    // time to first meaningul paint of the page
+    function addTTFMPEntry(duration) {
+        addPerfEntry('ttfmp', duration);
     }
     // Retrive the added entries from fragments for monitoring
     function getEntries() {
@@ -203,6 +211,7 @@
         onAfterInit: assignHook('onAfterInit'),
         onDone: assignHook('onDone'),
         addPerfEntry: addPerfEntry,
+        addTTFMPEntry: addTTFMPEntry,
         getEntries: getEntries
     };
 })(window.document, window.performance);
