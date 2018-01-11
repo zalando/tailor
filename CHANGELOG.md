@@ -1,5 +1,9 @@
 # Tailor Changelog
 
+### 3.6.0
+* Pass all custom fragment attributes to filterRequestHeaders([#209](https://github.com/zalando/tailor/pull/209))
+* Custom API for adding TTFMP from fragments([#214](https://github.com/zalando/tailor/pull/214))
+
 ### 3.5.1
 
 * (fix) - Pipe the AMD loader script from extended options ([#205](https://github.com/zalando/tailor/pull/205))
