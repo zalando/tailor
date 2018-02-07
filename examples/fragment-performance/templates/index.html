@@ -4,59 +4,87 @@
     <meta charset="utf-8">
     <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
     <script>
-        const timingGroupMap = new Map();
-        const markInitialized = (groupName, id) => {
-            timingGroupMap
-                .get(groupName)
-                .set(id, {initialised: true})
-        };
-        const hasInitialized = (groupName) => {
-            const groupMap = timingGroupMap.get(groupName);
-
-            if(!groupMap) {
-                return false;
+        (function(){
+            const fragmentMap = new Map();
+            const doneGroups = Object.create(null);
+        
+            const getCount = (range) => {
+                return range[1] - range[0] + 1
             }
 
-            for (let key of groupMap.keys()) {
-                let value = groupMap.get(key);
-                if (!value.initialised) {
-                    return false;
+            const measureGroups = (groups, callback) => {
+                for (const groupName of groups) {
+                    // early exit if the timing group is already done
+                    if (doneGroups[groupName] !== undefined) {
+                        continue;
+                    }
+                    let isGroupDone = true;
+                    for (const id of fragmentMap.keys()) {
+                        const fragment = fragmentMap.get(id);
+                        const { groups } = fragment;
+                        if (groups.indexOf(groupName) >= 0) {
+                            if (fragment.scriptCount > 0) {
+                                isGroupDone = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (isGroupDone) {
+                        doneGroups[groupName] = true;
+                        performance.measure(groupName.trim());
+                    }
                 }
+                return;
             }
-            return true;
-        };
-        Pipe.onStart((attributes) => {
-            attributes.timingGroups.forEach((groupName) => {
-                if (!timingGroupMap.has(groupName)) {
-                    timingGroupMap.set(groupName, new Map());
-                }
-                timingGroupMap
-                    .get(groupName)
-                    .set(attributes.id, {initialised: false});
-            });
-        });
-        Pipe.onBeforeInit(function(attributes) {
-            var fragmentId = attributes.id;
-            performance.mark(fragmentId);
-        });
-        Pipe.onAfterInit((attributes) => {
-            var fragmentId = attributes.id;
-            performance.mark(fragmentId + 'end');
-            performance.measure('fragment-' + fragmentId, fragmentId, fragmentId + 'end');
-            attributes.timingGroups.forEach((groupName) => markInitialized(groupName, attributes.id));
-            attributes.timingGroups.forEach((groupName) => {
-                if (hasInitialized(groupName)) {
-                    performance.measure(groupName);
+
+            Pipe.onStart((attributes) => {
+                const { id, range, timingGroups } = attributes;
+                if (!fragmentMap.has(id)) {
+                    const scriptCount = getCount(range)
+                    fragmentMap.set(id, {
+                        scriptCount,
+                        marked: false,
+                        groups: timingGroups
+                    });
                 }
             });
-        });
-        Pipe.onDone(() => {
-            performance.measure('all-done');
-        });
+            Pipe.onBeforeInit(function(attributes) {
+                const { id, timingGroups } = attributes;
+                const fragment = fragmentMap.get(id);
+                // console.log("before init", id, performance.now());
+                // Mark only once even if fragment has multiple script tags
+                if(!fragment.marked) {
+                    fragment.marked = true;
+                    performance.mark(id)
+                }
+            });
+            Pipe.onAfterInit((attributes) => {
+                const { id, timingGroups } = attributes;
+                // console.log("after init", id, performance.now());
+                const fragment = fragmentMap.get(id);
+                fragment.scriptCount -= 1;
+                if (fragment.scriptCount === 0) {
+                    performance.mark(id + 'end');
+                    performance.measure('fragment-' + id, id, id + 'end');
+
+                    // Iterate over all groups and figure out which ones are done
+                    measureGroups(timingGroups)
+                }
+            });
+            Pipe.onDone(() => {
+                performance.measure('all-done');
+            });
+        })();
     </script>
     <script>
-        define('word', function () {
-            return 'initialised';
+        define('js1', function () {
+            return 'js1';
+        });
+        define('js2', function () {
+            return 'js2';
+        });
+        define('js3', function () {
+            return 'js3';
         });
     </script>
 </head>
@@ -65,11 +93,9 @@
         <h2>Header:</h2>
         <fragment timing-group="abovethefold,interactive" id="header" src="http://localhost:8081"></fragment>
         <h2>Product/Primary:</h2>
-        <fragment timing-group="abovethefold,interactive" id="product" primary src="http://localhost:8082"></fragment>
-        <h2>Async Recos:</h2>
-        <fragment  timing-group="interactive" id="recos" async src="http://localhost:8083"></fragment>
+        <fragment timing-group="interactive" id="product" primary src="http://localhost:8082"></fragment>
         <h2>Async Footer:</h2>
-        <fragment id="footer" async src="http://localhost:8083"></fragment>
+        <fragment id="footer" timing-group="belowthefold" async src="http://localhost:8083"></fragment>
     </div>
 </body>
 </html>
