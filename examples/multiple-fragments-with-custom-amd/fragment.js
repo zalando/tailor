@@ -15,28 +15,30 @@ const defineFn = (module, fragmentName) => {
     })`;
 };
 
-module.exports = (fragmentName, fragmentUrl, modules = 1) => (
+module.exports = (fragmentName, fragmentUrl, modules = 1, delay = false) => (
     request,
     response
 ) => {
     const pathname = url.parse(request.url).pathname;
-    const moduleLinks = [];
-
-    for (var i = 0; i < modules; i++) {
-        moduleLinks[i] = `<${fragmentUrl}/module-${i +
-            1}.js>; rel="fragment-script"`;
-    }
-
     switch (pathname) {
         case '/module-1.js':
-            // serve fragment's JavaScript
-            response.writeHead(200, jsHeaders);
-            response.end(defineFn('js1', fragmentName));
+            if (delay) {
+                return setTimeout(() => {
+                    response.writeHead(200, jsHeaders);
+                    response.end(defineFn('js1', fragmentName));
+                }, 500);
+            } else {
+                response.writeHead(200, jsHeaders);
+                response.end(defineFn('js1', fragmentName));
+            }
             break;
         case '/module-2.js':
-            // serve fragment's JavaScript
             response.writeHead(200, jsHeaders);
             response.end(defineFn('js2', fragmentName));
+            break;
+        case '/module-3.js':
+            response.writeHead(200, jsHeaders);
+            response.end(defineFn('js3', fragmentName));
             break;
         case '/fragment.css':
             // serve fragment's CSS
@@ -53,9 +55,18 @@ module.exports = (fragmentName, fragmentUrl, modules = 1) => (
                 .fragment-${fragmentName}-js2 {
                     color: blue;
                 }
+                .fragment-${fragmentName}-js3 {
+                    text-decoration: underline
+                }
             `);
             break;
         default:
+            const moduleLinks = [];
+
+            for (var i = 0; i < modules; i++) {
+                moduleLinks[i] = `<${fragmentUrl}/module-${i +
+                    1}.js>; rel="fragment-script"`;
+            }
             // serve fragment's body
             response.writeHead(200, {
                 Link: `<${fragmentUrl}/fragment.css>; rel="stylesheet",${moduleLinks.join(

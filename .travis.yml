@@ -1,7 +1,7 @@
 sudo: false
 language: node_js
 node_js:
-- 6.1.0
+- 6.4.0
 - 7.1.0
 - 8.0.0
 cache:

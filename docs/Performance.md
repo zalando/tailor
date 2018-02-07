@@ -123,8 +123,8 @@ Now to measure the time, We are going to use the [hooks](https://github.com/zala
     </script>
 </head>
 <body>
-    <fragment timing-groups="interactive, abovethefold" id="header" src="http://header.zalando.de"/>
-    <fragment timing-groups="interactive, abovethefold" primary id="product" src="http://product.zalando.de" />
+    <fragment timing-groups="interactive,abovethefold" id="header" src="http://header.zalando.de"/>
+    <fragment timing-groups="interactive,abovethefold" primary id="product" src="http://product.zalando.de" />
     <fragment timing-groups="reco-init" id="recos" src="http://recos.zalando.de" />
     <fragment timing-groups="interactive" id="footer" src="http://footer.zalando.de" />
 </body>
