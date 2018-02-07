@@ -6,10 +6,9 @@ const tailor = new Tailor({
     templatesPath: __dirname + '/templates',
     pipeAttributes: attributes => {
         const timingGroups = attributes['timing-group']
-            ? attributes['timing-group'].split(',')
-            : [];
-        const id = attributes.id;
-        return { timingGroups, id };
+        ? attributes['timing-group'].split(',') : [];
+        const { id, primary } = attributes;
+        return { timingGroups, id, primary: !!(primary || primary === '') };
     },
     maxAssetLinks: 3
 });

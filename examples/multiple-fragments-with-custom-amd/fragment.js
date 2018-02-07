@@ -15,6 +15,20 @@ const defineFn = (module, fragmentName) => {
     })`;
 };
 
+const defineFnPromise = (module, fragmentName) => {
+    return `define (['${module}'], function (module) {
+        return function initFragment (element) {
+            return new Promise((res, rej) => {
+                setTimeout(() => {
+                    element.className += ' fragment-${fragmentName}-${module}';
+                    element.innerHTML += ' ' + module;
+                    return res();
+                }, 200)
+            })
+        }
+    })`;
+};
+
 module.exports = (fragmentName, fragmentUrl, modules = 1, delay = false) => (
     request,
     response
@@ -34,7 +48,7 @@ module.exports = (fragmentName, fragmentUrl, modules = 1, delay = false) => (
             break;
         case '/module-2.js':
             response.writeHead(200, jsHeaders);
-            response.end(defineFn('js2', fragmentName));
+            response.end(defineFnPromise('js2', fragmentName));
             break;
         case '/module-3.js':
             response.writeHead(200, jsHeaders);
