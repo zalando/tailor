@@ -4,15 +4,27 @@
     <meta charset="utf-8">
     <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
     <script>
-        (function(){
+        (function(perf){
+            if (!('mark' in perf && 'measure' in perf)) {
+                return;
+            }
             const fragmentMap = new Map();
             const doneGroups = Object.create(null);
-        
+
             const getCount = (range) => {
                 return range[1] - range[0] + 1
             }
-
+            /**
+             * Group all the timing groups associated with all fragments
+             * and check if the scripts are done executing
+             * 
+             * Meausre -> time from navigation start - all scripts from
+             * fragments associated with given timing groups are done executing
+             */
             const measureGroups = (groups, callback) => {
+                if (groups.length < 1) {
+                    return;
+                }
                 for (const groupName of groups) {
                     // early exit if the timing group is already done
                     if (doneGroups[groupName] !== undefined) {
@@ -23,7 +35,7 @@
                         const fragment = fragmentMap.get(id);
                         const { groups } = fragment;
                         if (groups.indexOf(groupName) >= 0) {
-                            if (fragment.scriptCount > 0) {
+                            if (fragment.count > 0) {
                                 isGroupDone = false;
                                 break;
                             }
@@ -31,7 +43,7 @@
                     }
                     if (isGroupDone) {
                         doneGroups[groupName] = true;
-                        performance.measure(groupName.trim());
+                        perf.measure(groupName.trim());
                     }
                 }
                 return;
@@ -40,10 +52,17 @@
             Pipe.onStart((attributes) => {
                 const { id, range, timingGroups } = attributes;
                 if (!fragmentMap.has(id)) {
-                    const scriptCount = getCount(range)
+                    const count = getCount(range)
+                    /*
+                     * count - denotes the number of script tags
+                     * marked - flag to check if fragment started executing
+                     * measure - flag to measure sripts and fragments differently
+                     * groups - timing groups associated with a fragment
+                     */
                     fragmentMap.set(id, {
-                        scriptCount,
+                        count,
                         marked: false,
+                        measure: count !== 1,
                         groups: timingGroups
                     });
                 }
@@ -51,30 +70,63 @@
             Pipe.onBeforeInit(function(attributes) {
                 const { id, timingGroups } = attributes;
                 const fragment = fragmentMap.get(id);
-                // console.log("before init", id, performance.now());
-                // Mark only once even if fragment has multiple script tags
+                /**
+                 * Mark only once even if fragments send multiple scripts 
+                 * Helps to capture the overall time from start till all the
+                 * scripts are executed from fragment
+                 * 
+                 * Includes network time of other scripts as well.
+                 */
                 if(!fragment.marked) {
                     fragment.marked = true;
-                    performance.mark(id)
+                    perf.mark(id);
+                }
+                /**
+                 * Mark for each script tag from the fragments
+                 * Helps us to track how much time is spent executing 
+                 * each script on the fragments
+                 * 
+                 * Includes only the execution time of the exported function
+                 * in the script
+                 */ 
+                if (fragment.measure) {
+                    perf.mark(id + fragment.count);
                 }
             });
             Pipe.onAfterInit((attributes) => {
                 const { id, timingGroups } = attributes;
-                // console.log("after init", id, performance.now());
                 const fragment = fragmentMap.get(id);
-                fragment.scriptCount -= 1;
-                if (fragment.scriptCount === 0) {
-                    performance.mark(id + 'end');
-                    performance.measure('fragment-' + id, id, id + 'end');
+                // Measure for each script per fragment only if
+                // the script count is more than 1 per fragment
+                if (fragment.measure) {
+                    const markName = id + fragment.count;
+                    const markEnd = markName + 'end';
+                    perf.mark(markEnd);
+                    perf.measure("fragment-" + markName, markName, markEnd);
+                }
+                fragment.count -= 1;
+                /**
+                 * Measures from the first script tag execution to the last one
+                 * from a single fragment
+                 * 
+                 * fragment-{name} -> start to end
+                 */
+                if (fragment.count === 0) {
+                    perf.mark(id + 'end');
+                    perf.measure('fragment-' + id, id, id + 'end');
 
-                    // Iterate over all groups and figure out which ones are done
+                    // Measure if fragments assosiated with timing groups are done
                     measureGroups(timingGroups)
                 }
             });
             Pipe.onDone(() => {
-                performance.measure('all-done');
+                /**
+                 * Measure when all the script tags from fragments 
+                 * are done executing on the page
+                 */
+                perf.measure('all-done');
             });
-        })();
+        })(window.performance);
     </script>
     <script>
         define('js1', function () {
