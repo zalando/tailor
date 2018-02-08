@@ -18,6 +18,7 @@ const defineFn = (module, fragmentName) => {
 const defineFnPromise = (module, fragmentName) => {
     return `define (['${module}'], function (module) {
         return function initFragment (element) {
+            // Lazy rendering on fragment
             return new Promise((res, rej) => {
                 setTimeout(() => {
                     element.className += ' fragment-${fragmentName}-${module}';
