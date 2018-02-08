@@ -1,17 +1,19 @@
 <!doctype html>
 <html>
+
 <head>
     <meta charset="utf-8">
-    <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
+    <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII="
+        rel="icon" type="image/x-icon" />
     <script>
-        (function(perf){
+        (function (perf) {
             if (!('mark' in perf && 'measure' in perf)) {
                 return;
             }
-            const fragmentMap = new Map();
-            const doneGroups = Object.create(null);
+            var fragmentMap = Object.create(null);
+            var doneGroups = Object.create(null);
 
-            const getCount = (range) => {
+            function getCount(range) {
                 return range[1] - range[0] + 1
             }
             /**
@@ -21,55 +23,56 @@
              * Meausre -> time from navigation start - all scripts from
              * fragments associated with given timing groups are done executing
              */
-            const measureGroups = (groups, callback) => {
+            function measureGroups(groups) {
                 if (groups.length < 1) {
                     return;
                 }
-                for (const groupName of groups) {
+                for (var i = 0; i < groups.length; i++) {
+                    var groupName = groups[i];
+                    var isGroupDone = true;
                     // early exit if the timing group is already done
                     if (doneGroups[groupName] !== undefined) {
                         continue;
                     }
-                    let isGroupDone = true;
-                    for (const id of fragmentMap.keys()) {
-                        const fragment = fragmentMap.get(id);
-                        const { groups } = fragment;
-                        if (groups.indexOf(groupName) >= 0) {
-                            if (fragment.count > 0) {
-                                isGroupDone = false;
-                                break;
-                            }
+                    var keys = Object.keys(fragmentMap);
+                    for (var j = 0; j < keys.length; j++) {
+                        var fragment = fragmentMap[keys[j]];
+                        var groups = fragment.groups;
+                        if (groups.indexOf(groupName) >= 0 && fragment.count > 0) {
+                            isGroupDone = false;
+                            break;
                         }
                     }
+
                     if (isGroupDone) {
                         doneGroups[groupName] = true;
                         perf.measure(groupName.trim());
                     }
                 }
-                return;
             }
 
-            Pipe.onStart((attributes) => {
-                const { id, range, timingGroups } = attributes;
-                if (!fragmentMap.has(id)) {
-                    const count = getCount(range)
+            Pipe.onStart(function (attributes) {
+                var id = attributes.id;
+
+                if (fragmentMap[id] === undefined) {
+                    var count = getCount(attributes.range)
                     /*
                      * count - denotes the number of script tags
                      * marked - flag to check if fragment started executing
                      * measure - flag to measure sripts and fragments differently
                      * groups - timing groups associated with a fragment
                      */
-                    fragmentMap.set(id, {
-                        count,
+                    fragmentMap[id] = {
+                        count: count,
                         marked: false,
                         measure: count !== 1,
-                        groups: timingGroups
-                    });
+                        groups: attributes.timingGroups
+                    };
                 }
             });
-            Pipe.onBeforeInit(function(attributes) {
-                const { id, timingGroups } = attributes;
-                const fragment = fragmentMap.get(id);
+            Pipe.onBeforeInit(function (attributes, index) {
+                var id = attributes.id;
+                var fragment = fragmentMap[id];
                 /**
                  * Mark only once even if fragments send multiple scripts 
                  * Helps to capture the overall time from start till all the
@@ -77,7 +80,7 @@
                  * 
                  * Includes network time of other scripts as well.
                  */
-                if(!fragment.marked) {
+                if (!fragment.marked) {
                     fragment.marked = true;
                     perf.mark(id);
                 }
@@ -88,38 +91,50 @@
                  * 
                  * Includes only the execution time of the exported function
                  * in the script
-                 */ 
+                 */
                 if (fragment.measure) {
-                    perf.mark(id + fragment.count);
+                    perf.mark(id + index);
                 }
             });
-            Pipe.onAfterInit((attributes) => {
-                const { id, timingGroups } = attributes;
-                const fragment = fragmentMap.get(id);
+            Pipe.onAfterInit(function (attributes, index) {
+                var id = attributes.id;
+                var timingGroups = attributes.timingGroups;
+                var fragment = fragmentMap[id];
                 // Measure for each script per fragment only if
                 // the script count is more than 1 per fragment
+                var markStart = '',
+                    markEnd = '',
+                    measureName = '';
                 if (fragment.measure) {
-                    const markName = id + fragment.count;
-                    const markEnd = markName + 'end';
+                    
+                    markStart = id + index;
+                    markEnd = markStart + 'end';
+                    measureName = "fragment-" + id + fragment.count;
                     perf.mark(markEnd);
-                    perf.measure("fragment-" + markName, markName, markEnd);
+                    perf.measure(measureName, markStart, markEnd);
                 }
                 fragment.count -= 1;
                 /**
                  * Measures from the first script tag execution to the last one
-                 * from a single fragment
+                 * for a single fragment
                  * 
                  * fragment-{name} -> start to end
                  */
                 if (fragment.count === 0) {
-                    perf.mark(id + 'end');
-                    perf.measure('fragment-' + id, id, id + 'end');
-
-                    // Measure if fragments assosiated with timing groups are done
+                    markStart = id;
+                    markEnd = markStart + 'end';
+                    measureName = "fragment-" + id;
+                    perf.mark(markEnd);
+                    perf.measure(measureName, markStart, markEnd);
+                    // Measure when primary fragment is done
+                    if (attributes.primary) {
+                        perf.measure('primary-done');
+                    }
+                    // Measure if fragments assosiated with given timing groups are done
                     measureGroups(timingGroups)
                 }
             });
-            Pipe.onDone(() => {
+            Pipe.onDone(function () {
                 /**
                  * Measure when all the script tags from fragments 
                  * are done executing on the page
@@ -127,6 +142,7 @@
                 perf.measure('all-done');
             });
         })(window.performance);
+
     </script>
     <script>
         define('js1', function () {
@@ -138,8 +154,10 @@
         define('js3', function () {
             return 'js3';
         });
+
     </script>
 </head>
+
 <body>
     <div>
         <h2>Header:</h2>
@@ -150,4 +168,5 @@
         <fragment id="footer" timing-group="belowthefold" async src="http://localhost:8083"></fragment>
     </div>
 </body>
+
 </html>
