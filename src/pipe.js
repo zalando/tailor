@@ -115,10 +115,11 @@
 
     /**
      * Observe the visibility of node in viewport
-     * @param {String} fragmentId id of the fragment container
+     * @param {String} nodeId id of a container
      */
-    function observeNodeVisibility(fragmentId, script) {
-        var target = doc.querySelector('#' + fragmentId);
+    function observeNodeVisibility(nodeId, script) {
+        var target = doc.querySelector('#' + nodeId);
+        var node = target.childNodes[0];
         if (target) {
             var options = {
                 root: null, // browser viewport
@@ -128,7 +129,7 @@
                 entries.forEach(function(entry) {
                     if (entry.intersectionRatio > 0) {
                         // load javascript asynchronously
-                        loadJS(script, target);
+                        loadJS(script, node);
                         // Unobserve target
                         observer.unobserve(entry.target);
                     }
