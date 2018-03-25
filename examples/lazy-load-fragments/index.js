@@ -14,7 +14,7 @@ const createFragment = (http, port) => {
                 res.setHeader('Content-Type', 'application/javascript');
                 return res.end(
                     `
-                        c=!setInterval(\'document.getElementById("c${port}").innerHTML=c++;\', 1e3);
+                        c${port}=!setInterval(\'document.getElementById("c${port}").innerHTML=c${port}++;\', 1e3);
                         document.getElementById("f${port}").style["background-color"] = "green";
                     `
                 );
