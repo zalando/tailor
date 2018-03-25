@@ -114,15 +114,41 @@
     }
 
     /**
+     * Observe the visibility of node in viewport
+     * @param {String} fragmentId id of the fragment container
+     */
+    function observeNodeVisibility(fragmentId, script) {
+        var target = doc.querySelector('#' + fragmentId);
+        if (target) {
+            var options = {
+                root: null, // browser viewport
+                threshold: [0, 0.25, 0.5, 0.75, 1] // callback run every time visibility passes another 25%
+            };
+            var callback = function(entries, observer) {
+                entries.forEach(function(entry) {
+                    if (entry.intersectionRatio > 0) {
+                        // load javascript asynchronously
+                        loadJS(script, target);
+                        // Unobserve target
+                        observer.unobserve(entry.target);
+                    }
+                });
+            };
+            var observer = new IntersectionObserver(callback, options);
+            observer.observe(target);
+        }
+    }
+
+    /**
      * Load a js file asynchronously
      * @param {String} script
      */
-    function loadJS(script) {
+    function loadJS(script, node) {
         script &&
             require([script], function(i) {
                 // Exported AMD fragment initialization Function/Promise
                 var init = i && i.__esModule ? i.default : i;
-                // early return & calling hooks for performance measurements
+                // early return
                 if (typeof init !== 'function') {
                     return;
                 }
@@ -225,6 +251,7 @@
         placeholder: placeholder,
         start: start,
         end: end,
+        observeNodeVisibility: observeNodeVisibility,
         loadJS: loadJS,
         loadCSS: loadCSS,
         onStart: assignHook('onStart'),
