@@ -95,6 +95,7 @@
         }
         start.parentNode.removeChild(start);
         end.parentNode.removeChild(end);
+
         script &&
             require([script], function(i) {
                 // Exported AMD fragment initialization Function/Promise
@@ -111,6 +112,25 @@
                 doInit(init, node, attributes, index);
             });
     }
+
+    /**
+     * Load a js file asynchronously
+     * @param {String} script
+     */
+    function loadJS(script) {
+        script &&
+            require([script], function(i) {
+                // Exported AMD fragment initialization Function/Promise
+                var init = i && i.__esModule ? i.default : i;
+                // early return & calling hooks for performance measurements
+                if (typeof init !== 'function') {
+                    return;
+                }
+                // Initialize the fragment on the DOM node
+                init(node);
+            });
+    }
+
     /* @preserve - loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
     function loadCSS(href) {
         var ss = doc.createElement('link');
@@ -205,6 +225,7 @@
         placeholder: placeholder,
         start: start,
         end: end,
+        loadJS: loadJS,
         loadCSS: loadCSS,
         onStart: assignHook('onStart'),
         onBeforeInit: assignHook('onBeforeInit'),
