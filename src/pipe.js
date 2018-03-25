@@ -118,7 +118,7 @@
      * @param {String} nodeId id of a container
      */
     function observeNodeVisibility(nodeId, script) {
-        var target = doc.querySelector('#' + nodeId);
+        var target = doc.getElementById(nodeId);
         var node = target.childNodes[0];
         if (target) {
             var options = {
