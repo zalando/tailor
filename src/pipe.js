@@ -1,4 +1,4 @@
-(function(doc, perf) { //eslint-disable-line no-unused-vars, strict, prettier/prettier
+(function(doc, perf, IntersectionObserver, IntersectionObserverEntry) { //eslint-disable-line no-unused-vars, strict, prettier/prettier
     var placeholders = {};
     var starts = {};
     var scripts = doc.getElementsByTagName('script');
@@ -121,22 +121,31 @@
         var target = doc.getElementById(nodeId);
         var node = target.childNodes[0];
         if (target) {
-            var options = {
-                root: null, // browser viewport
-                threshold: [0, 0.25, 0.5, 0.75, 1] // callback run every time visibility passes another 25%
-            };
-            var callback = function(entries, observer) {
-                entries.forEach(function(entry) {
-                    if (entry.intersectionRatio > 0) {
-                        // load javascript asynchronously
-                        loadJS(script, node);
-                        // Unobserve target
-                        observer.unobserve(entry.target);
-                    }
-                });
-            };
-            var observer = new IntersectionObserver(callback, options);
-            observer.observe(target);
+            if (
+                IntersectionObserver &&
+                IntersectionObserverEntry &&
+                'intersectionRatio' in IntersectionObserverEntry.prototype
+            ) {
+                var options = {
+                    root: null, // browser viewport
+                    threshold: [0, 0.25, 0.5, 0.75, 1] // callback run every time visibility passes another 25%
+                };
+                var callback = function(entries, observer) {
+                    entries.forEach(function(entry) {
+                        if (entry.intersectionRatio > 0) {
+                            // load javascript asynchronously
+                            loadJS(script, node);
+                            // Unobserve target
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                };
+                var observer = new IntersectionObserver(callback, options);
+                observer.observe(target);
+            } else {
+                // load javascript right away
+                loadJS(script, node);
+            }
         }
     }
 
@@ -263,4 +272,9 @@
         addTTFMPEntry: addTTFMPEntry,
         getEntries: getEntries
     };
-})(window.document, window.performance);
+})(
+    window.document,
+    window.performance,
+    window.IntersectionObserver,
+    window.IntersectionObserverEntry
+);
