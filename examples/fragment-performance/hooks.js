@@ -9,6 +9,9 @@ const puppeteer = require('puppeteer');
         await page.goto('http://localhost:8080/index', {
             waitUntil: 'networkidle0'
         });
+
+        // FIXME scroll to the end of the page!!
+
         // Capture all the fragment related metrics
         const metrics = await page.evaluate(() => {
             // Serializing the outputs otherwise it will be undefined
