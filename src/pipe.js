@@ -31,8 +31,9 @@
     }
 
     function start(index, script, attributes) {
+        console.log('>>>>>>>> start script: ', script);
         starts[index] = currentScript();
-        if (script) {
+        if (script && !attributes.lazyjs) {
             initState.push(index);
             hooks.onStart(attributes, index);
             require([script]);
@@ -96,6 +97,68 @@
         start.parentNode.removeChild(start);
         end.parentNode.removeChild(end);
 
+        if (!attributes.lazyjs) {
+            console.log('>>>>>>>> execute script immediately');
+            script &&
+                require([script], function(i) {
+                    // Exported AMD fragment initialization Function/Promise
+                    var init = i && i.__esModule ? i.default : i;
+                    // early return & calling hooks for performance measurements
+                    if (typeof init !== 'function') {
+                        initState.pop();
+                        hooks.onBeforeInit(attributes, index);
+                        hooks.onAfterInit(attributes, index);
+                        fireDone();
+                        return;
+                    }
+                    // Initialize the fragment on the DOM node
+                    doInit(init, node, attributes, index);
+                });
+        } else {
+            console.log('>>>>>>>> execute script later using IntersectionObserver');
+            observeNodeVisibility(script, node, attributes, index);
+        }
+    }
+
+    /**
+     * Observe the visibility of node in viewport
+     * @param {String} nodeId id of a container
+     */
+    function observeNodeVisibility(script, node, attributes, index) {
+        if (node) {
+            if (
+                IntersectionObserver &&
+                IntersectionObserverEntry &&
+                'intersectionRatio' in IntersectionObserverEntry.prototype
+            ) {
+                var options = {
+                    root: null, // browser viewport
+                    threshold: [0, 0.25, 0.5, 0.75, 1] // callback run every time visibility passes another 25%
+                };
+                var callback = function(entries, observer) {
+                    entries.forEach(function(entry) {
+                        if (entry.intersectionRatio > 0) {
+                            // load javascript asynchronously
+                            loadJS(script, node, attributes, index);
+                            // Unobserve target
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                };
+                var observer = new IntersectionObserver(callback, options);
+                observer.observe(node);
+            } else {
+                // load javascript right away
+                loadJS(script, node, attributes, index);
+            }
+        }
+    }
+
+    /**
+     * Load a js file asynchronously
+     * @param {String} script
+     */
+    function loadJS(script, node, attributes, index) {
         script &&
             require([script], function(i) {
                 // Exported AMD fragment initialization Function/Promise
@@ -110,60 +173,6 @@
                 }
                 // Initialize the fragment on the DOM node
                 doInit(init, node, attributes, index);
-            });
-    }
-
-    /**
-     * Observe the visibility of node in viewport
-     * @param {String} nodeId id of a container
-     */
-    function observeNodeVisibility(nodeId, script) {
-        var target = doc.getElementById(nodeId);
-        var node = target.childNodes[0];
-        if (target) {
-            if (
-                IntersectionObserver &&
-                IntersectionObserverEntry &&
-                'intersectionRatio' in IntersectionObserverEntry.prototype
-            ) {
-                var options = {
-                    root: null, // browser viewport
-                    threshold: [0, 0.25, 0.5, 0.75, 1] // callback run every time visibility passes another 25%
-                };
-                var callback = function(entries, observer) {
-                    entries.forEach(function(entry) {
-                        if (entry.intersectionRatio > 0) {
-                            // load javascript asynchronously
-                            loadJS(script, node);
-                            // Unobserve target
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                };
-                var observer = new IntersectionObserver(callback, options);
-                observer.observe(target);
-            } else {
-                // load javascript right away
-                loadJS(script, node);
-            }
-        }
-    }
-
-    /**
-     * Load a js file asynchronously
-     * @param {String} script
-     */
-    function loadJS(script, node) {
-        script &&
-            require([script], function(i) {
-                // Exported AMD fragment initialization Function/Promise
-                var init = i && i.__esModule ? i.default : i;
-                // early return
-                if (typeof init !== 'function') {
-                    return;
-                }
-                // Initialize the fragment on the DOM node
-                init(node);
             });
     }
 
