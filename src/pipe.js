@@ -1,4 +1,4 @@
-(function(doc, perf) { //eslint-disable-line no-unused-vars, strict, prettier/prettier
+(function(doc, perf, IntersectionObserver, IntersectionObserverEntry) { //eslint-disable-line no-unused-vars, strict, prettier/prettier
     var placeholders = {};
     var starts = {};
     var scripts = doc.getElementsByTagName('script');
@@ -31,8 +31,9 @@
     }
 
     function start(index, script, attributes) {
+        console.log('>>>>>>>> start script: ', script);
         starts[index] = currentScript();
-        if (script) {
+        if (script && !attributes.lazyjs) {
             initState.push(index);
             hooks.onStart(attributes, index);
             require([script]);
@@ -95,6 +96,69 @@
         }
         start.parentNode.removeChild(start);
         end.parentNode.removeChild(end);
+
+        if (!attributes.lazyjs) {
+            console.log('>>>>>>>> execute script immediately');
+            script &&
+                require([script], function(i) {
+                    // Exported AMD fragment initialization Function/Promise
+                    var init = i && i.__esModule ? i.default : i;
+                    // early return & calling hooks for performance measurements
+                    if (typeof init !== 'function') {
+                        initState.pop();
+                        hooks.onBeforeInit(attributes, index);
+                        hooks.onAfterInit(attributes, index);
+                        fireDone();
+                        return;
+                    }
+                    // Initialize the fragment on the DOM node
+                    doInit(init, node, attributes, index);
+                });
+        } else {
+            console.log('>>>>>>>> execute script later using IntersectionObserver');
+            observeNodeVisibility(script, node, attributes, index);
+        }
+    }
+
+    /**
+     * Observe the visibility of node in viewport
+     * @param {String} nodeId id of a container
+     */
+    function observeNodeVisibility(script, node, attributes, index) {
+        if (node) {
+            if (
+                IntersectionObserver &&
+                IntersectionObserverEntry &&
+                'intersectionRatio' in IntersectionObserverEntry.prototype
+            ) {
+                var options = {
+                    root: null, // browser viewport
+                    threshold: [0, 0.25, 0.5, 0.75, 1] // callback run every time visibility passes another 25%
+                };
+                var callback = function(entries, observer) {
+                    entries.forEach(function(entry) {
+                        if (entry.intersectionRatio > 0) {
+                            // load javascript asynchronously
+                            loadJS(script, node, attributes, index);
+                            // Unobserve target
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                };
+                var observer = new IntersectionObserver(callback, options);
+                observer.observe(node);
+            } else {
+                // load javascript right away
+                loadJS(script, node, attributes, index);
+            }
+        }
+    }
+
+    /**
+     * Load a js file asynchronously
+     * @param {String} script
+     */
+    function loadJS(script, node, attributes, index) {
         script &&
             require([script], function(i) {
                 // Exported AMD fragment initialization Function/Promise
@@ -111,6 +175,7 @@
                 doInit(init, node, attributes, index);
             });
     }
+
     /* @preserve - loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
     function loadCSS(href) {
         var ss = doc.createElement('link');
@@ -205,6 +270,8 @@
         placeholder: placeholder,
         start: start,
         end: end,
+        observeNodeVisibility: observeNodeVisibility,
+        loadJS: loadJS,
         loadCSS: loadCSS,
         onStart: assignHook('onStart'),
         onBeforeInit: assignHook('onBeforeInit'),
@@ -214,4 +281,9 @@
         addTTFMPEntry: addTTFMPEntry,
         getEntries: getEntries
     };
-})(window.document, window.performance);
+})(
+    window.document,
+    window.performance,
+    window.IntersectionObserver,
+    window.IntersectionObserverEntry
+);

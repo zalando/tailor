@@ -31,6 +31,7 @@ describe('Fragment', () => {
             async: attributes.async,
             timeout: 4000,
             primary: false,
+            lazy: false,
             public: false,
             custom: attributes.custom
         };

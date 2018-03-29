@@ -1,6 +1,6 @@
 {
   "name": "node-tailor",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "description": "Tailor assembles a web page from multiple fragments",
   "keywords": [
     "tailor",
@@ -35,7 +35,8 @@
   "dependencies": {
     "http-link-header": "^0.8.0",
     "parse5": "^3.0.2",
-    "util.promisify": "^1.0.0"
+    "util.promisify": "^1.0.0",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "codecov": "^2.2.0",

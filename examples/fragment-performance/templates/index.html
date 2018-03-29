@@ -19,7 +19,7 @@
             /**
              * Group all the timing groups associated with all fragments
              * and check if the scripts are done executing
-             * 
+             *
              * Meausre -> time from navigation start - all scripts from
              * fragments associated with given timing groups are done executing
              */
@@ -74,10 +74,10 @@
                 var id = attributes.id;
                 var fragment = fragmentMap[id];
                 /**
-                 * Mark only once even if fragments send multiple scripts 
+                 * Mark only once even if fragments send multiple scripts
                  * Helps to capture the overall time from start till all the
                  * scripts are executed from fragment
-                 * 
+                 *
                  * Includes network time of other scripts as well.
                  */
                 if (!fragment.marked) {
@@ -86,9 +86,9 @@
                 }
                 /**
                  * Mark for each script tag from the fragments
-                 * Helps us to track how much time is spent executing 
+                 * Helps us to track how much time is spent executing
                  * each script on the fragments
-                 * 
+                 *
                  * Includes only the execution time of the exported function
                  * in the script
                  */
@@ -106,7 +106,7 @@
                     markEnd = '',
                     measureName = '';
                 if (fragment.measure) {
-                    
+
                     markStart = id + index;
                     markEnd = markStart + 'end';
                     measureName = "fragment-" + id + fragment.count;
@@ -117,7 +117,7 @@
                 /**
                  * Measures from the first script tag execution to the last one
                  * for a single fragment
-                 * 
+                 *
                  * fragment-{name} -> start to end
                  */
                 if (fragment.count === 0) {
@@ -136,7 +136,7 @@
             });
             Pipe.onDone(function () {
                 /**
-                 * Measure when all the script tags from fragments 
+                 * Measure when all the script tags from fragments
                  * are done executing on the page
                  */
                 perf.measure('all-done');
@@ -165,7 +165,7 @@
         <h2>Product/Primary:</h2>
         <fragment timing-group="interactive" id="product" primary src="http://localhost:8082"></fragment>
         <h2>Async Footer:</h2>
-        <fragment id="footer" timing-group="belowthefold" async src="http://localhost:8083"></fragment>
+        <fragment id="footer" timing-group="belowthefold" src="http://localhost:8083"></fragment>
     </div>
 </body>
 
