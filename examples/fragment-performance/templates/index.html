@@ -6,7 +6,10 @@
     <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII="
         rel="icon" type="image/x-icon" />
     <script>
-        (function (perf) {
+        (function (Pipe, perf) {
+            if (Pipe === undefined) {
+                return;
+            }
             if (!('mark' in perf && 'measure' in perf)) {
                 return;
             }
@@ -14,13 +17,32 @@
             var doneGroups = Object.create(null);
 
             function getCount(range) {
-                return range[1] - range[0] + 1
+                return range[1] - range[0] + 1;
             }
+            /**
+             * Elapsed time from browsers navigation start
+             */
+            function elapsedTime() {
+                return perf.now() || Date.now() - perf.timing.navigationStart;
+            }
+
+            function addGroupEntries() {
+                for (var name in doneGroups) {
+                    var duration = doneGroups[name];
+                    if (duration !== undefined) {
+                        Pipe.addPerfEntry(name, duration);
+                    }
+                }
+            }
+
             /**
              * Group all the timing groups associated with all fragments
              * and check if the scripts are done executing
-             * 
-             * Meausre -> time from navigation start - all scripts from
+             *
+             * If there are any fragment that gets lazily rendered then we need to
+             * account for the scripts from that fragment as well
+             *
+             * Measure -> time from navigation start - all scripts from
              * fragments associated with given timing groups are done executing
              */
             function measureGroups(groups) {
@@ -30,32 +52,30 @@
                 for (var i = 0; i < groups.length; i++) {
                     var groupName = groups[i];
                     var isGroupDone = true;
-                    // early exit if the timing group is already done
-                    if (doneGroups[groupName] !== undefined) {
-                        continue;
-                    }
                     var keys = Object.keys(fragmentMap);
                     for (var j = 0; j < keys.length; j++) {
                         var fragment = fragmentMap[keys[j]];
-                        var groups = fragment.groups;
-                        if (groups.indexOf(groupName) >= 0 && fragment.count > 0) {
+                        if (
+                            fragment.groups.indexOf(groupName) >= 0 &&
+                            fragment.count > 0
+                        ) {
                             isGroupDone = false;
                             break;
                         }
                     }
 
                     if (isGroupDone) {
-                        doneGroups[groupName] = true;
-                        perf.measure(groupName.trim());
+                        // Keep updating the timings for the group to account for
+                        // fragments that are streamed later
+                        doneGroups[groupName.trim()] = elapsedTime();
                     }
                 }
             }
 
             Pipe.onStart(function (attributes) {
                 var id = attributes.id;
-
                 if (fragmentMap[id] === undefined) {
-                    var count = getCount(attributes.range)
+                    var count = getCount(attributes.range);
                     /*
                      * count - denotes the number of script tags
                      * marked - flag to check if fragment started executing
@@ -74,10 +94,10 @@
                 var id = attributes.id;
                 var fragment = fragmentMap[id];
                 /**
-                 * Mark only once even if fragments send multiple scripts 
+                 * Mark only once even if fragments send multiple scripts
                  * Helps to capture the overall time from start till all the
                  * scripts are executed from fragment
-                 * 
+                 *
                  * Includes network time of other scripts as well.
                  */
                 if (!fragment.marked) {
@@ -86,9 +106,9 @@
                 }
                 /**
                  * Mark for each script tag from the fragments
-                 * Helps us to track how much time is spent executing 
+                 * Helps us to track how much time is spent executing
                  * each script on the fragments
-                 * 
+                 *
                  * Includes only the execution time of the exported function
                  * in the script
                  */
@@ -106,10 +126,9 @@
                     markEnd = '',
                     measureName = '';
                 if (fragment.measure) {
-                    
                     markStart = id + index;
                     markEnd = markStart + 'end';
-                    measureName = "fragment-" + id + fragment.count;
+                    measureName = 'fragment-' + id + fragment.count;
                     perf.mark(markEnd);
                     perf.measure(measureName, markStart, markEnd);
                 }
@@ -117,13 +136,13 @@
                 /**
                  * Measures from the first script tag execution to the last one
                  * for a single fragment
-                 * 
+                 *
                  * fragment-{name} -> start to end
                  */
                 if (fragment.count === 0) {
                     markStart = id;
                     markEnd = markStart + 'end';
-                    measureName = "fragment-" + id;
+                    measureName = 'fragment-' + id;
                     perf.mark(markEnd);
                     perf.measure(measureName, markStart, markEnd);
                     // Measure when primary fragment is done
@@ -131,17 +150,22 @@
                         perf.measure('primary-done');
                     }
                     // Measure if fragments assosiated with given timing groups are done
-                    measureGroups(timingGroups)
+                    measureGroups(timingGroups);
                 }
             });
             Pipe.onDone(function () {
                 /**
-                 * Measure when all the script tags from fragments 
+                 * Create performance entries for all the collected metrics from
+                 * timing groups
+                 */
+                addGroupEntries();
+                /**
+                 * Measure when all the script tags from fragments
                  * are done executing on the page
                  */
                 perf.measure('all-done');
             });
-        })(window.performance);
+        })(window.TailorPipe, window.performance);
 
     </script>
     <script>
