@@ -14,14 +14,16 @@ const puppeteer = require('puppeteer');
             // Serializing the outputs otherwise it will be undefined
             return [
                 JSON.stringify(performance.getEntriesByType('mark')),
-                JSON.stringify(performance.getEntriesByType('measure'))
+                JSON.stringify(performance.getEntriesByType('measure')),
+                JSON.stringify(window.TailorPipe.getEntries())
             ];
         });
-        const [mark, measure] = [
+        const [mark, measure, entries] = [
             JSON.parse(metrics[0]),
-            JSON.parse(metrics[1])
+            JSON.parse(metrics[1]),
+            JSON.parse(metrics[2])
         ];
-        await analyseHooks(mark, measure);
+        await analyseHooks(mark, measure, entries);
         await browser.close();
     } catch (e) {
         console.error(e);
@@ -35,7 +37,7 @@ function get(entries, name, key) {
         .map(entry => entry[key])[0];
 }
 
-async function analyseHooks(mark, measure) {
+async function analyseHooks(mark, measure, entries) {
     /**
      * Performance Marks
      * 6 incluging start and end for fragments to capture the fragment timeline
@@ -122,15 +124,18 @@ async function analyseHooks(mark, measure) {
      *
      * 3 script tags in Footer fragment
      */
-    assert.equal(measure.length, 13, 'No of measure entries must be 13');
+    assert.equal(measure.length, 10, 'No of measure entries must be 10');
 
     /**
-     * All done should be the last one to happen
+     * No of tailor entries must be three
+     *
+     * 3 timing groups in total
      */
+    assert.equal(entries.length, 3, 'No of tailor entries must be 3');
 
-    const aboveTheFold = get(measure, 'abovethefold', 'duration');
-    const interactive = get(measure, 'interactive', 'duration');
-    const belowTheFold = get(measure, 'belowthefold', 'duration');
+    const aboveTheFold = get(entries, 'abovethefold', 'duration');
+    const interactive = get(entries, 'interactive', 'duration');
+    const belowTheFold = get(entries, 'belowthefold', 'duration');
     const header = get(measure, 'fragment-header', 'duration');
     const product = get(measure, 'fragment-product', 'duration');
     const footer = get(measure, 'fragment-footer', 'duration');

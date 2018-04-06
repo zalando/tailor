@@ -11,6 +11,7 @@ const tailor = new Tailor({
         const { id, primary } = attributes;
         return { timingGroups, id, primary: !!(primary || primary === '') };
     },
+    pipeInstanceName: 'TailorPipe',
     maxAssetLinks: 3
 });
 const server = http.createServer((req, res) => {
