@@ -51,7 +51,11 @@
     }
 
     function isPromise(obj) {
-        return typeof obj === 'object' && typeof obj.then === 'function';
+        return (
+            obj != null &&
+            typeof obj === 'object' &&
+            typeof obj.then === 'function'
+        );
     }
 
     function doInit(init, node, attributes, index) {
