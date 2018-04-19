@@ -20,7 +20,7 @@ ts-node ./index.ts
 Install TypeScript compiler and execute following;
 
 ```bash
-tsk ./index.ts
+tsc ./index.ts
 # Now we have index.js and can run it with node.js
 node ./index.js
 ```

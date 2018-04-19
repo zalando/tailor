@@ -29,19 +29,29 @@ declare class Tailor extends EventEmitter {
     amdLoaderUrl?: string
     , fetchContext?: (req: IncomingMessage) => Promise<object>
     , fetchTemplate?: (templatesPath: string, baseTemplateFn: (path: string) => string) => Promise<any>
-    , filterRequestHeaders?: (attributes: object, req: IncomingMessage) => object
-    , filterResponseHeaders?: (attributes: object, req: ServerResponse) => object
+    , filterRequestHeaders?: (attributes: Attributes, req: IncomingMessage) => object
+    , filterResponseHeaders?: (attributes: Attributes, res: ServerResponse) => object
     , fragmentTag?: string
     , handledTags?: string[]
     , handleTag?: (request: IncomingMessage, tag: object, options: object, context: object) => Stream | string
     , maxAssetLinks?: number
-    , pipeAttributes?: (attributes: object) => object
+    , pipeAttributes?: (attributes: Attributes) => object
     , pipeInstanceName?: string
-    , requestFragment?: (filterHeaders: (attributes: object, req: IncomingMessage) => object, url: Url, attributes: object, req: IncomingMessage) => Promise<IncomingMessage>
+    , requestFragment?: (filterHeaders: (attributes: Attributes, req: IncomingMessage) => object, url: Url, attributes: Attributes, req: IncomingMessage) => Promise<ServerResponse>
     , templatesPath?: string
   })
 
   requestHandler(request: IncomingMessage, response: ServerResponse): void;
+}
+
+interface Attributes {
+  id: string,
+  src: string
+  async?: boolean
+  fallbackUrl?: string,
+  primary?: boolean
+  public?: boolean
+  [key: string]: any
 }
 
 
