@@ -421,32 +421,34 @@ describe('Tailor', () => {
                     .then(done, done);
             });
 
-            it('should preload only primary fragment assets', done => {
-                nock('https://fragment')
-                    .get('/1')
-                    .reply(200, 'non-primary', {
-                        Link:
-                            '<http://non-primary>; rel="stylesheet",<http://non-primary>; rel="fragment-script"'
-                    })
-                    .get('/2')
-                    .reply(200, 'primary', {
-                        Link:
-                            '<http://primary>; rel="stylesheet",<http://primary>; rel="fragment-script"'
-                    });
+            ['Link', 'x-amz-meta-link'].forEach(linkHeader => {
+                it(`should preload only primary fragment assets for header ${linkHeader}`, done => {
+                    nock('https://fragment')
+                        .get('/1')
+                        .reply(200, 'non-primary', {
+                            [linkHeader]:
+                                '<http://non-primary>; rel="stylesheet",<http://non-primary>; rel="fragment-script"'
+                        })
+                        .get('/2')
+                        .reply(200, 'primary', {
+                            [linkHeader]:
+                                '<http://primary>; rel="stylesheet",<http://primary>; rel="fragment-script"'
+                        });
 
-                mockTemplate.returns(
-                    '<fragment src="https://fragment/1"></fragment>' +
-                        '<fragment primary src="https://fragment/2"></fragment>'
-                );
+                    mockTemplate.returns(
+                        '<fragment src="https://fragment/1"></fragment>' +
+                            '<fragment primary src="https://fragment/2"></fragment>'
+                    );
 
-                getResponse('http://localhost:8080/test')
-                    .then(response => {
-                        assert.equal(
-                            response.headers.link,
-                            '<https://loader>; rel="preload"; as="script"; nopush; crossorigin,<http://primary>; rel="preload"; as="style"; nopush;,<http://primary>; rel="preload"; as="script"; nopush; crossorigin'
-                        );
-                    })
-                    .then(done, done);
+                    getResponse('http://localhost:8080/test')
+                        .then(response => {
+                            assert.equal(
+                                response.headers.link,
+                                '<https://loader>; rel="preload"; as="script"; nopush; crossorigin,<http://primary>; rel="preload"; as="style"; nopush;,<http://primary>; rel="preload"; as="script"; nopush; crossorigin'
+                            );
+                        })
+                        .then(done, done);
+                });
             });
 
             it('should not send crossorigin in Link headers for same origin scripts', done => {
