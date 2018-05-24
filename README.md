@@ -3,6 +3,7 @@
 [![NPM](https://nodei.co/npm/node-tailor.png)](https://npmjs.org/package/node-tailor)
 [![Build Status](https://travis-ci.org/zalando/tailor.svg?branch=master)](https://travis-ci.org/zalando/tailor)
 [![Test Coverage](https://codecov.io/github/zalando/tailor/coverage.svg?precision=0)](https://codecov.io/github/zalando/tailor)
+[![OpenTracing Badge](https://img.shields.io/badge/OpenTracing-enabled-blue.svg)](http://opentracing.io)
 
 ## npm status
 
@@ -58,6 +59,7 @@ Default implementation [`lib/fetch-template.js`](https://github.com/zalando/tail
 * `amdLoaderUrl` - URL to AMD loader. We use [RequireJS from cdnjs](https://cdnjs.com/libraries/require.js) as deafult
 * `pipeInstanceName` - Pipe instance name that is available in the browser window for consuming frontend hooks.
 * `pipeAttributes(attributes)` - Function that returns the minimal set of fragment attributes available on the frontend [hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md).
+* `tracer` - Opentracing [compliant Tracer implementation](https://doc.esdoc.org/github.com/opentracing/opentracing-javascript/class/src/tracer.js~Tracer.html).
 
 ## Template
 
@@ -128,6 +130,15 @@ Some of the concepts in Tailor are described in detail on the specific docs.
 * [Hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md)
 * [Performance](https://github.com/zalando/tailor/blob/master/docs/Performance.md)
 
+## OpenTracing
+
+Tailor has out of the box distributed tracing instrumentation with [OpenTracing](https://opentracing.io).
+It will pick up any span context on the ingress HTTP request and propagate it to the existing 
+Remote Procedure Calls (RPCs).
+
+Currently, only the fetching of fragments is instrumented providing some additional details like the 
+fragment tag attributes and some logging payload like the stack trace for errors.
+ 
 ## Examples
 
 ```sh
