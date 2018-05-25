@@ -4,6 +4,7 @@ import { EventEmitter } from "events";
 import { Stream } from "stream";
 import { Url } from "url";
 import { IncomingMessage, ServerResponse } from "http";
+import { Span, Tracer } from 'opentracing';
 
 export = Tailor;
 
@@ -20,10 +21,11 @@ declare class Tailor extends EventEmitter {
    * @param options.handleTags Array of custom tags.
    * @param options.handleTag Receives a tag or closing tag and serializes it to a string or returns as stream
    * @param options.maxAssetLinks Number of allowed link headers of CSS and JS for per fragment
-   * @param options.pipeAttributes Function that returns the minimal set of fragment attributes available on the frontend 
+   * @param options.pipeAttributes Function that returns the minimal set of fragment attributes available on the frontend
    * @param options.pipeInstanceName  Name of pipe instance that available in the browser window object to consume frontend hooks
    * @param options.requestFragment Function that returns a promise of request to a fragment server
    * @param options.templatesPath Path to local templates
+   * @param options.tracer Opentracing compliant Tracer implementation
    */
   constructor(options?: {
     amdLoaderUrl?: string
@@ -37,8 +39,9 @@ declare class Tailor extends EventEmitter {
     , maxAssetLinks?: number
     , pipeAttributes?: (attributes: Attributes) => object
     , pipeInstanceName?: string
-    , requestFragment?: (filterHeaders: (attributes: Attributes, req: IncomingMessage) => object, url: Url, attributes: Attributes, req: IncomingMessage) => Promise<ServerResponse>
+    , requestFragment?: (filterHeaders: (attributes: Attributes, req: IncomingMessage) => object, url: Url, attributes: Attributes, req: IncomingMessage, span?: Span) => Promise<ServerResponse>
     , templatesPath?: string
+    , tracer?: Tracer
   })
 
   requestHandler(request: IncomingMessage, response: ServerResponse): void;
