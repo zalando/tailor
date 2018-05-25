@@ -34,7 +34,8 @@
   "license": "MIT",
   "dependencies": {
     "http-link-header": "^0.8.0",
-    "parse5": "^3.0.2",
+    "opentracing": "^0.14.3",
+    "parse5": "^3.0.3",
     "util.promisify": "^1.0.0"
   },
   "devDependencies": {

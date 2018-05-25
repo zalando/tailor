@@ -8,10 +8,12 @@ const fetchTemplate = require('./lib/fetch-template');
 const parseTemplate = require('./lib/parse-template');
 const requestFragment = require('./lib/request-fragment');
 const filterReqHeadersFn = require('./lib/filter-headers');
+const { initTracer } = require('./lib/tracing');
 const PIPE_DEFINITION = fs.readFileSync(
     path.resolve(__dirname, 'src/pipe.min.js')
 );
 const { getCrossOrigin } = require('./lib/utils');
+
 const AMD_LOADER_URL =
     'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.22/require.min.js';
 
@@ -77,6 +79,8 @@ module.exports = class Tailor extends EventEmitter {
             },
             options
         );
+
+        initTracer(options.tracer);
 
         requestOptions.parseTemplate = parseTemplate(
             [requestOptions.fragmentTag].concat(requestOptions.handledTags),
