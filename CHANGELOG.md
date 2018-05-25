@@ -1,5 +1,10 @@
 # Tailor Changelog
 
+### 3.7.0
+* Added Opentracing Instrumentation([#232](https://github.com/zalando/tailor/pull/232))
+* Added Typescript definitions([#226](https://github.com/zalando/tailor/pull/226))
+* Support asset preloading for aws custom headers([#229](https://github.com/zalando/tailor/pull/229))
+
 ### 3.6.0
 * Pass all custom fragment attributes to filterRequestHeaders([#209](https://github.com/zalando/tailor/pull/209))
 * Custom API for adding TTFMP from fragments([#214](https://github.com/zalando/tailor/pull/214))
