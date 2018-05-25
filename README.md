@@ -137,7 +137,7 @@ It will pick up any span context on the ingress HTTP request and propagate it to
 Remote Procedure Calls (RPCs).
 
 Currently, only the fetching of fragments is instrumented providing some additional details like the 
-fragment tag attributes and some logging payload like the stack trace for errors.
+fragment tag, attributes and some logging payload like the stack trace for errors.
  
 ## Examples
 
