@@ -7,7 +7,7 @@ const Tailor = require('../../');
 const tailor = new Tailor({
     templatesPath: __dirname + '/templates'
     // The place to define a custom Opentracing tracer like Jaeger, for ex.
-    // tracer: initTracer(config, options);
+    // tracer: initTracer(config, options)
 });
 
 // Root Server
