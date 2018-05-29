@@ -1,5 +1,9 @@
 # Tailor Changelog
 
+### 3.7.1
+* handle parsing & primary error properly([#235](https://github.com/zalando/tailor/pull/235))
+* Opentracing - Pass correct span contexts and add tests([#236](https://github.com/zalando/tailor/pull/236))
+
 ### 3.7.0
 * Added Opentracing Instrumentation([#232](https://github.com/zalando/tailor/pull/232))
 * Added Typescript definitions([#226](https://github.com/zalando/tailor/pull/226))
