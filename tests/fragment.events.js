@@ -1,7 +1,10 @@
 'use strict';
-const Fragment = require('../lib/fragment');
 const assert = require('assert');
 const nock = require('nock');
+const sinon = require('sinon');
+const Fragment = require('../lib/fragment');
+const requestFragment = require('../lib/request-fragment');
+
 const TAG = { attributes: { src: 'https://fragment' } };
 const TAG_FALLBACK = {
     attributes: {
@@ -12,8 +15,6 @@ const TAG_FALLBACK = {
 const REQUEST = { headers: {} };
 const RESPONSE_HEADERS = { connection: 'close' };
 const filterHeaderFn = () => ({});
-const sinon = require('sinon');
-const requestFragment = require('../lib/request-fragment');
 const getOptions = tag => {
     return {
         tag,
@@ -30,7 +31,7 @@ describe('Fragment events', () => {
             .reply(200, 'OK');
         const fragment = new Fragment(getOptions(TAG));
         fragment.on('start', done);
-        fragment.fetch(REQUEST, false);
+        fragment.fetch(REQUEST);
     });
 
     it('triggers `fallback` event', done => {
@@ -44,7 +45,7 @@ describe('Fragment events', () => {
         fragment.on('fallback', () => {
             done();
         });
-        fragment.fetch(REQUEST, false);
+        fragment.fetch(REQUEST);
     });
 
     it('should not trigger error and response event when fallback is triggered', done => {
@@ -65,7 +66,7 @@ describe('Fragment events', () => {
             assert.equal(onError.callCount, 0);
             done();
         });
-        fragment.fetch(REQUEST, false);
+        fragment.fetch(REQUEST);
         fragment.stream.resume();
     });
 
@@ -79,7 +80,7 @@ describe('Fragment events', () => {
             assert.deepEqual(headers, RESPONSE_HEADERS);
             done();
         });
-        fragment.fetch(REQUEST, false);
+        fragment.fetch(REQUEST);
     });
 
     it('triggers `end(contentSize)` when the content is succesfully retreived', done => {
@@ -91,7 +92,7 @@ describe('Fragment events', () => {
             assert.equal(contentSize, 5);
             done();
         });
-        fragment.fetch(REQUEST, false);
+        fragment.fetch(REQUEST);
         fragment.stream.resume();
     });
 
@@ -104,7 +105,7 @@ describe('Fragment events', () => {
             assert.ok(error);
             done();
         });
-        fragment.fetch(REQUEST, false);
+        fragment.fetch(REQUEST);
     });
 
     it('should not trigger `response` and `end` for fallback fragment', done => {
@@ -118,7 +119,7 @@ describe('Fragment events', () => {
         fragment.on('response', onResponse);
         fragment.on('end', onEnd);
         fragment.on('fallback', onFallback);
-        fragment.fetch(REQUEST, false);
+        fragment.fetch(REQUEST);
         fragment.stream.on('end', () => {
             assert.equal(onResponse.callCount, 0);
             assert.equal(onEnd.callCount, 0);
@@ -139,7 +140,7 @@ describe('Fragment events', () => {
         fragment.on('response', onResponse);
         fragment.on('end', onEnd);
         fragment.on('error', onError);
-        fragment.fetch(REQUEST, false);
+        fragment.fetch(REQUEST);
         fragment.stream.on('end', () => {
             assert.equal(onResponse.callCount, 0);
             assert.equal(onEnd.callCount, 0);
@@ -162,7 +163,7 @@ describe('Fragment events', () => {
             assert.equal(error.message, ERROR.message);
             done();
         });
-        fragment.fetch(REQUEST, false);
+        fragment.fetch(REQUEST);
     });
 
     it('triggers `error(error)` when fragment times out', done => {
@@ -176,6 +177,6 @@ describe('Fragment events', () => {
             assert.equal(err.message, 'socket hang up');
             done();
         });
-        fragment.fetch(REQUEST, false);
+        fragment.fetch(REQUEST);
     });
 });

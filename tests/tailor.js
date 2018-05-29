@@ -10,9 +10,17 @@ const { TEMPLATE_NOT_FOUND } = require('../lib/fetch-template');
 const Tailor = require('../index');
 const processTemplate = require('../lib/process-template');
 const PIPE_DEFINITION = readFileSync(resolve(__dirname, '../src/pipe.min.js'));
+const { MockTracer } = require('opentracing');
+
+//Custom mock tracer for Unit tests
+class CustomTracer extends MockTracer {
+    inject() {}
+    extract() {}
+}
 
 describe('Tailor', () => {
     let server;
+    const tracer = new CustomTracer();
     const mockTemplate = sinon.stub();
     const mockChildTemplate = sinon.stub();
     const mockContext = sinon.stub();
@@ -85,7 +93,8 @@ describe('Tailor', () => {
                 },
                 pipeInstanceName,
                 pipeAttributes: attributes => ({ id: attributes.id }),
-                filterResponseHeaders: (attributes, headers) => headers
+                filterResponseHeaders: (attributes, headers) => headers,
+                tracer
             },
             pipeDefinition !== undefined ? { pipeDefinition } : {}
         );
@@ -1293,6 +1302,105 @@ describe('Tailor', () => {
                             '<script data-pipe>p.end(0, "http://link4", {"id":0,"range":[0,0]})</script>' +
                             '</body></html>'
                     );
+                })
+                .then(done, done);
+        });
+    });
+
+    describe('OpenTracing', () => {
+        beforeEach(() => {
+            tracer.clear();
+        });
+
+        function traceResults() {
+            const { spans } = tracer.report();
+            const tags = spans.map(s => s.tags());
+            const logs = spans.map(s => s._logs[0]);
+            return { tags, logs };
+        }
+
+        it('process request spans', done => {
+            mockTemplate.returns('Test');
+            getResponse('http://localhost:8080/test')
+                .then(() => {
+                    const { tags } = traceResults();
+                    assert.equal(tags.length, 1);
+                    assert.deepEqual(tags[0], {
+                        'http.url': '/test',
+                        'span.kind': 'server'
+                    });
+                })
+                .then(done, done);
+        });
+
+        it('template error request spans & logs', done => {
+            mockTemplate.returns('');
+            getResponse('http://localhost:8080/error')
+                .then(() => {
+                    const { tags, logs } = traceResults();
+                    assert.deepEqual(tags[0], {
+                        'http.url': '/error',
+                        'span.kind': 'server',
+                        error: true,
+                        'http.status_code': 500
+                    });
+                    assert.equal(logs.length, 1);
+                })
+                .then(done, done);
+        });
+
+        it('process request + primary fragment error spans', done => {
+            nock('https://fragment')
+                .get('/1')
+                .reply(500);
+
+            mockTemplate.returns(
+                '<fragment primary src="https://fragment/1"></fragment>'
+            );
+
+            getResponse('http://localhost:8080/test')
+                .then(() => {
+                    const { tags } = traceResults();
+                    // Tailor should return error
+                    assert.equal(tags[0].error, true);
+                    // Primary fragment error
+                    const primaryTag = {
+                        primary: tags[1].primary,
+                        error: tags[1].error
+                    };
+                    assert.deepEqual(primaryTag, {
+                        error: true,
+                        primary: true
+                    });
+                })
+                .then(done, done);
+        });
+
+        it('process request + fragment error & fallback spans', done => {
+            nock('https://fragment')
+                .get('/1')
+                .reply(500);
+
+            nock('http://fragment:9000')
+                .get('/2')
+                .reply(500);
+
+            mockTemplate.returns(
+                '<fragment id="test" src="https://fragment/1" fallback-src="http://localhost:9000/2"></fragment>'
+            );
+
+            getResponse('http://localhost:8080/test')
+                .then(() => {
+                    const { tags } = traceResults();
+                    assert.deepEqual(tags[1], {
+                        'span.kind': 'client',
+                        url: 'https://fragment/1',
+                        id: 'test',
+                        fallback: false,
+                        primary: false,
+                        async: false,
+                        public: false
+                    });
                 })
                 .then(done, done);
         });
