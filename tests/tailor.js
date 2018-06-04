@@ -10,7 +10,7 @@ const { TEMPLATE_NOT_FOUND } = require('../lib/fetch-template');
 const Tailor = require('../index');
 const processTemplate = require('../lib/process-template');
 const PIPE_DEFINITION = readFileSync(resolve(__dirname, '../src/pipe.min.js'));
-const { MockTracer } = require('opentracing');
+const { Tags, MockTracer } = require('opentracing');
 
 //Custom mock tracer for Unit tests
 class CustomTracer extends MockTracer {
@@ -1394,7 +1394,7 @@ describe('Tailor', () => {
                     const { tags } = traceResults();
                     assert.deepEqual(tags[1], {
                         'span.kind': 'client',
-                        url: 'https://fragment/1',
+                        [Tags.HTTP_URL]: 'https://fragment/1',
                         id: 'test',
                         fallback: false,
                         primary: false,
