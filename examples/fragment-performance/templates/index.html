@@ -165,6 +165,9 @@
                  */
                 perf.measure('all-done');
             });
+            Pipe.onDone(() => {
+                perf.measure('all-done-2');
+            });
         })(window.TailorPipe, window.performance);
 
     </script>

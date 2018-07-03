@@ -205,6 +205,18 @@
         };
     }
 
+    /**
+     * Preserve and execute the functions in the order
+     * the callbacks were registered
+     */
+    function onDoneHook(cb) {
+        var prevCb = hooks['onDone'];
+        hooks['onDone'] = function() {
+            prevCb();
+            cb();
+        };
+    }
+
     return {
         placeholder: placeholder,
         start: start,
@@ -213,7 +225,7 @@
         onStart: assignHook('onStart'),
         onBeforeInit: assignHook('onBeforeInit'),
         onAfterInit: assignHook('onAfterInit'),
-        onDone: assignHook('onDone'),
+        onDone: onDoneHook,
         addPerfEntry: addPerfEntry,
         addTTFMPEntry: addTTFMPEntry,
         getEntries: getEntries

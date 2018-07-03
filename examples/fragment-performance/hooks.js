@@ -113,7 +113,7 @@ async function analyseHooks(mark, measure, entries) {
     /**
      * Performance Measures
      * 3 - timing groups - abovethefold, belowthefold, interactive
-     * 1 - all done
+     * 2 - all done
      * 1- primary fragemnt done
      * 3 including all the fragments
      *  -> Header - 1
@@ -124,7 +124,7 @@ async function analyseHooks(mark, measure, entries) {
      *
      * 3 script tags in Footer fragment
      */
-    assert.equal(measure.length, 10, 'No of measure entries must be 10');
+    assert.equal(measure.length, 11, 'No of measure entries must be 10');
 
     /**
      * No of tailor entries must be three
@@ -184,11 +184,21 @@ async function analyseHooks(mark, measure, entries) {
         'below the fold > above the fold and interactive'
     );
     /**
-     * All done should be the last one to happen
+     * All done happens after all fragemnt exec times are measured
      */
     const allDone = get(measure, 'all-done', 'duration');
 
-    assert(allDone > belowTheFold, 'all done is the last one to happen');
+    assert(allDone > belowTheFold, 'all done must happen after all fragment scripts are executed');
+
+    /**
+     * onDone supports multiple subscribers
+     *
+     * all-done-2 which is measured after all-done should be the
+     * very last thing to happen
+     */
+    const allDone2 = get(measure, 'all-done-2', 'duration');
+
+    assert(allDone2 > allDone, 'all done 2 must happen after all-done');
 
     console.log('Hurray! Metrics tests passed');
 }
