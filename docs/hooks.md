@@ -2,6 +2,10 @@
 
 Tailor provides four hooks on the client side(Browser) that can be used for programmatically measuring Performance.
 
+These hooks does not follow pub sub pattern where we would normally have a number of subscribers listening for the event. The reason being, fragment sripts can have multiple script assets and having more than one subscriber would already make it hard to mark and measure the timing information.
+
+`Pipe.OnDone` is an exception(It does not depend on other hooks) which can be registered multiple times, and they will be executed in the order they are registered.
+
 ## API
 
 ### Pipe.onStart(callback(attributes, index))
