@@ -11,7 +11,7 @@ function getTemplate(template, specialTags, pipeBeforeTags) {
 }
 
 describe('Stringifier Stream', () => {
-    it('should stream the content from a fragment tag', () => {
+    it('should stream the content from a fragment tag', done => {
         let st = new PassThrough();
         const templatePromise = getTemplate(
             '<fragment title="mock"></fragment>'
