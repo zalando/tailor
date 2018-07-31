@@ -62,8 +62,10 @@
     "LICENSE",
     "MAINTAINERS",
     "index.js",
+    "index.d.ts",
     "README.md",
     "src/pipe.min.js",
     "yarn.lock"
-  ]
+  ],
+  "types": "index.d.ts"
 }
