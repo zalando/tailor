@@ -1355,7 +1355,7 @@ describe('Tailor', () => {
                 .reply(500);
 
             mockTemplate.returns(
-                '<fragment primary src="https://fragment/1"></fragment>'
+                '<fragment id="" primary src="https://fragment/1"></fragment>'
             );
 
             getResponse('http://localhost:8080/test')
@@ -1364,13 +1364,15 @@ describe('Tailor', () => {
                     // Tailor should return error
                     assert.equal(tags[0].error, true);
                     // Primary fragment error
-                    const primaryTag = {
-                        primary: tags[1].primary,
-                        error: tags[1].error
-                    };
-                    assert.deepEqual(primaryTag, {
+                    assert.deepEqual(tags[1], {
                         error: true,
-                        primary: true
+                        primary: true,
+                        'span.kind': 'client',
+                        'http.url': 'https://fragment/1',
+                        fallback: false,
+                        public: false,
+                        async: false,
+                        id: 'unnamed'
                     });
                 })
                 .then(done, done);
