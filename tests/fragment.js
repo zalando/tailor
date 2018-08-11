@@ -12,7 +12,7 @@ const getOptions = tag => {
 };
 
 describe('Fragment', () => {
-    it('computed and custom attributes are correctly initiliazed', () => {
+    it('computed attributes are correctly initiliazed', () => {
         const attributes = {
             id: 'foo',
             src: 'https://fragment',
@@ -25,14 +25,11 @@ describe('Fragment', () => {
         const expected = {
             id: attributes.id,
             url: attributes.src,
-            'fallback-src': attributes['fallback-src'],
-            src: attributes.src,
             fallbackUrl: attributes['fallback-src'],
             async: attributes.async,
             timeout: 4000,
             primary: false,
-            public: false,
-            custom: attributes.custom
+            public: false
         };
 
         const tag = { attributes };
