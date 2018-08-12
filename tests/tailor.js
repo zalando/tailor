@@ -388,7 +388,6 @@ describe('Tailor', () => {
                 mockTemplate.reset();
                 withFile.close(done);
             });
-
             it('should preload external module loader if fragment is present', done => {
                 nock('https://fragment')
                     .get('/1')
