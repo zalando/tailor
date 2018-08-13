@@ -1,5 +1,11 @@
 # Tailor Changelog
 
+### 3.8.0
+* change in parent span operation name([#238](https://github.com/zalando/tailor/pull/238))
+* support multiple subscribers on tailor onDone hook([#243](https://github.com/zalando/tailor/pull/243))
+* (perf) Minor optimization on attributes extraction([#247](https://github.com/zalando/tailor/pull/247))
+* (perf) Improve link header extraction logic for fragments([#248](https://github.com/zalando/tailor/pull/248))
+
 ### 3.7.1
 * handle parsing & primary error properly([#235](https://github.com/zalando/tailor/pull/235))
 * Opentracing - Pass correct span contexts and add tests([#236](https://github.com/zalando/tailor/pull/236))
