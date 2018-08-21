@@ -43,11 +43,15 @@ describe('Stringifier Stream', () => {
 
     it('should consume stream asynchronously', done => {
         const templatePromise = getTemplate(
-            '<fragment id="1"></fragment><fragment id="2"></fragment>'
+            '<fragment id="1"></fragment><fragment id="2"></fragment><fragment id="3"></fragment>'
         );
         templatePromise.then(nodes => {
             let data = '';
-            let streams = [new PassThrough(), new PassThrough()];
+            let streams = [
+                new PassThrough(),
+                new PassThrough(),
+                new PassThrough()
+            ];
             const stream = new StringifierStream(tag => {
                 if (tag && tag.name) {
                     return streams[tag.attributes.id - 1];
@@ -58,7 +62,10 @@ describe('Stringifier Stream', () => {
                 data += chunk;
             });
             stream.on('end', () => {
-                assert.equal(data, '<html><head></head><body>12</body></html>');
+                assert.equal(
+                    data,
+                    '<html><head></head><body>123</body></html>'
+                );
                 done();
             });
             nodes.forEach(node => stream.write(node));
@@ -66,7 +73,12 @@ describe('Stringifier Stream', () => {
             setTimeout(() => {
                 streams[0].end('1');
             }, 10);
-            streams[1].end('2');
+
+            setTimeout(() => {
+                streams[1].end('2');
+            }, 5);
+
+            streams[2].end('3');
         });
     });
 
@@ -86,7 +98,7 @@ describe('Stringifier Stream', () => {
         getTemplate('<fragment>').then(nodes => {
             let st = new PassThrough();
             let stream = new StringifierStream(tag => {
-                if (tag) {
+                if (tag.name === 'fragment') {
                     return st;
                 }
             });
