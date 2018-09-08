@@ -11,6 +11,31 @@ function getTemplate(template, specialTags, pipeBeforeTags) {
 }
 
 describe('Stringifier Stream', () => {
+    let index = 0;
+    const delays = [30, 20, 50];
+    function getDelay() {
+        const currDelay = delays[index];
+        index++;
+        if (index >= delays.length) {
+            index = 0;
+        }
+        return currDelay;
+    }
+
+    function writeDelayedDataToStream(data, stream) {
+        const chunks = data.split(' ');
+
+        for (let i = 0; i < chunks.length; i++) {
+            setTimeout(() => {
+                if (i === chunks.length - 1) {
+                    stream.end(chunks[i]);
+                } else {
+                    stream.write(chunks[i]);
+                }
+            }, getDelay());
+        }
+    }
+
     it('should stream the content from a fragment tag', done => {
         let st = new PassThrough();
         const templatePromise = getTemplate(
@@ -79,6 +104,43 @@ describe('Stringifier Stream', () => {
             }, 5);
 
             streams[2].end('3');
+        });
+    });
+
+    it('should flush the streams to the client in declared order', done => {
+        const templatePromise = getTemplate(
+            '<fragment id="1"></fragment><fragment id="2"></fragment><fragment id="3"></fragment>'
+        );
+
+        templatePromise.then(nodes => {
+            let data = '';
+            let streams = [
+                new PassThrough(),
+                new PassThrough(),
+                new PassThrough()
+            ];
+            const stream = new StringifierStream(tag => {
+                if (tag && tag.name) {
+                    return streams[tag.attributes.id - 1];
+                }
+                return '';
+            });
+            stream.on('data', chunk => {
+                data += chunk;
+            });
+            stream.on('end', () => {
+                assert.equal(
+                    data,
+                    '<html><head></head><body>fromDataS1fromDataS2fromDataS3</body></html>'
+                );
+                done();
+            });
+            nodes.forEach(node => stream.write(node));
+            stream.end();
+
+            writeDelayedDataToStream('Data from S1', streams[0]);
+            writeDelayedDataToStream('Data from S2', streams[1]);
+            writeDelayedDataToStream('Data from S3', streams[2]);
         });
     });
 
