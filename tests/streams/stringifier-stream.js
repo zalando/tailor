@@ -11,6 +11,31 @@ function getTemplate(template, specialTags, pipeBeforeTags) {
 }
 
 describe('Stringifier Stream', () => {
+    function getRandomDelay() {
+        const max = 30;
+        const min = 0;
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function writeDelayedDataToStream(data, stream) {
+        const chunks = data.split(' ');
+        setTimeout(() => scheduleChunk(chunks, stream, 0), getRandomDelay());
+    }
+
+    function scheduleChunk(chunks, stream, index) {
+        if (index === chunks.length - 1) {
+            stream.end(chunks[index]);
+            return;
+        } else {
+            stream.write(chunks[index]);
+        }
+
+        setTimeout(
+            () => scheduleChunk(chunks, stream, index + 1),
+            getRandomDelay()
+        );
+    }
+
     it('should stream the content from a fragment tag', done => {
         let st = new PassThrough();
         const templatePromise = getTemplate(
@@ -43,11 +68,15 @@ describe('Stringifier Stream', () => {
 
     it('should consume stream asynchronously', done => {
         const templatePromise = getTemplate(
-            '<fragment id="1"></fragment><fragment id="2"></fragment>'
+            '<fragment id="1"></fragment><fragment id="2"></fragment><fragment id="3"></fragment>'
         );
         templatePromise.then(nodes => {
             let data = '';
-            let streams = [new PassThrough(), new PassThrough()];
+            let streams = [
+                new PassThrough(),
+                new PassThrough(),
+                new PassThrough()
+            ];
             const stream = new StringifierStream(tag => {
                 if (tag && tag.name) {
                     return streams[tag.attributes.id - 1];
@@ -58,7 +87,10 @@ describe('Stringifier Stream', () => {
                 data += chunk;
             });
             stream.on('end', () => {
-                assert.equal(data, '<html><head></head><body>12</body></html>');
+                assert.equal(
+                    data,
+                    '<html><head></head><body>123</body></html>'
+                );
                 done();
             });
             nodes.forEach(node => stream.write(node));
@@ -66,7 +98,49 @@ describe('Stringifier Stream', () => {
             setTimeout(() => {
                 streams[0].end('1');
             }, 10);
-            streams[1].end('2');
+
+            setTimeout(() => {
+                streams[1].end('2');
+            }, 5);
+
+            streams[2].end('3');
+        });
+    });
+
+    it('should flush the streams to the client in declared order', done => {
+        const templatePromise = getTemplate(
+            '<fragment id="1"></fragment><fragment id="2"></fragment><fragment id="3"></fragment>'
+        );
+
+        templatePromise.then(nodes => {
+            let data = '';
+            let streams = [
+                new PassThrough(),
+                new PassThrough(),
+                new PassThrough()
+            ];
+            const stream = new StringifierStream(tag => {
+                if (tag && tag.name) {
+                    return streams[tag.attributes.id - 1];
+                }
+                return '';
+            });
+            stream.on('data', chunk => {
+                data += chunk;
+            });
+            stream.on('end', () => {
+                assert.equal(
+                    data,
+                    '<html><head></head><body>DatafromS1DatafromS2DatafromS3</body></html>'
+                );
+                done();
+            });
+            nodes.forEach(node => stream.write(node));
+            stream.end();
+
+            writeDelayedDataToStream('Data from S1', streams[0]);
+            writeDelayedDataToStream('Data from S2', streams[1]);
+            writeDelayedDataToStream('Data from S3', streams[2]);
         });
     });
 
@@ -86,7 +160,7 @@ describe('Stringifier Stream', () => {
         getTemplate('<fragment>').then(nodes => {
             let st = new PassThrough();
             let stream = new StringifierStream(tag => {
-                if (tag) {
+                if (tag.name === 'fragment') {
                     return st;
                 }
             });
