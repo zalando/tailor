@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 3.9.0
+* (perf) consume streams in parallel and flush them in series([#256](https://github.com/zalando/tailor/pull/256))
+
 ### 3.8.0
 * change in parent span operation name([#238](https://github.com/zalando/tailor/pull/238))
 * support multiple subscribers on tailor onDone hook([#243](https://github.com/zalando/tailor/pull/243))
