@@ -117,7 +117,7 @@ describe('Stringifier Stream', () => {
             let streams = [
                 new PassThrough(),
                 new PassThrough(),
-                new PassThrough()
+                new PassThrough({ objectMode: true })
             ];
             const stream = new StringifierStream(tag => {
                 if (tag && tag.name) {
