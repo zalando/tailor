@@ -11,29 +11,29 @@ function getTemplate(template, specialTags, pipeBeforeTags) {
 }
 
 describe('Stringifier Stream', () => {
-    let index = 0;
-    const delays = [30, 20, 50];
-    function getDelay() {
-        const currDelay = delays[index];
-        index++;
-        if (index >= delays.length) {
-            index = 0;
-        }
-        return currDelay;
+    function getRandomDelay() {
+        const max = 30;
+        const min = 0;
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     function writeDelayedDataToStream(data, stream) {
         const chunks = data.split(' ');
+        setTimeout(() => scheduleChunk(chunks, stream, 0), getRandomDelay());
+    }
 
-        for (let i = 0; i < chunks.length; i++) {
-            setTimeout(() => {
-                if (i === chunks.length - 1) {
-                    stream.end(chunks[i]);
-                } else {
-                    stream.write(chunks[i]);
-                }
-            }, getDelay());
+    function scheduleChunk(chunks, stream, index) {
+        if (index === chunks.length - 1) {
+            stream.end(chunks[index]);
+            return;
+        } else {
+            stream.write(chunks[index]);
         }
+
+        setTimeout(
+            () => scheduleChunk(chunks, stream, index + 1),
+            getRandomDelay()
+        );
     }
 
     it('should stream the content from a fragment tag', done => {
@@ -131,7 +131,7 @@ describe('Stringifier Stream', () => {
             stream.on('end', () => {
                 assert.equal(
                     data,
-                    '<html><head></head><body>fromDataS1fromDataS2fromDataS3</body></html>'
+                    '<html><head></head><body>DatafromS1DatafromS2DatafromS3</body></html>'
                 );
                 done();
             });
