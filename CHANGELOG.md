@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 3.9.1
+* handle streams in object mode while buffering([#258](https://github.com/zalando/tailor/pull/258))
+
 ### 3.9.0
 * (perf) consume streams in parallel and flush them in series([#256](https://github.com/zalando/tailor/pull/256))
 
