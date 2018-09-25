@@ -167,6 +167,7 @@ Single-page application examples are also available:
 
 * https://github.com/vigneshshanmugam/tailor-spa
 * https://github.com/tsnolan23/tailor-react-spa
+* https://github.com/shershen08/tailor-vue-demo
 
 ## Benchmark
 
