@@ -1371,7 +1371,8 @@ describe('Tailor', () => {
                         fallback: false,
                         public: false,
                         async: false,
-                        id: 'unnamed'
+                        id: 'unnamed',
+                        timeout: 3000
                     });
                 })
                 .then(done, done);
@@ -1387,7 +1388,7 @@ describe('Tailor', () => {
                 .reply(500);
 
             mockTemplate.returns(
-                '<fragment id="test" src="https://fragment/1" fallback-src="http://localhost:9000/2"></fragment>'
+                '<fragment id="test" src="https://fragment/1" timeout="200" fallback-src="http://localhost:9000/2"></fragment>'
             );
 
             getResponse('http://localhost:8080/test')
@@ -1400,7 +1401,8 @@ describe('Tailor', () => {
                         fallback: false,
                         primary: false,
                         async: false,
-                        public: false
+                        public: false,
+                        timeout: 200
                     });
                 })
                 .then(done, done);
