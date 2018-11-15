@@ -1,5 +1,8 @@
 # Tailor Changelog
 
+### 3.9.2
+* add timeout field to fragment opentracing span([#270](https://github.com/zalando/tailor/pull/270))
+
 ### 3.9.1
 * handle streams in object mode while buffering([#258](https://github.com/zalando/tailor/pull/258))
 
