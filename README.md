@@ -96,6 +96,8 @@ A fragment is an http(s) server that renders only the part of the page and sets 
 
 A JavaScript of the fragment is an AMD module, that exports an `init` function, that will be called with DOM element of the fragment as an argument.
 
+Tailor will not follow redirects even if fragment response contains 'Location' Header, that is on purpose as redirects can introduce unwanted latency. Fragments with the attribute `primary` can do a redirect since it controls the status code of the page.
+
 **Note: For compatability with AWS the `Link` header can also be passed as `x-amz-meta-link`**
 
 ### Passing information to fragments
@@ -133,12 +135,12 @@ Some of the concepts in Tailor are described in detail on the specific docs.
 ## OpenTracing
 
 Tailor has out of the box distributed tracing instrumentation with [OpenTracing](https://opentracing.io).
-It will pick up any span context on the ingress HTTP request and propagate it to the existing 
+It will pick up any span context on the ingress HTTP request and propagate it to the existing
 Remote Procedure Calls (RPCs).
 
-Currently, only the fetching of fragments is instrumented providing some additional details like the 
+Currently, only the fetching of fragments is instrumented providing some additional details like the
 fragment tag, attributes and some logging payload like the stack trace for errors.
- 
+
 ## Examples
 
 ```sh
