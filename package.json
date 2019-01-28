@@ -33,6 +33,7 @@
   "author": "Andrey Kuzmin",
   "license": "MIT",
   "dependencies": {
+    "agentkeepalive": "^4.0.0",
     "opentracing": "^0.14.3",
     "parse5": "^3.0.3",
     "util.promisify": "^1.0.0"
