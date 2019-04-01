@@ -30,7 +30,7 @@ declare class Tailor extends EventEmitter {
   constructor(options?: {
     amdLoaderUrl?: string
     , fetchContext?: (req: IncomingMessage) => Promise<object>
-    , fetchTemplate?: (templatesPath: string, baseTemplateFn: (path: string) => string) => Promise<any>
+    , fetchTemplate?: (req: IncomingMessage, parseTemplate: ParseTemplateFunction) => Promise<any>
     , filterRequestHeaders?: (attributes: Attributes, req: IncomingMessage) => object
     , filterResponseHeaders?: (attributes: Attributes, res: ServerResponse) => object
     , fragmentTag?: string
@@ -56,5 +56,11 @@ interface Attributes {
   public?: boolean
   [key: string]: any
 }
+
+type ParseTemplateFunction = (handledTags: string[], insertBeforePipeTags: string[]) => (
+  baseTemplate: string,
+  childTemplate: string,
+  fullRendering: boolean,
+) => Promise<any>;
 
 
