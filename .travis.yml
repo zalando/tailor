@@ -11,11 +11,14 @@ before_script:
 - yarn run lint
 script:
 - yarn run coverage
-- if [ -n "${FRONTEND-}" ]; then yarn run test-frontend ; fi
+- if [ -n "${FRONTEND-}" ]; then yarn run test-frontend:cross-browser ; fi
+- yarn run test-frontend
 after_script:
 - yarn run codecov
 matrix:
   fast_finish: true
+  allow_failures:
+    - script: yarn run test-frontend:cross-browser
   include:
     node_js: node
     env: FRONTEND=true
