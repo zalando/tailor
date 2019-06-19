@@ -92,7 +92,7 @@ Tailor uses [parse5](https://github.com/inikulin/parse5/) to parse the template,
 
 ### Fragment server
 
-A fragment is an http(s) server that renders only the part of the page and sets `Link` header to provide urls to CSS and JavaScript resources. Check `example/fragment.js` for the draft implementation.
+A fragment is an http(s) server that renders only the part of the page and sets `Link` header to provide urls to CSS and JavaScript resources. Check [`examples/basic-css-and-js/index.js`](https://github.com/zalando/tailor/blob/master/examples/basic-css-and-js/index.js) for a draft implementation.
 
 A JavaScript of the fragment is an AMD module, that exports an `init` function, that will be called with DOM element of the fragment as an argument.
 
