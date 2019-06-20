@@ -202,3 +202,7 @@ async function analyseHooks(mark, measure, entries) {
 
     console.log('Hurray! Metrics tests passed');
 }
+
+module.exports = {
+    analyseHooks,
+}
