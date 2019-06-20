@@ -82,5 +82,5 @@ describe("Fragment performance in browser", () => {
             console.error(e);
             process.exit(1);
         }
-    }).timeout(5000); // Add increased timeout since the test runs inside puppeteer
+    }).timeout(8000); // Add increased timeout since the test runs inside puppeteer
 });
