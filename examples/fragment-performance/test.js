@@ -9,7 +9,7 @@ const { analyseHooks } = require('./hooks');
 describe("Fragment performance in browser", () => {
     let server;
 
-    before(() => {
+    before((done) => {
         const tailor = new Tailor({
             templatesPath: __dirname + '/templates',
             pipeAttributes: attributes => {
@@ -29,7 +29,7 @@ describe("Fragment performance in browser", () => {
             }
             return tailor.requestHandler(req, res);
         });
-        server.listen(8080);
+        server.listen(8080, done);
         tailor.on('error', (request, err) => console.error(err));
     
         const fragment1 = http.createServer(
@@ -48,13 +48,14 @@ describe("Fragment performance in browser", () => {
         fragment3.listen(8083);
     })
 
-    after(() => {
+    after((done) => {
         if(server != null) {
             server.close();
+            done();
         }
     })
 
-    it("should be able to capture performance metrics in browser", async () => {
+    it("should be able to capture performance metrics in browser", async (done) => {
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
         try {
@@ -78,9 +79,11 @@ describe("Fragment performance in browser", () => {
             ];
             await analyseHooks(mark, measure, entries);
             await browser.close();
+            done();
         } catch (e) {
             console.error(e);
             process.exit(1);
+            done();
         }
     }).timeout(8000); // Add increased timeout since the test runs inside puppeteer
 });
