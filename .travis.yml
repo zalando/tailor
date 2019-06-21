@@ -8,36 +8,31 @@ before_script:
 after_script:
 - yarn run codecov
 stages:
-  - "Test"
-  - "Test frontend"
-    if: branch = master
-matrix:
+  - lint
+  - test:frontend:hooks
+  - test:frontend
+  - coverage
+jobs:
   fast_finish: true
-  include:
-    - stage: "Test"
-      - node_js: 8
-        script:
-        - yarn run coverage
-        - yarn run test:frontend:hooks
-      - node_js: 10
-        script:
-        - yarn run coverage
-        - yarn run test:frontend:hooks
-      - node_js: 11
-        script:
-        - yarn run coverage
-        - yarn run test:frontend:hooks
-      - node_js: node
-        script:
-        - yarn run coverage
-        - yarn run test:frontend:hooks
-    - stage: "Test frontend"
-      - node_js: node
-        script:
-        - yarn run test:frontend
   allow_failures:
-    node_js: node
-    env: FRONTEND=true
+    - script: yarn run test:frontend
+  include:
+    - stage: lint
+      script: yarn run lint
+    - stage: test:frontend:hooks
+      node_js: 8
+      script: yarn run test:frontend:hooks
+    - stage: test:frontend:hooks
+      node_js: 10
+      script: yarn run test:frontend:hooks
+    - stage: test:frontend:hooks
+      node_js: 11
+      script: yarn run test:frontend:hooks
+    - stage: test:frontend
+      node_js: node
+      script: yarn run test:frontend
+    - stage: coverage
+      script: yarn run coverage
 addons:
   sauce_connect:
     username: _vigneshh
