@@ -5,7 +5,7 @@ cache:
   - node_modules
 stages:
   - lint
-  - test:frontend:hooks
+  - test
   - test:frontend
   - coverage
 jobs:
@@ -16,25 +16,23 @@ jobs:
     - stage: lint
       node_js: 12
       script: yarn run lint
-    - stage: test:frontend:hooks
+    - stage: test
+      node_js: 8
       script: 
         - yarn run test
-        - yarn run test:frontend:hooks
-    - stage: test:frontend:hooks
+    - stage: test
       node_js: 10
       script: 
         - yarn run test
-        - yarn run test:frontend:hooks
-    - stage: test:frontend:hooks
+    - stage: test
       node_js: 12
       script: 
         - yarn run test
         - yarn run test:frontend:hooks
-    - stage: test:frontend:hooks
+    - stage: test
       node_js: node
       script: 
         - yarn run test
-        - yarn run test:frontend:hooks
     - stage: test:frontend
       node_js: node
       script: yarn run test:frontend
