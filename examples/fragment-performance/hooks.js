@@ -1,7 +1,7 @@
 const assert = require('assert');
 const puppeteer = require('puppeteer');
 
-(async () => {
+async function validateHooks() {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     try {
@@ -29,7 +29,7 @@ const puppeteer = require('puppeteer');
         console.error(e);
         process.exit(1);
     }
-})();
+};
 
 function get(entries, name, key) {
     return entries
@@ -204,5 +204,5 @@ async function analyseHooks(mark, measure, entries) {
 }
 
 module.exports = {
-    analyseHooks,
+    validateHooks,
 }

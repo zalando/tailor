@@ -1,10 +1,8 @@
-const puppeteer = require('puppeteer');
-const assert = require('assert');
 const http = require('http');
 
 const Tailor = require('../../index');
 const serveFragment = require('../multiple-fragments-with-custom-amd/fragment');
-const { analyseHooks } = require('./hooks');
+const { validateHooks } = require('./hooks');
 
 describe("Fragment performance in browser", () => {
     let server;
@@ -55,32 +53,6 @@ describe("Fragment performance in browser", () => {
     })
 
     it("should be able to capture performance metrics in browser", async () => {
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        try {
-            // Forcing to wait till there are no networking events
-            await page.goto('http://localhost:8080/index', {
-                waitUntil: 'networkidle0'
-            });
-            // Capture all the fragment related metrics
-            const metrics = await page.evaluate(() => {
-                // Serializing the outputs otherwise it will be undefined
-                return [
-                    JSON.stringify(performance.getEntriesByType('mark')),
-                    JSON.stringify(performance.getEntriesByType('measure')),
-                    JSON.stringify(window.TailorPipe.getEntries())
-                ];
-            });
-            const [mark, measure, entries] = [
-                JSON.parse(metrics[0]),
-                JSON.parse(metrics[1]),
-                JSON.parse(metrics[2])
-            ];
-            await analyseHooks(mark, measure, entries);
-            await browser.close();
-        } catch (e) {
-            console.error(e);
-            process.exit(1);
-        }
+        await validateHooks();
     }).timeout(8000); // Add increased timeout since the test runs inside puppeteer
 });
