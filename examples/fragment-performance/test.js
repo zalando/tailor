@@ -54,7 +54,7 @@ describe("Fragment performance in browser", () => {
         }
     })
 
-    it("should be able to capture performance metrics in browser", async (done) => {
+    it("should be able to capture performance metrics in browser", async () => {
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
         try {
@@ -78,11 +78,9 @@ describe("Fragment performance in browser", () => {
             ];
             await analyseHooks(mark, measure, entries);
             await browser.close();
-            done();
         } catch (e) {
             console.error(e);
             process.exit(1);
-            done();
         }
     }).timeout(8000); // Add increased timeout since the test runs inside puppeteer
 });
