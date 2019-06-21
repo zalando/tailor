@@ -50,8 +50,7 @@ describe("Fragment performance in browser", () => {
 
     after((done) => {
         if(server != null) {
-            server.close();
-            done();
+            server.close(done);
         }
     })
 
