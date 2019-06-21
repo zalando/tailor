@@ -14,22 +14,32 @@ jobs:
     - script: yarn run test:frontend
   include:
     - stage: lint
-      node_js: 11
+      node_js: 12
       script: yarn run lint
     - stage: test:frontend:hooks
-      node_js: 8
-      script: yarn run test:frontend:hooks
+      script: 
+        - yarn run test
+        - yarn run test:frontend:hooks
     - stage: test:frontend:hooks
       node_js: 10
-      script: yarn run test:frontend:hooks
+      script: 
+        - yarn run test
+        - yarn run test:frontend:hooks
     - stage: test:frontend:hooks
-      node_js: 11
-      script: yarn run test:frontend:hooks
+      node_js: 12
+      script: 
+        - yarn run test
+        - yarn run test:frontend:hooks
+    - stage: test:frontend:hooks
+      node_js: node
+      script: 
+        - yarn run test
+        - yarn run test:frontend:hooks
     - stage: test:frontend
       node_js: node
       script: yarn run test:frontend
     - stage: coverage
-      node_js: 11
+      node_js: 12
       script: yarn run coverage
 addons:
   sauce_connect:
