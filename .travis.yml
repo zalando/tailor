@@ -1,24 +1,46 @@
 sudo: false
 language: node_js
-node_js:
-- '8'
-- '10'
-- '11'
 cache:
   directories:
   - node_modules
-before_script:
-- yarn run lint
-script:
-- yarn run coverage
-- if [ -n "${FRONTEND-}" ]; then yarn run test-frontend ; fi
 after_script:
 - yarn run codecov
-matrix:
+stages:
+  - lint
+  - test
+  - test:frontend
+  - coverage
+jobs:
   fast_finish: true
+  allow_failures:
+    - script: yarn run test:frontend
   include:
-    node_js: node
-    env: FRONTEND=true
+    - stage: lint
+      node_js: 12
+      script: yarn run lint
+    - stage: test
+      node_js: 8
+      script: 
+        - yarn run test
+    - stage: test
+      node_js: 10
+      script: 
+        - yarn run test
+    - stage: test
+      node_js: 12
+      script: 
+        - yarn run test
+        - yarn run test:frontend:hooks
+    - stage: test
+      node_js: node
+      script: 
+        - yarn run test
+    - stage: test:frontend
+      node_js: node
+      script: yarn run test:frontend
+    - stage: coverage
+      node_js: 12
+      script: yarn run coverage
 addons:
   sauce_connect:
     username: _vigneshh

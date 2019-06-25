@@ -10,7 +10,8 @@
   ],
   "scripts": {
     "test": "mocha --harmony tests/**",
-    "test-frontend": "mocha --harmony examples/multiple-fragments-with-custom-amd/test.js",
+    "test:frontend": "mocha --harmony examples/multiple-fragments-with-custom-amd/test.js",
+    "test:frontend:hooks": "mocha --harmony examples/fragment-performance/test.js",
     "coverage": "node --harmony node_modules/.bin/istanbul cover _mocha -- tests/**",
     "codecov": "cat coverage/lcov.info | codecov",
     "lint": "eslint .",
