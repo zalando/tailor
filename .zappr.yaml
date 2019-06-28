@@ -1,9 +1,8 @@
-# for github.com
 approvals:
-  groups:
-    zalando:
-      minimum: 2
-      from:
-        orgs:
-          - "zalando"
+  minimum: 2
+  from:
+    orgs:
+      - zalando
+    collaborators: true
+
 X-Zalando-Team: "pathfinder"
