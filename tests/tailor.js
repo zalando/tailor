@@ -867,15 +867,14 @@ describe('Tailor', () => {
                 .then(done, done);
         });
 
-
         it('should insert default slots if a slot named default is present in parent template', done => {
             mockTemplate.returns(
                 '<head>' +
-                '</head>' +
-                '<body>' +
-                '<slot name="default"></slot>' +
-                '<h2>blah</h2>' +
-                '</body>'
+                    '</head>' +
+                    '<body>' +
+                    '<slot name="default"></slot>' +
+                    '<h2>blah</h2>' +
+                    '</body>'
             );
 
             mockChildTemplate.returns('<h1>hello from default named slot</h1>');
@@ -885,17 +884,16 @@ describe('Tailor', () => {
                     assert.equal(
                         response.body,
                         '<html>' +
-                        '<head></head>' +
-                        '<body>' +
-                        '<h1>hello from default named slot</h1>' +
-                        '<h2>blah</h2>' +
-                        '</body>' +
-                        '</html>'
+                            '<head></head>' +
+                            '<body>' +
+                            '<h1>hello from default named slot</h1>' +
+                            '<h2>blah</h2>' +
+                            '</body>' +
+                            '</html>'
                     );
                 })
                 .then(done, done);
         });
-
 
         it('should warn if there are duplicate unnamed slots', done => {
             sinon.stub(console, 'warn');
