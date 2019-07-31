@@ -56,7 +56,7 @@ Default implementation [`lib/fetch-template.js`](https://github.com/zalando/tail
 * `filterResponseHeaders(attributes, headers)` - Function that maps the given response headers from the primary fragment request to the final response
 * `maxAssetLinks` - Number of `Link` Header directives for CSS and JS respected per fragment - defaults to `1`
 * `requestFragment(filterHeaders)(url, attributes, request)` - Function that returns a promise of request to a fragment server, check the default implementation in [`lib/request-fragment`](https://github.com/zalando/tailor/blob/master/lib/request-fragment.js)
-* `amdLoaderUrl` - URL to AMD loader. We use [RequireJS from cdnjs](https://cdnjs.com/libraries/require.js) as deafult
+* `amdLoaderUrl` - URL to AMD loader. We use [RequireJS from cdnjs](https://cdnjs.com/libraries/require.js) as default
 * `pipeInstanceName` - Pipe instance name that is available in the browser window for consuming frontend hooks.
 * `pipeAttributes(attributes)` - Function that returns the minimal set of fragment attributes available on the frontend [hooks](https://github.com/zalando/tailor/blob/master/docs/hooks.md).
 * `tracer` - Opentracing [compliant Tracer implementation](https://doc.esdoc.org/github.com/opentracing/opentracing-javascript/class/src/tracer.js~Tracer.html).
