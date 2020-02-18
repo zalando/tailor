@@ -19,21 +19,17 @@ jobs:
       node_js: 12
       script: yarn run lint
     - stage: test
-      node_js: 8
-      script: 
-        - yarn run test
-    - stage: test
       node_js: 10
-      script: 
+      script:
         - yarn run test
     - stage: test
       node_js: 12
-      script: 
+      script:
         - yarn run test
         - yarn run test:frontend:hooks
     - stage: test
       node_js: node
-      script: 
+      script:
         - yarn run test
     - stage: test:frontend
       node_js: node
