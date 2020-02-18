@@ -29,7 +29,8 @@ describe('Fragment', () => {
             async: attributes.async,
             timeout: 4000,
             primary: false,
-            public: false
+            public: false,
+            custom: 'bar'
         };
 
         const tag = { attributes };
