@@ -25,6 +25,7 @@ describe('Fragment', () => {
         const expected = {
             id: attributes.id,
             url: attributes.src,
+            ['fallback-src']: attributes['fallback-src'],
             fallbackUrl: attributes['fallback-src'],
             async: attributes.async,
             timeout: 4000,
