@@ -72,13 +72,15 @@ module.exports = class Tailor extends EventEmitter {
                 fragmentTag: 'fragment',
                 handledTags: [],
                 handleTag: () => '',
-                requestFragment: requestFragment(filterRequestHeaders),
+                requestFragment,
                 pipeInstanceName: 'Pipe',
                 pipeDefinition: pipeChunk,
                 pipeAttributes: getPipeAttributes
             },
             options
         );
+
+        requestOptions.requestFragment = requestOptions.requestFragment(filterRequestHeaders)
 
         initTracer(options.tracer);
 
