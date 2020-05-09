@@ -80,7 +80,7 @@ module.exports = class Tailor extends EventEmitter {
             options
         );
 
-        requestOptions.requestFragment = requestOptions.requestFragment(filterRequestHeaders)
+        requestOptions.requestFragment = requestOptions.requestFragment(filterRequestHeaders);
 
         initTracer(options.tracer);
 
