@@ -39,7 +39,7 @@ declare class Tailor extends EventEmitter {
     , maxAssetLinks?: number
     , pipeAttributes?: (attributes: Attributes) => object
     , pipeInstanceName?: string
-    , requestFragment?: (url: Url, attributes: Attributes, req: IncomingMessage, span?: Span) => Promise<IncomingMessage>
+    , requestFragment?: (filterHeaders: (attributes: Attributes, req: IncomingMessage) => object) => (url: string, attributes: Attributes, req: IncomingMessage, span?: Span) => Promise<IncomingMessage>
     , templatesPath?: string
     , tracer?: Tracer
   })
