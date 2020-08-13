@@ -30,7 +30,7 @@ declare class Tailor extends EventEmitter {
   constructor(options?: {
     amdLoaderUrl?: string
     , fetchContext?: (req: IncomingMessage) => Promise<object>
-    , fetchTemplate?: (req: IncomingMessage, parseTemplate: ParseTemplateFunction) => Promise<any>
+    , fetchTemplate?: (req: IncomingMessage, parseTemplate: ReturnType<ParseTemplateFunction>) => Promise<any>
     , filterRequestHeaders?: (attributes: Attributes, req: IncomingMessage) => object
     , filterResponseHeaders?: (attributes: Attributes, res: ServerResponse) => object
     , fragmentTag?: string
@@ -39,7 +39,7 @@ declare class Tailor extends EventEmitter {
     , maxAssetLinks?: number
     , pipeAttributes?: (attributes: Attributes) => object
     , pipeInstanceName?: string
-    , requestFragment?: (filterHeaders: (attributes: Attributes, req: IncomingMessage) => object, url: Url, attributes: Attributes, req: IncomingMessage, span?: Span) => Promise<ServerResponse>
+    , requestFragment?: (filterHeaders: (attributes: Attributes, req: IncomingMessage) => object) => (url: string, attributes: Attributes, req: IncomingMessage, span?: Span) => Promise<IncomingMessage>
     , templatesPath?: string
     , tracer?: Tracer
   })
@@ -59,8 +59,8 @@ interface Attributes {
 
 type ParseTemplateFunction = (handledTags: string[], insertBeforePipeTags: string[]) => (
   baseTemplate: string,
-  childTemplate: string,
-  fullRendering: boolean,
+  childTemplate?: string,
+  fullRendering?: boolean,
 ) => Promise<any>;
 
 
