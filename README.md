@@ -171,6 +171,9 @@ Single-page application examples are also available:
 * https://github.com/tsnolan23/tailor-react-spa
 * https://github.com/shershen08/tailor-vue-demo
 
+## Using the same npm dependencies in fragments
+Most probably you will use libraries such as react in fragments. It will cause loading react in every js file sent to client. Consider using [microservices-webpack-plugin](https://github.com/morriq/microservices-webpack-plugin) which address this problem.
+
 ## Benchmark
 
 To start running benchmark execute `npm run benchmark` and wait for couple of seconds to see the results.
