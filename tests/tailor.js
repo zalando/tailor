@@ -1382,7 +1382,7 @@ describe('Tailor', () => {
                 .reply(500);
 
             mockTemplate.returns(
-                '<fragment id="" primary src="https://fragment/1"></fragment>'
+                '<fragment id="" primary foo="bar" src="https://fragment/1"></fragment>'
             );
 
             getResponse('http://localhost:8080/test')
@@ -1394,6 +1394,7 @@ describe('Tailor', () => {
                     assert.deepEqual(tags[1], {
                         error: true,
                         primary: true,
+                        foo: 'bar',
                         'span.kind': 'client',
                         'http.url': 'https://fragment/1',
                         fallback: false,
