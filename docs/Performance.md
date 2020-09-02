@@ -161,7 +161,7 @@ Browsers right now does not expose an API for creating custom PerformanceEntry a
 
 #### why not extend PerformanceEntry? 
 
-Even if we hack and extend the PerformanceEntry object, there is no way to retrive the custom entries that are added. 
+Even if we hack and extend the PerformanceEntry object, there is no way to retrieve the custom entries that are added. 
 
 ```js
 var customEntry = {};
@@ -172,7 +172,7 @@ customEntry.entryType = "tailor";
 customEntry.startTime = performance.now();
 
 
-// retrive entries
+// retrieve entries
 performance.getEntries(); 
 // returns []
 ```
