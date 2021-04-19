@@ -124,8 +124,8 @@ describe('Tailor', () => {
             mockTemplate.returns(false);
             getResponse('http://localhost:8080/missing-template')
                 .then(response => {
-                    assert.equal(response.statusCode, 500);
-                    assert.equal(response.body, 'error template');
+                    assert.strictEqual(response.statusCode, 500);
+                    assert.strictEqual(response.body, 'error template');
                 })
                 .then(done, done);
         });
@@ -134,8 +134,8 @@ describe('Tailor', () => {
             mockTemplate.returns('404');
             getResponse('http://localhost:8080/404-template')
                 .then(response => {
-                    assert.equal(response.statusCode, 404);
-                    assert.equal(response.body, 'template not found');
+                    assert.strictEqual(response.statusCode, 404);
+                    assert.strictEqual(response.body, 'template not found');
                 })
                 .then(done, done);
         });
@@ -156,8 +156,8 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(response.statusCode, 200);
-                    assert.equal(
+                    assert.strictEqual(response.statusCode, 200);
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -182,7 +182,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -209,7 +209,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head>' +
@@ -243,11 +243,11 @@ describe('Tailor', () => {
         it('should stream pipe definition with loader in the head', done => {
             getResponse('http://localhost:8083/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.headers.link,
                         '<https://loader>; rel="preload"; as="script"; nopush; crossorigin'
                     );
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html><head>' +
                             '<script src="https://loader" crossorigin></script>\n' +
@@ -277,8 +277,11 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(response.statusCode, 300);
-                    assert.equal(response.headers.location, 'https://redirect');
+                    assert.strictEqual(response.statusCode, 300);
+                    assert.strictEqual(
+                        response.headers.location,
+                        'https://redirect'
+                    );
                 })
                 .then(done, done);
         });
@@ -304,7 +307,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(response.statusCode, 200);
+                    assert.strictEqual(response.statusCode, 200);
                     assert.deepEqual(response.headers['set-cookie'], [cookie]);
                 })
                 .then(done, done);
@@ -364,11 +367,11 @@ describe('Tailor', () => {
             getResponse('http://localhost:8080/test')
                 .then(response => {
                     const headers = response.headers;
-                    assert.equal(
+                    assert.strictEqual(
                         'no-cache, no-store, must-revalidate',
                         headers['cache-control']
                     );
-                    assert.equal('no-cache', headers['pragma']);
+                    assert.strictEqual('no-cache', headers['pragma']);
                 })
                 .then(done, done);
         });
@@ -402,7 +405,7 @@ describe('Tailor', () => {
 
                 getResponse('http://localhost:8080/test')
                     .then(response => {
-                        assert.equal(
+                        assert.strictEqual(
                             response.headers.link,
                             '<https://loader>; rel="preload"; as="script"; nopush; crossorigin'
                         );
@@ -424,7 +427,7 @@ describe('Tailor', () => {
 
                 getResponse('http://localhost:8082/test')
                     .then(response => {
-                        assert.equal(response.headers.link, undefined);
+                        assert.strictEqual(response.headers.link, undefined);
                     })
                     .then(done, done);
             });
@@ -450,7 +453,7 @@ describe('Tailor', () => {
 
                     getResponse('http://localhost:8080/test')
                         .then(response => {
-                            assert.equal(
+                            assert.strictEqual(
                                 response.headers.link,
                                 '<https://loader>; rel="preload"; as="script"; nopush; crossorigin,<http://primary>; rel="preload"; as="style"; nopush;,<http://primary>; rel="preload"; as="script"; nopush; crossorigin'
                             );
@@ -473,7 +476,7 @@ describe('Tailor', () => {
 
                 getResponse('http://localhost:8080/test')
                     .then(response => {
-                        assert.equal(
+                        assert.strictEqual(
                             response.headers.link,
                             '<https://loader>; rel="preload"; as="script"; nopush; crossorigin,<http://localhost:8080>; rel="preload"; as="style"; nopush;,<http://localhost:8080>; rel="preload"; as="script"; nopush;'
                         );
@@ -500,7 +503,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html><head></head><body></body></html>'
                     );
@@ -520,7 +523,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(response.statusCode, 500);
+                    assert.strictEqual(response.statusCode, 500);
                 })
                 .then(done, done);
         });
@@ -538,7 +541,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(response.statusCode, 500);
+                    assert.strictEqual(response.statusCode, 500);
                 })
                 .then(done, done);
         });
@@ -558,7 +561,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(response.statusCode, 200);
+                    assert.strictEqual(response.statusCode, 200);
                 })
                 .then(done, done);
         });
@@ -578,7 +581,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(response.statusCode, 500);
+                    assert.strictEqual(response.statusCode, 500);
                 })
                 .then(done, done);
         });
@@ -599,7 +602,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -629,7 +632,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html><head></head><body>' +
                             '<script data-pipe>p.placeholder(0)</script>' +
@@ -657,7 +660,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -688,7 +691,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html><head></head><body>' +
                             '<script data-pipe>p.start(0, "http://link2", {"id":"foo","range":[0,0]})</script>' +
@@ -721,8 +724,8 @@ describe('Tailor', () => {
             mockContext.returns(Promise.resolve(contextObj));
 
             getResponse('http://localhost:8080/test').then(response => {
-                assert.equal(response.statusCode, 200);
-                assert.equal(
+                assert.strictEqual(response.statusCode, 200);
+                assert.strictEqual(
                     response.body,
                     '<html>' +
                         '<head></head>' +
@@ -741,8 +744,8 @@ describe('Tailor', () => {
 
                 getResponse('http://localhost:8080/test')
                     .then(response => {
-                        assert.equal(response.statusCode, 200);
-                        assert.equal(
+                        assert.strictEqual(response.statusCode, 200);
+                        assert.strictEqual(
                             response.body,
                             '<html>' +
                                 '<head></head>' +
@@ -771,7 +774,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html><head></head><body><script data-pipe>p.placeholder(0)</script><script data-pipe>p.start(0)</script>hello<script data-pipe>p.end(0)</script></body></html>'
                     );
@@ -792,7 +795,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head>' +
@@ -823,7 +826,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head>' +
@@ -853,7 +856,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -881,7 +884,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -900,7 +903,7 @@ describe('Tailor', () => {
             mockTemplate.returns('<slot></slot><slot></slot>');
 
             http.get('http://localhost:8080/test', () => {
-                assert.equal(console.warn.callCount, 1);
+                assert.strictEqual(console.warn.callCount, 1);
                 console.warn.restore();
                 done();
             });
@@ -915,7 +918,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head>' +
@@ -938,7 +941,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head>' +
@@ -961,7 +964,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -992,7 +995,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -1026,7 +1029,7 @@ describe('Tailor', () => {
             );
 
             http.get('http://localhost:8080/test', response => {
-                assert.equal(response.statusCode, 500);
+                assert.strictEqual(response.statusCode, 500);
                 done();
             });
         });
@@ -1052,7 +1055,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -1086,7 +1089,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -1116,7 +1119,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html><head></head><body>' +
                             '<script data-pipe>p.start(0, "http://link1", {"id":0,"range":[0,0]})</script>' +
@@ -1141,7 +1144,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8080/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -1189,7 +1192,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8081/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html><head></head><body>' +
                             '<script data-pipe>p.start(0, "http://link1", {"id":0,"range":[0,2]})</script>' +
@@ -1237,7 +1240,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8081/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html><head></head><body>' +
                             '<script data-pipe>p.start(0, "http://link-a1", {"id":0,"range":[0,2]})</script>' +
@@ -1285,7 +1288,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8081/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html>' +
                             '<head></head>' +
@@ -1317,7 +1320,7 @@ describe('Tailor', () => {
 
             getResponse('http://localhost:8081/test')
                 .then(response => {
-                    assert.equal(
+                    assert.strictEqual(
                         response.body,
                         '<html><head></head><body>' +
                             '<script data-pipe>p.placeholder(0)</script>' +
@@ -1351,8 +1354,8 @@ describe('Tailor', () => {
             getResponse('http://localhost:8080/test')
                 .then(() => {
                     const { tags } = traceResults();
-                    assert.equal(tags.length, 1);
-                    assert.deepEqual(tags[0], {
+                    assert.strictEqual(tags.length, 1);
+                    assert.deepStrictEqual(tags[0], {
                         'http.url': '/test',
                         'span.kind': 'server'
                     });
@@ -1365,13 +1368,13 @@ describe('Tailor', () => {
             getResponse('http://localhost:8080/error')
                 .then(() => {
                     const { tags, logs } = traceResults();
-                    assert.deepEqual(tags[0], {
+                    assert.deepStrictEqual(tags[0], {
                         'http.url': '/error',
                         'span.kind': 'server',
                         error: true,
                         'http.status_code': 500
                     });
-                    assert.equal(logs.length, 1);
+                    assert.strictEqual(logs.length, 1);
                 })
                 .then(done, done);
         });
@@ -1389,12 +1392,11 @@ describe('Tailor', () => {
                 .then(() => {
                     const { tags } = traceResults();
                     // Tailor should return error
-                    assert.equal(tags[0].error, true);
+                    assert.strictEqual(tags[0].error, true);
                     // Primary fragment error
-                    assert.deepEqual(tags[1], {
+                    assert.deepStrictEqual(tags[1], {
                         error: true,
                         primary: true,
-                        foo: 'bar',
                         'span.kind': 'client',
                         'http.url': 'https://fragment/1',
                         fallback: false,
@@ -1423,7 +1425,7 @@ describe('Tailor', () => {
             getResponse('http://localhost:8080/test')
                 .then(() => {
                     const { tags } = traceResults();
-                    assert.deepEqual(tags[1], {
+                    assert.deepStrictEqual(tags[1], {
                         'span.kind': 'client',
                         [Tags.HTTP_URL]: 'https://fragment/1',
                         id: 'test',
