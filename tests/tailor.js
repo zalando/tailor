@@ -278,7 +278,10 @@ describe('Tailor', () => {
             getResponse('http://localhost:8080/test')
                 .then(response => {
                     assert.strictEqual(response.statusCode, 300);
-                    assert.strictEqual(response.headers.location, 'https://redirect');
+                    assert.strictEqual(
+                        response.headers.location,
+                        'https://redirect'
+                    );
                 })
                 .then(done, done);
         });
@@ -1392,15 +1395,15 @@ describe('Tailor', () => {
                     assert.strictEqual(tags[0].error, true);
                     // Primary fragment error
                     assert.deepStrictEqual(tags[1], {
-                        'error': true,
-                        'primary': true,
+                        error: true,
+                        primary: true,
                         'span.kind': 'client',
                         'http.url': 'https://fragment/1',
-                        'fallback': false,
-                        'public': false,
-                        'async': false,
-                        'id': 'unnamed',
-                        'timeout': 3000
+                        fallback: false,
+                        public: false,
+                        async: false,
+                        id: 'unnamed',
+                        timeout: 3000
                     });
                 })
                 .then(done, done);
