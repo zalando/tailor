@@ -39,7 +39,7 @@
     "util.promisify": "^1.0.0"
   },
   "devDependencies": {
-    "codecov": "^2.2.0",
+    "codecov": "^3.8.3",
     "eslint": "^4.0.0",
     "eslint-plugin-prettier": "^2.2.0",
     "iamdee": "^0.4.0",
