@@ -20,5 +20,19 @@ Events may be used for logging and monitoring. Check [perf/benchmark.js](https:/
 * Error: `fragment:error(request, fragment.attributes, error)` in case of socket error, timeout, 50x
 * Fallback: `fragment:fallback(request, fragment.attributes, error)` in case of timeout/error from the fragment if the *fallback-src* is specified
 
+## Custom events
+
+It is possible to emit custom event during template fetching. You need to override `fetchTemplate` Tailor option. `fetchTemplate` is Tailor event emitter that you can use to emit your own events like this : 
+
+```js
+const fetchTemplate = (request, parseTemplate, eventEmitter) => {
+    // [Your logic]
+
+    eventEmitter.emit('myEvent', {foo: 'bar' });
+
+    parseTemplate();
+}
+```
+
 
 **Note:**  `fragment:response`, `fragment:fallback` and `fragment:error` are mutually exclusive. `fragment:end` happens only in case of successful response.
