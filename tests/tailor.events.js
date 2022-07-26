@@ -16,8 +16,9 @@ describe('Tailor events', () => {
         tailor = new Tailor({
             fetchContext: mockContext,
             pipeDefinition: () => Buffer.from(''),
-            fetchTemplate: (request, parseTemplate) => {
+            fetchTemplate: (request, parseTemplate, tailor) => {
                 const template = mockTemplate(request);
+                tailor.emit('customEvent', 'bar');
                 if (template) {
                     return parseTemplate(template);
                 } else {
@@ -157,6 +158,24 @@ describe('Tailor events', () => {
             assert.equal(error, 'Error fetching context');
             response.resume();
             response.on('end', done);
+        });
+    });
+
+    it('emits a custom event on fetching Template', done => {
+        const onCustomEvent = sinon.spy();
+        nock('https://fragment')
+            .get('/')
+            .reply(200, 'hello');
+        mockTemplate.returns('<fragment src="https://fragment">');
+        tailor.on('customEvent', onCustomEvent);
+        http.get('http://localhost:8080/template', response => {
+            response.resume();
+            response.on('end', () => {
+                const foo = onCustomEvent.args[0][0];
+                assert.equal(foo, 'bar');
+                assert.equal(onCustomEvent.callCount, 1);
+                done();
+            });
         });
     });
 });
